@@ -4,24 +4,68 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 interface AddSubscriptionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
 }
 
-export const AddSubscriptionDialog = ({ open, onOpenChange }: AddSubscriptionDialogProps) => {
+export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubscriptionDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [frequency, setFrequency] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!user) return;
+    
     setIsLoading(true);
     
-    // TODO: Implement save logic
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const name = formData.get("name") as string;
+      const value = parseFloat(formData.get("value") as string);
+      const renewalDate = formData.get("renewal-date") as string;
+
+      const { error } = await supabase
+        .from("subscriptions")
+        .insert({
+          user_id: user.id,
+          name,
+          value,
+          frequency,
+          payment_method: paymentMethod,
+          renewal_date: renewalDate,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Assinatura adicionada!",
+        description: `${name} foi cadastrada com sucesso`,
+      });
+
+      onSuccess();
       onOpenChange(false);
-    }, 2000);
+      
+      // Reset form
+      setFrequency("");
+      setPaymentMethod("");
+      (e.target as HTMLFormElement).reset();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao adicionar",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -38,7 +82,8 @@ export const AddSubscriptionDialog = ({ open, onOpenChange }: AddSubscriptionDia
           <div className="space-y-2">
             <Label htmlFor="name">Nome da assinatura</Label>
             <Input 
-              id="name" 
+              id="name"
+              name="name"
               placeholder="Ex: Netflix, Spotify, Academia..."
               required 
             />
@@ -48,9 +93,11 @@ export const AddSubscriptionDialog = ({ open, onOpenChange }: AddSubscriptionDia
             <div className="space-y-2">
               <Label htmlFor="value">Valor (R$)</Label>
               <Input 
-                id="value" 
+                id="value"
+                name="value"
                 type="number" 
                 step="0.01"
+                min="0.01"
                 placeholder="29,90"
                 required 
               />
@@ -58,7 +105,7 @@ export const AddSubscriptionDialog = ({ open, onOpenChange }: AddSubscriptionDia
 
             <div className="space-y-2">
               <Label htmlFor="frequency">Frequência</Label>
-              <Select required>
+              <Select value={frequency} onValueChange={setFrequency} required>
                 <SelectTrigger id="frequency">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -72,7 +119,7 @@ export const AddSubscriptionDialog = ({ open, onOpenChange }: AddSubscriptionDia
 
           <div className="space-y-2">
             <Label htmlFor="payment-method">Forma de pagamento</Label>
-            <Select required>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
               <SelectTrigger id="payment-method">
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
@@ -88,7 +135,8 @@ export const AddSubscriptionDialog = ({ open, onOpenChange }: AddSubscriptionDia
           <div className="space-y-2">
             <Label htmlFor="renewal-date">Data de renovação</Label>
             <Input 
-              id="renewal-date" 
+              id="renewal-date"
+              name="renewal-date"
               type="date"
               required 
             />
@@ -100,6 +148,7 @@ export const AddSubscriptionDialog = ({ open, onOpenChange }: AddSubscriptionDia
               variant="outline" 
               className="flex-1"
               onClick={() => onOpenChange(false)}
+              disabled={isLoading}
             >
               Cancelar
             </Button>

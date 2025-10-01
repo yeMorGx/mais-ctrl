@@ -1,13 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, CreditCard, TrendingUp, Calendar, Menu } from "lucide-react";
+import { Plus, Menu } from "lucide-react";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
 import { AddSubscriptionDialog } from "@/components/dashboard/AddSubscriptionDialog";
 import { StatsCards } from "@/components/dashboard/StatsCards";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const { user, signOut, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  // Fetch subscriptions
+  const { data: subscriptions = [], refetch } = useQuery({
+    queryKey: ["subscriptions", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .order("renewal_date", { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-gradient-primary bg-clip-text text-transparent font-black text-4xl mb-4">
+            +Ctrl
+          </div>
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,10 +69,7 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                Perfil
-              </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={signOut}>
                 Sair
               </Button>
             </div>
@@ -70,47 +111,17 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <StatsCards />
+        <StatsCards subscriptions={subscriptions} />
 
         {/* Subscriptions List */}
-        <SubscriptionList />
-
-        {/* Charts Section */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Distribuição por categoria
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Gráfico de pizza em breve
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                Evolução mensal
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Gráfico de barras em breve
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} />
       </main>
 
       {/* Add Subscription Dialog */}
       <AddSubscriptionDialog 
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
+        onSuccess={refetch}
       />
     </div>
   );

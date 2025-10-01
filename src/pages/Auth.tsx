@@ -1,33 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { signIn, signUp, user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // TODO: Implement authentication logic
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("signin-email") as string;
+    const password = formData.get("signin-password") as string;
+
+    await signIn(email, password);
+    setIsLoading(false);
   };
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // TODO: Implement authentication logic
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    const formData = new FormData(e.currentTarget);
+    const fullName = formData.get("signup-name") as string;
+    const email = formData.get("signup-email") as string;
+    const password = formData.get("signup-password") as string;
+
+    await signUp(email, password, fullName);
+    setIsLoading(false);
   };
 
   return (
@@ -64,7 +79,8 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">Email</Label>
                     <Input 
-                      id="signin-email" 
+                      id="signin-email"
+                      name="signin-email"
                       type="email" 
                       placeholder="seu@email.com"
                       required 
@@ -73,7 +89,8 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signin-password">Senha</Label>
                     <Input 
-                      id="signin-password" 
+                      id="signin-password"
+                      name="signin-password"
                       type="password" 
                       placeholder="••••••••"
                       required 
@@ -95,7 +112,8 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Nome completo</Label>
                     <Input 
-                      id="signup-name" 
+                      id="signup-name"
+                      name="signup-name"
                       type="text" 
                       placeholder="João Silva"
                       required 
@@ -104,7 +122,8 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input 
-                      id="signup-email" 
+                      id="signup-email"
+                      name="signup-email"
                       type="email" 
                       placeholder="seu@email.com"
                       required 
@@ -113,9 +132,11 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Senha</Label>
                     <Input 
-                      id="signup-password" 
+                      id="signup-password"
+                      name="signup-password"
                       type="password" 
                       placeholder="••••••••"
+                      minLength={6}
                       required 
                     />
                   </div>

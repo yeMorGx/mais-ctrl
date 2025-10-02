@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { getSubscriptionLogo } from "@/lib/subscriptionLogos";
+import { EditSubscriptionDialog } from "./EditSubscriptionDialog";
 
 interface Subscription {
   id: string;
@@ -20,9 +22,12 @@ interface Subscription {
 interface SubscriptionListProps {
   subscriptions: Subscription[];
   onUpdate: () => void;
+  showEdit?: boolean;
 }
 
-export const SubscriptionList = ({ subscriptions, onUpdate }: SubscriptionListProps) => {
+export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: SubscriptionListProps) => {
+  const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const handleDelete = async (id: string, name: string) => {
     const confirmed = window.confirm(`Tem certeza que deseja excluir "${name}"?`);
     if (!confirmed) return;
@@ -134,6 +139,18 @@ export const SubscriptionList = ({ subscriptions, onUpdate }: SubscriptionListPr
                   </div>
 
                   <div className="flex gap-2">
+                    {showEdit && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => {
+                          setEditingSubscription(sub);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="w-4 h-4 text-primary" />
+                      </Button>
+                    )}
                     <Button 
                       variant="ghost" 
                       size="icon"
@@ -148,6 +165,13 @@ export const SubscriptionList = ({ subscriptions, onUpdate }: SubscriptionListPr
           })}
         </div>
       </CardContent>
+
+      <EditSubscriptionDialog
+        subscription={editingSubscription}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSuccess={onUpdate}
+      />
     </Card>
   );
 };

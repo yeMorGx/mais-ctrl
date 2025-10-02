@@ -95,10 +95,10 @@ const Index = () => {
             highlighted={false}
           />
           <PricingCard
-            name="Premium"
-            price="R$ 24,24"
+            name="+Premium"
+            price="R$ 12,49"
             period="/mês"
-            annualPrice="R$ 290,90/ano"
+            annualPrice="R$ 149,90/ano"
             features={[
               "Assinaturas ilimitadas",
               "Dashboard avançado com gráficos",

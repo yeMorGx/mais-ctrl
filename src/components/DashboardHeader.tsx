@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Settings, HelpCircle, LogOut, Share2, Bell } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const DashboardHeader = () => {
   const { user, signOut } = useAuth();
@@ -32,6 +33,9 @@ export const DashboardHeader = () => {
           <Logo size="md" linkTo="/dashboard" />
 
           <div className="flex items-center gap-2">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+            
             {/* Notifications */}
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-5 h-5" />

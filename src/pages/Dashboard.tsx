@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
 import { AddSubscriptionDialog } from "@/components/dashboard/AddSubscriptionDialog";
 import { StatsCards } from "@/components/dashboard/StatsCards";
+import { FinancialAnalysis } from "@/components/dashboard/FinancialAnalysis";
+import { UpcomingPayments } from "@/components/dashboard/UpcomingPayments";
+import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
+import { ProfileTab } from "@/components/dashboard/ProfileTab";
+import { ShareTab } from "@/components/dashboard/ShareTab";
+import { SettingsTab } from "@/components/dashboard/SettingsTab";
+import { HelpTab } from "@/components/dashboard/HelpTab";
+import { PlanManagement } from "@/components/dashboard/PlanManagement";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -53,52 +62,155 @@ const Dashboard = () => {
     );
   }
 
+  // Mock: determinar se usuário é Premium (substituir por lógica real)
+  const isPremium = true; // Alterar para verificação real do banco
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Welcome Section */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Suas Assinaturas
-            </h1>
-            <p className="text-muted-foreground">
-              Gerencie e controle todos os seus gastos mensais
-            </p>
-          </div>
-          
-          <Button 
-            variant="hero" 
-            size="lg"
-            onClick={() => setIsAddDialogOpen(true)}
-            className="hidden md:flex"
-          >
-            <Plus className="w-5 h-5" />
-            Nova assinatura
-          </Button>
+      <main className="container mx-auto px-4 py-8">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-9 mb-8">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </TabsTrigger>
+            {isPremium && (
+              <TabsTrigger value="analysis" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                <span className="hidden sm:inline">Análise</span>
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="calendar" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Calendário</span>
+            </TabsTrigger>
+            <TabsTrigger value="alerts" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              <span className="hidden sm:inline">Alertas</span>
+            </TabsTrigger>
+            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              <span className="hidden sm:inline">Assinaturas</span>
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              <span className="hidden sm:inline">Perfil</span>
+            </TabsTrigger>
+            {isPremium && (
+              <TabsTrigger value="share" className="flex items-center gap-2">
+                <Share2 className="h-4 w-4" />
+                <span className="hidden sm:inline">+Share</span>
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Configurações</span>
+            </TabsTrigger>
+            <TabsTrigger value="help" className="flex items-center gap-2">
+              <HelpCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Ajuda</span>
+            </TabsTrigger>
+            <TabsTrigger value="plan" className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              <span className="hidden sm:inline">Plano</span>
+            </TabsTrigger>
+          </TabsList>
 
-          <Button 
-            variant="hero" 
-            size="icon"
-            onClick={() => setIsAddDialogOpen(true)}
-            className="md:hidden"
-          >
-            <Plus className="w-5 h-5" />
-          </Button>
-        </div>
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard</h1>
+                <p className="text-muted-foreground">
+                  Visão geral das suas assinaturas
+                </p>
+              </div>
+              <Button
+                className="bg-gradient-primary"
+                size="lg"
+                onClick={() => setIsAddDialogOpen(true)}
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Nova assinatura
+              </Button>
+            </div>
+            <StatsCards subscriptions={subscriptions} />
+            <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} />
+          </TabsContent>
 
-        {/* Stats Cards */}
-        <StatsCards subscriptions={subscriptions} />
+          {/* Financial Analysis Tab - Premium Only */}
+          {isPremium && (
+            <TabsContent value="analysis">
+              <h1 className="text-3xl font-bold mb-6">Análise Financeira</h1>
+              <FinancialAnalysis subscriptions={subscriptions} />
+            </TabsContent>
+          )}
 
-        {/* Subscriptions List */}
-        <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} />
+          {/* Calendar Tab */}
+          <TabsContent value="calendar">
+            <h1 className="text-3xl font-bold mb-6">Calendário de Pagamentos</h1>
+            <UpcomingPayments subscriptions={subscriptions} />
+          </TabsContent>
+
+          {/* Alerts Tab */}
+          <TabsContent value="alerts">
+            <h1 className="text-3xl font-bold mb-6">Alertas de Renovação</h1>
+            <AlertsPanel subscriptions={subscriptions} />
+          </TabsContent>
+
+          {/* Subscriptions Tab */}
+          <TabsContent value="subscriptions">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold">Gerenciar Assinaturas</h1>
+              <Button
+                className="bg-gradient-primary"
+                onClick={() => setIsAddDialogOpen(true)}
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Nova assinatura
+              </Button>
+            </div>
+            <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} showEdit />
+          </TabsContent>
+
+          {/* Profile Tab */}
+          <TabsContent value="profile">
+            <h1 className="text-3xl font-bold mb-6">Perfil</h1>
+            <ProfileTab />
+          </TabsContent>
+
+          {/* Share Tab - Premium Only */}
+          {isPremium && (
+            <TabsContent value="share">
+              <ShareTab />
+            </TabsContent>
+          )}
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <h1 className="text-3xl font-bold mb-6">Configurações</h1>
+            <SettingsTab />
+          </TabsContent>
+
+          {/* Help Tab */}
+          <TabsContent value="help">
+            <h1 className="text-3xl font-bold mb-6">Central de Ajuda</h1>
+            <HelpTab />
+          </TabsContent>
+
+          {/* Plan Tab */}
+          <TabsContent value="plan">
+            <h1 className="text-3xl font-bold mb-6">Meu Plano</h1>
+            <PlanManagement isPremium={isPremium} />
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Add Subscription Dialog */}
-      <AddSubscriptionDialog 
+      <AddSubscriptionDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onSuccess={refetch}

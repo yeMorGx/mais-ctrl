@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
 import { AddSubscriptionDialog } from "@/components/dashboard/AddSubscriptionDialog";
 import { StatsCards } from "@/components/dashboard/StatsCards";
@@ -22,6 +23,8 @@ import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -71,8 +74,89 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-9 mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          {/* Mobile Menu */}
+          <div className="flex items-center justify-between mb-6 lg:hidden">
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px]">
+                <nav className="flex flex-col gap-2 mt-8">
+                  <Button
+                    variant={activeTab === "overview" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("overview"); setMobileMenuOpen(false); }}
+                  >
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
+                  
+                  <Button
+                    variant={activeTab === "subscriptions" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("subscriptions"); setMobileMenuOpen(false); }}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Assinaturas
+                  </Button>
+                  
+                  <Button
+                    variant={activeTab === "profile" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("profile"); setMobileMenuOpen(false); }}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Perfil
+                  </Button>
+                  
+                  {isPremium && (
+                    <Button
+                      variant={activeTab === "share" ? "default" : "ghost"}
+                      className="justify-start"
+                      onClick={() => { setActiveTab("share"); setMobileMenuOpen(false); }}
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      +Share
+                    </Button>
+                  )}
+                  
+                  <Button
+                    variant={activeTab === "settings" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("settings"); setMobileMenuOpen(false); }}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configurações
+                  </Button>
+                  
+                  <Button
+                    variant={activeTab === "help" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("help"); setMobileMenuOpen(false); }}
+                  >
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    Ajuda
+                  </Button>
+                  
+                  <Button
+                    variant={activeTab === "plan" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("plan"); setMobileMenuOpen(false); }}
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Plano
+                  </Button>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Desktop Tabs */}
+          <TabsList className="hidden lg:grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-9 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -121,23 +205,28 @@ const Dashboard = () => {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-8">
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="hidden lg:block">
                 <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard</h1>
                 <p className="text-muted-foreground">
                   Visão geral das suas assinaturas
                 </p>
               </div>
               <Button
-                className="bg-gradient-primary"
+                className="bg-gradient-primary ml-auto"
                 size="lg"
                 onClick={() => setIsAddDialogOpen(true)}
               >
                 <Plus className="w-5 h-5 mr-2" />
-                Nova assinatura
+                <span className="hidden sm:inline">Nova assinatura</span>
+                <span className="sm:hidden">Nova</span>
               </Button>
             </div>
-            <StatsCards subscriptions={subscriptions} />
+            <StatsCards 
+              subscriptions={subscriptions} 
+              onCardClick={(tab) => setActiveTab(tab)}
+              isPremium={isPremium}
+            />
             <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} />
           </TabsContent>
 

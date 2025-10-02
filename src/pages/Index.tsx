@@ -52,10 +52,14 @@ const Index = () => {
             </Button>
           </div>
 
-          <div className="pt-8 flex items-center justify-center gap-8 text-sm text-muted-foreground">
+          <div className="pt-8 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Check className="w-5 h-5 text-primary" />
               <span>Gratuito para 5 assinaturas</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="w-5 h-5 text-primary" />
+              <span>7 dias grátis no Premium</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-5 h-5 text-primary" />
@@ -113,6 +117,7 @@ const Index = () => {
             price="R$ 12,49"
             period="/mês"
             annualPrice="R$ 149,90/ano"
+            trialBadge="7 dias grátis"
             features={[
               "Assinaturas ilimitadas",
               "Dashboard avançado com gráficos",
@@ -208,6 +213,7 @@ const PricingCard = ({
   price, 
   period, 
   annualPrice,
+  trialBadge,
   features, 
   highlighted 
 }: { 
@@ -215,11 +221,19 @@ const PricingCard = ({
   price: string; 
   period: string; 
   annualPrice?: string;
+  trialBadge?: string;
   features: string[]; 
   highlighted: boolean;
 }) => {
   return (
-    <div className={`bg-card rounded-2xl p-8 border ${highlighted ? 'border-primary shadow-glow' : 'border-border'} transition-all duration-300 hover:scale-105`}>
+    <div className={`bg-card rounded-2xl p-8 border ${highlighted ? 'border-primary shadow-glow' : 'border-border'} transition-all duration-300 hover:scale-105 relative`}>
+      {trialBadge && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="bg-gradient-primary text-primary-foreground text-sm font-semibold px-4 py-1 rounded-full shadow-lg">
+            {trialBadge}
+          </span>
+        </div>
+      )}
       <div className="mb-6">
         <h3 className="text-2xl font-bold mb-2">{name}</h3>
         <div className="flex items-baseline gap-1">

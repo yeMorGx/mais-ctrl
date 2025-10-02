@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface AddSubscriptionDialogProps {
   open: boolean;
@@ -20,9 +21,54 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const { user } = useAuth();
 
+  // Fetch user subscription plan
+  const { data: userSubscription } = useQuery({
+    queryKey: ['user-subscription', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user
+  });
+
+  // Fetch current subscription count
+  const { data: subscriptionCount } = useQuery({
+    queryKey: ['subscription-count', user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const { count, error } = await supabase
+        .from('subscriptions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user
+  });
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
+
+    // Check if user is on free plan and has reached the limit
+    const isFree = userSubscription?.plan === 'free';
+    const currentCount = subscriptionCount || 0;
+    
+    if (isFree && currentCount >= 5) {
+      toast({
+        title: "Limite atingido",
+        description: "Você atingiu o limite de 5 assinaturas do plano gratuito. Faça upgrade para Premium para assinaturas ilimitadas!",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsLoading(true);
     

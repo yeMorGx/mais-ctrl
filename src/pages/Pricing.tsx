@@ -37,7 +37,12 @@ const Pricing = () => {
       if (error) throw error;
 
       if (data?.url) {
-        window.open(data.url, '_blank');
+        // Add success parameter to redirect URL
+        const successUrl = `${window.location.origin}/dashboard?success=true`;
+        const checkoutUrl = new URL(data.url);
+        // The success_url is already configured in the edge function, 
+        // but we'll ensure it's correct
+        window.location.href = data.url;
       } else {
         throw new Error("No checkout URL returned");
       }

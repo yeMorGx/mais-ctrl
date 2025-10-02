@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
@@ -17,10 +17,12 @@ import { SupportAdminTab } from "@/components/dashboard/SupportAdminTab";
 import { FinancialTips } from "@/components/dashboard/FinancialTips";
 import { TeamManagement } from "@/components/dashboard/TeamManagement";
 import { PlanManagement } from "@/components/dashboard/PlanManagement";
+import { LiveChatTab } from "@/components/dashboard/LiveChatTab";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
+import { SuccessAnimation } from "@/components/SuccessAnimation";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -28,8 +30,21 @@ const Dashboard = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const OWNER_ID = "0aa7f072-7169-48f3-9389-170100fb2418";
+
+  // Check for payment success and show animation
+  useEffect(() => {
+    const success = searchParams.get('success');
+    if (success === 'true') {
+      setShowSuccessAnimation(true);
+      // Remove query params from URL
+      window.history.replaceState({}, '', '/dashboard');
+    }
+  }, [searchParams]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -76,6 +91,26 @@ const Dashboard = () => {
   });
 
   const isPremium = userSubscription?.plan === "premium" && userSubscription?.status === "active";
+  const isOwner = user?.id === OWNER_ID;
+
+  // Fetch user roles
+  const { data: userRoles = [] } = useQuery({
+    queryKey: ["userRoles", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+      return data.map(r => r.role);
+    },
+    enabled: !!user,
+  });
+
+  const isLiveChatAgent = userRoles.includes("support") || userRoles.includes("admin");
 
   if (authLoading || !user) {
     return (
@@ -90,6 +125,10 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SuccessAnimation 
+        show={showSuccessAnimation} 
+        onComplete={() => setShowSuccessAnimation(false)}
+      />
       <DashboardHeader />
 
       {/* Main Content */}
@@ -144,6 +183,28 @@ const Dashboard = () => {
                     </Button>
                   )}
                   
+                  {isOwner && (
+                    <Button
+                      variant={activeTab === "team" ? "default" : "ghost"}
+                      className="justify-start"
+                      onClick={() => { setActiveTab("team"); setMobileMenuOpen(false); }}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Equipe
+                    </Button>
+                  )}
+
+                  {isLiveChatAgent && (
+                    <Button
+                      variant={activeTab === "live-chat" ? "default" : "ghost"}
+                      className="justify-start"
+                      onClick={() => { setActiveTab("live-chat"); setMobileMenuOpen(false); }}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Chat ao Vivo
+                    </Button>
+                  )}
+                  
                   <Button
                     variant={activeTab === "support-admin" ? "default" : "ghost"}
                     className="justify-start"
@@ -185,7 +246,7 @@ const Dashboard = () => {
           </div>
 
           {/* Desktop Tabs */}
-          <TabsList className="hidden lg:grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-9 mb-8">
+          <TabsList className={`hidden lg:grid w-full ${isOwner || isLiveChatAgent ? 'grid-cols-11' : 'grid-cols-9'} mb-8`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -230,6 +291,18 @@ const Dashboard = () => {
               <CreditCard className="h-4 w-4" />
               <span className="hidden sm:inline">Plano</span>
             </TabsTrigger>
+            {isOwner && (
+              <TabsTrigger value="team" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Equipe</span>
+              </TabsTrigger>
+            )}
+            {isLiveChatAgent && (
+              <TabsTrigger value="live-chat" className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">Chat</span>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="support-admin" className="flex items-center gap-2">
               <Headphones className="h-4 w-4" />
               <span className="hidden sm:inline">Suporte</span>
@@ -331,6 +404,21 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold mb-6">Meu Plano</h1>
             <PlanManagement isPremium={isPremium} />
           </TabsContent>
+
+          {/* Team Management Tab - Owner Only */}
+          {isOwner && (
+            <TabsContent value="team">
+              <h1 className="text-3xl font-bold mb-6">Gerenciamento de Equipe</h1>
+              <TeamManagement />
+            </TabsContent>
+          )}
+
+          {/* Live Chat Tab - Agents Only */}
+          {isLiveChatAgent && (
+            <TabsContent value="live-chat">
+              <LiveChatTab />
+            </TabsContent>
+          )}
 
           {/* Support Admin Tab */}
           <TabsContent value="support-admin">

@@ -5,7 +5,10 @@ import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Logo } from "@/components/Logo";
 import { DemoModal } from "@/components/DemoModal";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import testimonialMaria from "@/assets/testimonial-maria.jpg";
+import testimonialJoao from "@/assets/testimonial-joao.jpg";
+import testimonialAna from "@/assets/testimonial-ana.jpg";
 
 const Index = () => {
   const [showDemo, setShowDemo] = useState(false);
@@ -140,6 +143,7 @@ const Index = () => {
             content="Com o +Ctrl consegui economizar mais de R$ 300 por mês cancelando assinaturas que nem usava mais. O relatório mensal é incrível!"
             rating={5}
             initials="MS"
+            image={testimonialMaria}
           />
           <TestimonialCard
             name="João Santos"
@@ -147,6 +151,7 @@ const Index = () => {
             content="O recurso de dividir assinaturas com amigos (+Share) foi um divisor de águas. Netflix, Spotify... agora tudo sai mais barato!"
             rating={5}
             initials="JS"
+            image={testimonialJoao}
           />
           <TestimonialCard
             name="Ana Costa"
@@ -154,6 +159,7 @@ const Index = () => {
             content="Os insights automáticos me alertaram sobre um aumento de 40% em uma assinatura. Cancelei na hora e migrei para uma opção melhor!"
             rating={5}
             initials="AC"
+            image={testimonialAna}
           />
         </div>
       </section>
@@ -254,13 +260,15 @@ const TestimonialCard = ({
   role, 
   content, 
   rating, 
-  initials 
+  initials,
+  image 
 }: { 
   name: string; 
   role: string; 
   content: string; 
   rating: number; 
   initials: string;
+  image?: string;
 }) => {
   return (
     <div className="bg-card rounded-2xl p-8 border border-border hover:shadow-elegant transition-all duration-300 relative">
@@ -268,6 +276,7 @@ const TestimonialCard = ({
       
       <div className="flex items-center gap-4 mb-6">
         <Avatar className="h-12 w-12">
+          <AvatarImage src={image} alt={name} />
           <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
             {initials}
           </AvatarFallback>

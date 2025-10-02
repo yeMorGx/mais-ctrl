@@ -16,6 +16,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { EditUserForm } from "./EditUserForm";
 import { ManageSubscriptionForm } from "./ManageSubscriptionForm";
+import { ManageRolesForm } from "./ManageRolesForm";
+import { useAuth } from "@/hooks/useAuth";
 
 interface UserDetailsDialogProps {
   user: any;
@@ -25,6 +27,9 @@ interface UserDetailsDialogProps {
 }
 
 export const UserDetailsDialog = ({ user, open, onOpenChange, onRefetch }: UserDetailsDialogProps) => {
+  const { user: currentUser } = useAuth();
+  const OWNER_ID = "0aa7f072-7169-48f3-9389-170100fb2418";
+  const isOwner = currentUser?.id === OWNER_ID;
   const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch user's subscriptions (assinaturas do app, não o plano premium)
@@ -101,10 +106,11 @@ export const UserDetailsDialog = ({ user, open, onOpenChange, onRefetch }: UserD
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className={`grid w-full ${isOwner ? 'grid-cols-4' : 'grid-cols-3'}`}>
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="edit">Editar</TabsTrigger>
             <TabsTrigger value="subscription">Assinatura</TabsTrigger>
+            {isOwner && <TabsTrigger value="roles">Roles</TabsTrigger>}
           </TabsList>
 
           {/* Overview Tab */}
@@ -200,10 +206,14 @@ export const UserDetailsDialog = ({ user, open, onOpenChange, onRefetch }: UserD
 
           {/* Edit Tab */}
           <TabsContent value="edit">
-            <EditUserForm user={user} onSuccess={() => {
-              onRefetch();
-              onOpenChange(false);
-            }} />
+            <EditUserForm 
+              user={user} 
+              isOwner={isOwner}
+              onSuccess={() => {
+                onRefetch();
+                onOpenChange(false);
+              }} 
+            />
           </TabsContent>
 
           {/* Subscription Management Tab */}
@@ -212,6 +222,15 @@ export const UserDetailsDialog = ({ user, open, onOpenChange, onRefetch }: UserD
               onRefetch();
             }} />
           </TabsContent>
+
+          {/* Roles Management Tab - Only for Owner */}
+          {isOwner && (
+            <TabsContent value="roles">
+              <ManageRolesForm user={user} onSuccess={() => {
+                onRefetch();
+              }} />
+            </TabsContent>
+          )}
         </Tabs>
       </DialogContent>
     </Dialog>

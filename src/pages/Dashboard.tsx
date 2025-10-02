@@ -5,6 +5,7 @@ import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
 import { AddSubscriptionDialog } from "@/components/dashboard/AddSubscriptionDialog";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,10 +45,8 @@ const Dashboard = () => {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-gradient-primary bg-clip-text text-transparent font-black text-4xl mb-4">
-            +Ctrl
-          </div>
+        <div className="text-center space-y-4">
+          <Logo size="lg" />
           <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>

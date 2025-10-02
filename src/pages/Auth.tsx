@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { Logo } from "@/components/Logo";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -54,8 +55,8 @@ const Auth = () => {
             Voltar para o início
           </Link>
           
-          <div className="bg-gradient-primary bg-clip-text text-transparent font-black text-5xl mb-4">
-            +Ctrl
+          <div className="flex justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <p className="text-muted-foreground">
             Gerencie suas assinaturas com inteligência

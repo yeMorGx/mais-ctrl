@@ -10,7 +10,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Settings, HelpCircle, LogOut, Share2, Bell } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Logo } from "@/components/Logo";
 
 export const DashboardHeader = () => {
   const { user, signOut } = useAuth();
@@ -29,11 +29,7 @@ export const DashboardHeader = () => {
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/dashboard" className="flex items-center gap-2 group">
-            <div className="bg-gradient-primary bg-clip-text text-transparent font-black text-2xl transition-transform group-hover:scale-105">
-              +Ctrl
-            </div>
-          </Link>
+          <Logo size="md" linkTo="/dashboard" />
 
           <div className="flex items-center gap-2">
             {/* Notifications */}

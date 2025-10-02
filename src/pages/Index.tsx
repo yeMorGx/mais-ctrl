@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CreditCard, Bell, TrendingUp, ArrowRight, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
+import { Logo } from "@/components/Logo";
 
 const Index = () => {
   return (
@@ -11,10 +12,8 @@ const Index = () => {
       {/* Hero Section */}
       <section id="hero" className="container mx-auto px-4 pt-32 pb-32">
         <div className="text-center max-w-4xl mx-auto space-y-8">
-          <div className="inline-block mb-4">
-            <div className="bg-gradient-primary bg-clip-text text-transparent font-black text-6xl md:text-8xl">
-              +Ctrl
-            </div>
+          <div className="flex justify-center mb-4">
+            <Logo size="xl" />
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold leading-tight">

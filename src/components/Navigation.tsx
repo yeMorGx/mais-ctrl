@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { Logo } from "@/components/Logo";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,11 +27,7 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="bg-gradient-primary bg-clip-text text-transparent font-black text-2xl transition-transform group-hover:scale-105">
-              +Ctrl
-            </div>
-          </Link>
+          <Logo size="md" linkTo="/" />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">

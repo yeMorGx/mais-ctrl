@@ -1,1 +1,4 @@
 project_id = "zghqhmecbzuaesaspqgr"
+
+[functions.validate-image]
+verify_jwt = false

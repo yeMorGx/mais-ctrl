@@ -58,14 +58,19 @@ export const PlanManagement = ({ isPremium = false }: PlanManagementProps) => {
               </div>
             </div>
           ) : (
-            <Button
-              className="w-full bg-gradient-primary"
-              size="lg"
-              onClick={() => navigate("/pricing")}
-            >
-              <Crown className="mr-2 h-5 w-5" />
-              Fazer Upgrade para +Premium
-            </Button>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Faça upgrade para o plano +Premium e desbloqueie todos os recursos
+              </p>
+              <Button
+                className="w-full bg-gradient-primary"
+                size="lg"
+                onClick={() => navigate("/pricing")}
+              >
+                <Crown className="mr-2 h-5 w-5" />
+                Fazer Upgrade para +Premium
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

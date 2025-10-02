@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
@@ -13,6 +13,7 @@ import { ProfileTab } from "@/components/dashboard/ProfileTab";
 import { ShareTab } from "@/components/dashboard/ShareTab";
 import { SettingsTab } from "@/components/dashboard/SettingsTab";
 import { HelpTab } from "@/components/dashboard/HelpTab";
+import { SupportAdminTab } from "@/components/dashboard/SupportAdminTab";
 import { PlanManagement } from "@/components/dashboard/PlanManagement";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
@@ -142,6 +143,15 @@ const Dashboard = () => {
                   )}
                   
                   <Button
+                    variant={activeTab === "support-admin" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("support-admin"); setMobileMenuOpen(false); }}
+                  >
+                    <Headphones className="h-4 w-4 mr-2" />
+                    Suporte Admin
+                  </Button>
+                  
+                  <Button
                     variant={activeTab === "settings" ? "default" : "ghost"}
                     className="justify-start"
                     onClick={() => { setActiveTab("settings"); setMobileMenuOpen(false); }}
@@ -217,6 +227,10 @@ const Dashboard = () => {
             <TabsTrigger value="plan" className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
               <span className="hidden sm:inline">Plano</span>
+            </TabsTrigger>
+            <TabsTrigger value="support-admin" className="flex items-center gap-2">
+              <Headphones className="h-4 w-4" />
+              <span className="hidden sm:inline">Suporte</span>
             </TabsTrigger>
           </TabsList>
 
@@ -311,6 +325,11 @@ const Dashboard = () => {
           <TabsContent value="plan">
             <h1 className="text-3xl font-bold mb-6">Meu Plano</h1>
             <PlanManagement isPremium={isPremium} />
+          </TabsContent>
+
+          {/* Support Admin Tab */}
+          <TabsContent value="support-admin">
+            <SupportAdminTab />
           </TabsContent>
         </Tabs>
       </main>

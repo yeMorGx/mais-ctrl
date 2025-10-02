@@ -118,6 +118,7 @@ const Dashboard = () => {
   });
 
   const isLiveChatAgent = userRoles.includes("support") || userRoles.includes("admin");
+  const isAdmin = userRoles.includes("admin") || isOwner;
 
   if (authLoading || !user) {
     return (
@@ -326,10 +327,12 @@ const Dashboard = () => {
                 <span className="hidden sm:inline">Chat</span>
               </TabsTrigger>
             )}
-            <TabsTrigger value="support-admin" className="flex items-center gap-2">
-              <Headphones className="h-4 w-4" />
-              <span className="hidden sm:inline">Suporte</span>
-            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="support-admin" className="flex items-center gap-2">
+                <Headphones className="h-4 w-4" />
+                <span className="hidden sm:inline">Suporte</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Overview Tab */}

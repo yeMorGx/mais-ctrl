@@ -79,6 +79,15 @@ export const DashboardHeader = () => {
   const isPremium = userSubscription?.plan === "premium" && userSubscription?.status === "active";
   const isAdmin = userRoles.includes("admin");
   const hasAdminAccess = isOwner || isAdmin;
+
+  // Debug logs
+  console.log("🔍 DEBUG Header - User ID:", user?.id);
+  console.log("🔍 DEBUG Header - Owner ID:", OWNER_ID);
+  console.log("🔍 DEBUG Header - Is Owner:", isOwner);
+  console.log("🔍 DEBUG Header - User Roles:", userRoles);
+  console.log("🔍 DEBUG Header - Is Admin:", isAdmin);
+  console.log("🔍 DEBUG Header - Has Admin Access:", hasAdminAccess);
+  console.log("🔍 DEBUG Header - Is Premium:", isPremium);
   
   const getUserInitials = () => {
     if (profile?.full_name) {

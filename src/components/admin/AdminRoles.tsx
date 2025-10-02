@@ -60,6 +60,8 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [showManageUsers, setShowManageUsers] = useState(false);
 
+  const OWNER_USER_ID = "88cc73bd-b776-40e4-a9ee-4e6c9c30a7a1";
+
   // Fetch all roles with user count
   const { data: rolesData = [], refetch } = useQuery({
     queryKey: ["admin-roles"],
@@ -73,8 +75,8 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
       // Group by role and count users
       const roleMap = new Map<string, Set<string>>();
       
-      // Add owner role separately
-      roleMap.set("owner", new Set());
+      // Add owner role with the specific user ID
+      roleMap.set("owner", new Set([OWNER_USER_ID]));
       
       data.forEach(item => {
         if (!roleMap.has(item.role)) {
@@ -108,6 +110,18 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
     queryKey: ["role-users", selectedRole],
     queryFn: async () => {
       if (!selectedRole) return [];
+      
+      // If owner role, return only the specific owner user
+      if (selectedRole === "owner") {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, full_name, email, avatar_url")
+          .eq("id", OWNER_USER_ID)
+          .single();
+
+        if (error) throw error;
+        return data ? [data] : [];
+      }
       
       const { data, error } = await supabase
         .from("user_roles")
@@ -153,6 +167,16 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
 
   const handleRemoveUserFromRole = async (userId: string) => {
     if (!selectedRole) return;
+
+    // Prevent removing the owner
+    if (selectedRole === "owner" || userId === OWNER_USER_ID) {
+      toast({
+        title: "Ação não permitida",
+        description: "O Owner não pode ser removido.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -225,9 +249,19 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
     return email?.slice(0, 2).toUpperCase() || "U";
   };
 
-  const availableUsers = allUsers.filter(
-    user => !roleUsers.some((ru: any) => ru.id === user.id)
-  );
+  // Filter available users, excluding owner from other roles
+  const availableUsers = allUsers.filter(user => {
+    const isAlreadyInRole = roleUsers.some((ru: any) => ru.id === user.id);
+    const isOwner = user.id === OWNER_USER_ID;
+    
+    // If managing owner role, only show owner
+    if (selectedRole === "owner") {
+      return user.id === OWNER_USER_ID && !isAlreadyInRole;
+    }
+    
+    // For other roles, exclude owner
+    return !isAlreadyInRole && !isOwner;
+  });
 
   return (
     <div className="space-y-6">
@@ -413,32 +447,34 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
           </DialogHeader>
 
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            {/* Add User Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Adicionar Usuário</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select onValueChange={handleAddUserToRole}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um usuário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableUsers.length === 0 ? (
-                      <div className="p-2 text-sm text-muted-foreground text-center">
-                        Todos os usuários já possuem esta função
-                      </div>
-                    ) : (
-                      availableUsers.map((user: any) => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.full_name || user.email}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
+            {/* Add User Section - Hide for owner role */}
+            {selectedRole !== "owner" && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Adicionar Usuário</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Select onValueChange={handleAddUserToRole}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um usuário" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableUsers.length === 0 ? (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          Todos os usuários já possuem esta função
+                        </div>
+                      ) : (
+                        availableUsers.map((user: any) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.full_name || user.email}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Current Users */}
             <Card>
@@ -465,14 +501,16 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
                           <p className="text-xs text-muted-foreground">{user.email}</p>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleRemoveUserFromRole(user.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                       {selectedRole !== "owner" && user.id !== OWNER_USER_ID && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleRemoveUserFromRole(user.id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   ))
                 )}

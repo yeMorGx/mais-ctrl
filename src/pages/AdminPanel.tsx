@@ -12,6 +12,7 @@ import { AdminPlans } from "@/components/admin/AdminPlans";
 import { AdminPayments } from "@/components/admin/AdminPayments";
 import { AdminReports } from "@/components/admin/AdminReports";
 import { AdminSettings } from "@/components/admin/AdminSettings";
+import { AdminRoles } from "@/components/admin/AdminRoles";
 import { Logo } from "@/components/Logo";
 
 const AdminPanel = () => {
@@ -63,6 +64,8 @@ const AdminPanel = () => {
         return <AdminDashboard isOwner={isOwner} />;
       case "users":
         return <AdminUsers />;
+      case "roles":
+        return <AdminRoles isOwner={isOwner} />;
       case "plans":
         return <AdminPlans />;
       case "payments":

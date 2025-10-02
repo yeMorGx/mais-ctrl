@@ -42,6 +42,11 @@ export const AdminSidebar = ({ activeSection, onSectionChange, isOwner }: AdminS
       id: "users",
     },
     {
+      title: "Funções",
+      icon: Shield,
+      id: "roles",
+    },
+    {
       title: "Planos",
       icon: CreditCard,
       id: "plans",

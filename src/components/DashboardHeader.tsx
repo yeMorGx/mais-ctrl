@@ -58,6 +58,25 @@ export const DashboardHeader = () => {
     enabled: !!user,
   });
 
+  // Fetch user subscription plan
+  const { data: userSubscription } = useQuery({
+    queryKey: ["userSubscription", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const { data, error } = await supabase
+        .from("user_subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const isPremium = userSubscription?.plan === "premium" && userSubscription?.status === "active";
   const isAdmin = userRoles.includes("admin");
   const hasAdminAccess = isOwner || isAdmin;
   
@@ -89,7 +108,7 @@ export const DashboardHeader = () => {
                     size="icon" 
                     className="rounded-full h-10 w-10 p-0 hover:ring-2 hover:ring-primary/20 transition-all"
                   >
-                    <Avatar className="h-10 w-10">
+                    <Avatar className={`h-10 w-10 ${isPremium ? 'ring-2 ring-primary shadow-[0_0_15px_rgba(139,92,246,0.5)] animate-glow-pulse' : ''}`}>
                       <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "User"} />
                       <AvatarFallback className="bg-gradient-primary text-white font-semibold">
                         {getUserInitials()}
@@ -100,16 +119,23 @@ export const DashboardHeader = () => {
                 <DropdownMenuContent align="end" className="w-72 bg-card shadow-lg z-50">
                   <DropdownMenuLabel>
                     <div className="flex items-center gap-3 py-2">
-                      <Avatar className="h-12 w-12">
+                      <Avatar className={`h-12 w-12 ${isPremium ? 'ring-2 ring-primary shadow-[0_0_15px_rgba(139,92,246,0.5)] animate-glow-pulse' : ''}`}>
                         <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "User"} />
                         <AvatarFallback className="bg-gradient-primary text-white font-semibold">
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">
-                          {profile?.full_name || "Usuário"}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium truncate">
+                            {profile?.full_name || "Usuário"}
+                          </p>
+                          {isPremium && (
+                            <Badge className="bg-gradient-primary text-white text-[10px] px-1.5 py-0">
+                              <Crown className="h-3 w-3" />
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-xs text-muted-foreground truncate">
                           {user.email}
                         </p>

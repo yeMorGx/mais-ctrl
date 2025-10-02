@@ -96,13 +96,15 @@ const Index = () => {
           />
           <PricingCard
             name="Premium"
-            price="R$ 9,90"
+            price="R$ 24,24"
             period="/mês"
+            annualPrice="R$ 290,90/ano"
             features={[
               "Assinaturas ilimitadas",
-              "Dashboard avançado",
-              "Notificações push + email",
-              "Relatórios em PDF",
+              "Dashboard avançado com gráficos",
+              "Notificações inteligentes",
+              "Relatórios e exportação em PDF",
+              "+Share: Divida assinaturas",
               "Insights automáticos",
               "Suporte prioritário"
             ]}
@@ -154,12 +156,14 @@ const PricingCard = ({
   name, 
   price, 
   period, 
+  annualPrice,
   features, 
   highlighted 
 }: { 
   name: string; 
   price: string; 
   period: string; 
+  annualPrice?: string;
   features: string[]; 
   highlighted: boolean;
 }) => {
@@ -171,6 +175,11 @@ const PricingCard = ({
           <span className="text-5xl font-black bg-gradient-primary bg-clip-text text-transparent">{price}</span>
           <span className="text-muted-foreground">{period}</span>
         </div>
+        {annualPrice && (
+          <p className="text-sm text-muted-foreground mt-2">
+            Cobrado anualmente: {annualPrice}
+          </p>
+        )}
       </div>
       
       <ul className="space-y-4 mb-8">

@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { getSubscriptionLogo } from "@/lib/subscriptionLogos";
 
 interface Subscription {
   id: string;
@@ -96,50 +97,55 @@ export const SubscriptionList = ({ subscriptions, onUpdate }: SubscriptionListPr
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {subscriptions.map((sub) => (
-            <div 
-              key={sub.id}
-              className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-border rounded-lg hover:shadow-md transition-all gap-4"
-            >
-              <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center text-white font-bold flex-shrink-0">
-                  {sub.name.charAt(0).toUpperCase()}
+          {subscriptions.map((sub) => {
+            const logo = getSubscriptionLogo(sub.name);
+            const IconComponent = logo.icon;
+            
+            return (
+              <div 
+                key={sub.id}
+                className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-border rounded-lg hover:shadow-md transition-all gap-4"
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <div className={`${logo.bgColor} w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0`}>
+                    <IconComponent className="w-6 h-6" style={{ color: logo.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold truncate">{sub.name}</h4>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      <p className="text-sm text-muted-foreground">
+                        Próximo: {format(new Date(sub.renewal_date), "dd/MM/yyyy", { locale: ptBR })}
+                      </p>
+                      <Badge variant="outline" className="text-xs">
+                        {getPaymentMethodLabel(sub.payment_method)}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold truncate">{sub.name}</h4>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    <p className="text-sm text-muted-foreground">
-                      Próximo: {format(new Date(sub.renewal_date), "dd/MM/yyyy", { locale: ptBR })}
+
+                <div className="flex items-center justify-between md:justify-end gap-4">
+                  <div className="text-right">
+                    <p className="text-2xl font-black bg-gradient-primary bg-clip-text text-transparent">
+                      R$ {Number(sub.value).toFixed(2)}
                     </p>
-                    <Badge variant="outline" className="text-xs">
-                      {getPaymentMethodLabel(sub.payment_method)}
+                    <Badge variant="secondary" className="text-xs mt-1">
+                      {getFrequencyLabel(sub.frequency)}
                     </Badge>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleDelete(sub.id, sub.name)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
                   </div>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between md:justify-end gap-4">
-                <div className="text-right">
-                  <p className="text-2xl font-black bg-gradient-primary bg-clip-text text-transparent">
-                    R$ {Number(sub.value).toFixed(2)}
-                  </p>
-                  <Badge variant="secondary" className="text-xs mt-1">
-                    {getFrequencyLabel(sub.frequency)}
-                  </Badge>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => handleDelete(sub.id, sub.name)}
-                  >
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>

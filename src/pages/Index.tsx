@@ -1,13 +1,18 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Bell, TrendingUp, ArrowRight, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Logo } from "@/components/Logo";
+import { DemoModal } from "@/components/DemoModal";
 
 const Index = () => {
+  const [showDemo, setShowDemo] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Navigation />
+      <DemoModal open={showDemo} onOpenChange={setShowDemo} />
       
       {/* Hero Section */}
       <section id="hero" className="container mx-auto px-4 pt-32 pb-32">
@@ -33,7 +38,12 @@ const Index = () => {
                 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Button variant="outline" size="xl">
+            <Button 
+              variant="outline" 
+              size="xl"
+              onClick={() => setShowDemo(true)}
+              className="hover-scale"
+            >
               Ver demonstração
             </Button>
           </div>

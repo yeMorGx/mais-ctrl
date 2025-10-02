@@ -4,10 +4,24 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, UserCog, Headphones, Crown, Plus, Trash2, Users } from "lucide-react";
+import { Shield, UserCog, Headphones, Crown, Plus, Trash2, Users, UserPlus, X } from "lucide-react";
 import { useState } from "react";
 import { CreateRoleDialog } from "./CreateRoleDialog";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,18 +32,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AdminRolesProps {
   isOwner: boolean;
 }
 
 const roleIcons: Record<string, any> = {
+  owner: Crown,
   admin: Shield,
   support: Headphones,
   moderator: UserCog,
 };
 
 const roleLabels: Record<string, string> = {
+  owner: "Owner",
   admin: "Admin",
   support: "Suporte",
   moderator: "Moderador",
@@ -40,6 +57,8 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
   const [showCreateRole, setShowCreateRole] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [showManageUsers, setShowManageUsers] = useState(false);
 
   // Fetch all roles with user count
   const { data: rolesData = [], refetch } = useQuery({
@@ -54,6 +73,9 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
       // Group by role and count users
       const roleMap = new Map<string, Set<string>>();
       
+      // Add owner role separately
+      roleMap.set("owner", new Set());
+      
       data.forEach(item => {
         if (!roleMap.has(item.role)) {
           roleMap.set(item.role, new Set());
@@ -67,6 +89,95 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
       }));
     },
   });
+
+  // Fetch all users for the manage users dialog
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ["all-users-for-roles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, email, avatar_url");
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch users for selected role
+  const { data: roleUsers = [], refetch: refetchRoleUsers } = useQuery({
+    queryKey: ["role-users", selectedRole],
+    queryFn: async () => {
+      if (!selectedRole) return [];
+      
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("user_id, profiles(id, full_name, email, avatar_url)")
+        .eq("role", selectedRole);
+
+      if (error) throw error;
+      return data.map(item => item.profiles).filter(Boolean);
+    },
+    enabled: !!selectedRole && showManageUsers,
+  });
+
+  const handleManageUsers = (role: string) => {
+    setSelectedRole(role);
+    setShowManageUsers(true);
+  };
+
+  const handleAddUserToRole = async (userId: string) => {
+    if (!selectedRole) return;
+
+    try {
+      const { error } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role: selectedRole });
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuário adicionado",
+        description: "Função atribuída com sucesso.",
+      });
+
+      refetch();
+      refetchRoleUsers();
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveUserFromRole = async (userId: string) => {
+    if (!selectedRole) return;
+
+    try {
+      const { error } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", userId)
+        .eq("role", selectedRole);
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuário removido",
+        description: "Função removida com sucesso.",
+      });
+
+      refetch();
+      refetchRoleUsers();
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleDeleteClick = (role: string) => {
     setRoleToDelete(role);
@@ -106,6 +217,17 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
     const Icon = roleIcons[role] || Shield;
     return <Icon className="h-5 w-5" />;
   };
+
+  const getUserInitials = (name: string | null, email: string | null) => {
+    if (name) {
+      return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+    }
+    return email?.slice(0, 2).toUpperCase() || "U";
+  };
+
+  const availableUsers = allUsers.filter(
+    user => !roleUsers.some((ru: any) => ru.id === user.id)
+  );
 
   return (
     <div className="space-y-6">
@@ -152,16 +274,34 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
           </Card>
         ) : (
           rolesData.map(({ role, userCount }) => (
-            <Card key={role} className="relative">
+            <Card 
+              key={role} 
+              className={`relative ${role === 'owner' ? 'border-2 border-yellow-500/50 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20' : ''}`}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      {getRoleIcon(role)}
+                    <div className={`p-2 rounded-lg ${
+                      role === 'owner' 
+                        ? 'bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg shadow-yellow-500/50' 
+                        : 'bg-primary/10'
+                    }`}>
+                      {role === 'owner' ? (
+                        <Crown className="h-5 w-5 text-white" />
+                      ) : (
+                        getRoleIcon(role)
+                      )}
                     </div>
                     <div>
-                      <CardTitle className="text-base">
+                      <CardTitle className={`text-base flex items-center gap-2 ${
+                        role === 'owner' ? 'text-yellow-700 dark:text-yellow-400' : ''
+                      }`}>
                         {roleLabels[role] || role}
+                        {role === 'owner' && (
+                          <Badge className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white border-0">
+                            Rei
+                          </Badge>
+                        )}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-1 mt-1">
                         <Users className="h-3 w-3" />
@@ -169,21 +309,33 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
                       </CardDescription>
                     </div>
                   </div>
-                  {isOwner && (
+                  <div className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDeleteClick(role)}
+                      className="h-8 w-8"
+                      onClick={() => handleManageUsers(role)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <UserPlus className="h-4 w-4" />
                     </Button>
-                  )}
+                    {isOwner && role !== 'owner' && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteClick(role)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <Badge variant="outline" className="w-full justify-center">
-                  Função do sistema
+                <Badge variant="outline" className={`w-full justify-center ${
+                  role === 'owner' ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400' : ''
+                }`}>
+                  {role === 'owner' ? 'Controle Total do Sistema' : 'Função do sistema'}
                 </Badge>
               </CardContent>
             </Card>
@@ -198,6 +350,9 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
+            • <strong className="text-yellow-700 dark:text-yellow-400">Owner (Rei):</strong> Controle absoluto do sistema. Pode criar/remover funções e gerenciar todos os aspectos.
+          </p>
+          <p>
             • <strong>Admin:</strong> Acesso total ao painel administrativo, pode gerenciar usuários, planos e configurações.
           </p>
           <p>
@@ -208,7 +363,7 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
           </p>
           {isOwner && (
             <p className="pt-2 border-t">
-              <strong className="text-primary">Owner:</strong> Apenas o owner pode criar e remover funções do sistema.
+              <strong className="text-primary">Nota:</strong> Apenas o owner pode criar e remover funções do sistema.
             </p>
           )}
         </CardContent>
@@ -243,6 +398,89 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Manage Users Dialog */}
+      <Dialog open={showManageUsers} onOpenChange={setShowManageUsers}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedRole && getRoleIcon(selectedRole)}
+              Gerenciar Usuários - {selectedRole && (roleLabels[selectedRole] || selectedRole)}
+            </DialogTitle>
+            <DialogDescription>
+              Adicione ou remova usuários desta função
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            {/* Add User Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Adicionar Usuário</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select onValueChange={handleAddUserToRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um usuário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableUsers.length === 0 ? (
+                      <div className="p-2 text-sm text-muted-foreground text-center">
+                        Todos os usuários já possuem esta função
+                      </div>
+                    ) : (
+                      availableUsers.map((user: any) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name || user.email}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+
+            {/* Current Users */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Usuários com esta função</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {roleUsers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Nenhum usuário com esta função
+                  </p>
+                ) : (
+                  roleUsers.map((user: any) => (
+                    <div key={user.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.avatar_url || undefined} />
+                          <AvatarFallback className="text-xs">
+                            {getUserInitials(user.full_name, user.email)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-sm">{user.full_name || "Sem nome"}</p>
+                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleRemoveUserFromRole(user.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

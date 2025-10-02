@@ -1,10 +1,18 @@
-import { Check, Sparkles, TrendingDown } from "lucide-react";
+import { useState } from "react";
+import { Check, Sparkles, TrendingDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+const MONTHLY_PRICE_ID = "price_1SDmCURx6z0kwL9Skw33cZ8l";
+const ANNUAL_PRICE_ID = "price_1SDmCfRx6z0kwL9SqC0sYN0c";
 
 const Pricing = () => {
+  const [loading, setLoading] = useState<string | null>(null);
+  const { toast } = useToast();
   const premiumFeatures = [
     "Assinaturas ilimitadas",
     "Relatórios detalhados em PDF",
@@ -17,6 +25,33 @@ const Pricing = () => {
     "Exportação Excel/PDF",
     "Backup automático",
   ];
+
+  const handleSubscribe = async (priceId: string, planName: string) => {
+    try {
+      setLoading(priceId);
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error) {
+      console.error("Error creating checkout:", error);
+      toast({
+        title: "Erro ao iniciar pagamento",
+        description: "Não foi possível processar seu pagamento. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -57,8 +92,21 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full" size="lg">
-                Assinar Mensal
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                size="lg"
+                onClick={() => handleSubscribe(MONTHLY_PRICE_ID, "Mensal")}
+                disabled={loading !== null}
+              >
+                {loading === MONTHLY_PRICE_ID ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processando...
+                  </>
+                ) : (
+                  "Assinar Mensal"
+                )}
               </Button>
             </CardFooter>
           </Card>
@@ -119,9 +167,23 @@ const Pricing = () => {
             </CardContent>
             
             <CardFooter className="relative z-10">
-              <Button className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-lg h-14 font-bold shadow-lg" size="lg">
-                <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
-                Assinar Agora
+              <Button 
+                className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-lg h-14 font-bold shadow-lg" 
+                size="lg"
+                onClick={() => handleSubscribe(ANNUAL_PRICE_ID, "Anual")}
+                disabled={loading !== null}
+              >
+                {loading === ANNUAL_PRICE_ID ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
+                    Assinar Agora
+                  </>
+                )}
               </Button>
             </CardFooter>
           </Card>

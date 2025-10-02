@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Mail, Bell, Database, Settings2, Key } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Shield, Bell, Settings2, Key } from "lucide-react";
 
 export const AdminSettings = () => {
   const { toast } = useToast();
@@ -92,19 +91,19 @@ export const AdminSettings = () => {
                   <Input id="company-name" defaultValue="SubManager Inc." />
                 </div>
 
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Modo de Manutenção</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Bloqueia acesso de usuários ao sistema
-                    </p>
+                <div className="border-t pt-4 mt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Modo de Manutenção</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Bloqueia acesso de usuários ao sistema
+                      </p>
+                    </div>
+                    <Switch
+                      checked={maintenanceMode}
+                      onCheckedChange={setMaintenanceMode}
+                    />
                   </div>
-                  <Switch
-                    checked={maintenanceMode}
-                    onCheckedChange={setMaintenanceMode}
-                  />
                 </div>
               </div>
 
@@ -139,11 +138,11 @@ export const AdminSettings = () => {
                   />
                 </div>
 
-                <Separator />
-
-                <div className="space-y-2">
-                  <Label htmlFor="session-timeout">Timeout de Sessão (minutos)</Label>
-                  <Input id="session-timeout" type="number" defaultValue="60" />
+                <div className="border-t pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="session-timeout">Timeout de Sessão (minutos)</Label>
+                    <Input id="session-timeout" type="number" defaultValue="60" />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -151,11 +150,9 @@ export const AdminSettings = () => {
                   <Input id="max-login-attempts" type="number" defaultValue="5" />
                 </div>
 
-                <Separator />
-
-                <div className="space-y-2">
+                <div className="border-t pt-4">
                   <Label>Configurações de Senha</Label>
-                  <div className="space-y-3 pl-4">
+                  <div className="space-y-3 mt-3 pl-4">
                     <div className="space-y-2">
                       <Label htmlFor="min-password-length">Comprimento Mínimo</Label>
                       <Input id="min-password-length" type="number" defaultValue="8" />
@@ -196,26 +193,24 @@ export const AdminSettings = () => {
                   />
                 </div>
 
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Notificações Push</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receber notificações push no navegador
-                    </p>
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Notificações Push</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Receber notificações push no navegador
+                      </p>
+                    </div>
+                    <Switch
+                      checked={pushNotifications}
+                      onCheckedChange={setPushNotifications}
+                    />
                   </div>
-                  <Switch
-                    checked={pushNotifications}
-                    onCheckedChange={setPushNotifications}
-                  />
                 </div>
 
-                <Separator />
-
-                <div className="space-y-2">
+                <div className="border-t pt-4">
                   <Label>Eventos para Notificar</Label>
-                  <div className="space-y-3 pl-4">
+                  <div className="space-y-3 mt-3 pl-4">
                     <div className="flex items-center justify-between">
                       <Label className="font-normal">Nova assinatura</Label>
                       <Switch defaultChecked />

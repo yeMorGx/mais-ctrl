@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Download, Calendar, TrendingUp, Users, DollarSign, CreditCard } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 
 export const AdminReports = () => {
   const [reportPeriod, setReportPeriod] = useState<string>("30");
@@ -44,27 +43,6 @@ export const AdminReports = () => {
   const premiumUsers = activeSubscriptions.filter(s => s.plan === "premium").length;
   const freeUsers = totalUsers - premiumUsers;
   const conversionRate = totalUsers > 0 ? ((premiumUsers / totalUsers) * 100).toFixed(1) : "0";
-
-  // Growth data (mock - in production this would come from time-series data)
-  const growthData = [
-    { month: "Jan", users: 120, premium: 15, revenue: 187.35 },
-    { month: "Fev", users: 145, premium: 22, revenue: 274.78 },
-    { month: "Mar", users: 180, premium: 28, revenue: 349.72 },
-    { month: "Abr", users: 220, premium: 35, revenue: 437.15 },
-    { month: "Mai", users: 280, premium: 45, revenue: 562.05 },
-    { month: "Jun", users: totalUsers, premium: premiumUsers, revenue: premiumUsers * 12.49 },
-  ];
-
-  // User activity by day of week
-  const activityData = [
-    { day: "Dom", active: 45 },
-    { day: "Seg", active: 78 },
-    { day: "Ter", active: 82 },
-    { day: "Qua", active: 75 },
-    { day: "Qui", active: 88 },
-    { day: "Sex", active: 92 },
-    { day: "Sáb", active: 58 },
-  ];
 
   const exportReport = () => {
     const csv = [
@@ -182,142 +160,54 @@ export const AdminReports = () => {
         </Card>
       </div>
 
-      {/* Charts */}
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* User Growth */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Crescimento de Usuários</CardTitle>
-            <CardDescription>Evolução total e premium nos últimos 6 meses</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={growthData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Area 
-                  type="monotone" 
-                  dataKey="users" 
-                  stackId="1"
-                  stroke="hsl(var(--primary))" 
-                  fill="hsl(var(--primary))"
-                  fillOpacity={0.6}
-                  name="Total"
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="premium" 
-                  stackId="2"
-                  stroke="hsl(var(--chart-2))" 
-                  fill="hsl(var(--chart-2))"
-                  fillOpacity={0.6}
-                  name="Premium"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Revenue Growth */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Crescimento de Receita</CardTitle>
-            <CardDescription>MRR nos últimos 6 meses</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={growthData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={3}
-                  name="Receita (R$)"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* User Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Atividade por Dia da Semana</CardTitle>
-            <CardDescription>Usuários ativos médios por dia</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={activityData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Bar 
-                  dataKey="active" 
-                  fill="hsl(var(--primary))"
-                  name="Usuários Ativos"
-                  radius={[8, 8, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* User Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Distribuição de Usuários</CardTitle>
-            <CardDescription>Free vs. Premium</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Usuários Premium</span>
-                  <span className="text-sm text-muted-foreground">{premiumUsers} ({conversionRate}%)</span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary rounded-full transition-all"
-                    style={{ width: `${conversionRate}%` }}
-                  />
-                </div>
+      {/* User Distribution */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Distribuição de Usuários</CardTitle>
+          <CardDescription>Free vs. Premium</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Usuários Premium</span>
+                <span className="text-sm text-muted-foreground">{premiumUsers} ({conversionRate}%)</span>
               </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Usuários Free</span>
-                  <span className="text-sm text-muted-foreground">{freeUsers} ({(100 - parseFloat(conversionRate)).toFixed(1)}%)</span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-muted-foreground/50 rounded-full transition-all"
-                    style={{ width: `${100 - parseFloat(conversionRate)}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span>Receita Média por Usuário (ARPU)</span>
-                  <span className="font-semibold">
-                    R$ {totalUsers > 0 ? ((premiumUsers * 12.49) / totalUsers).toFixed(2) : "0.00"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span>Valor Vitalício do Cliente (LTV)</span>
-                  <span className="font-semibold">R$ 149.88</span>
-                </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary rounded-full transition-all"
+                  style={{ width: `${conversionRate}%` }}
+                />
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Usuários Free</span>
+                <span className="text-sm text-muted-foreground">{freeUsers} ({(100 - parseFloat(conversionRate)).toFixed(1)}%)</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-muted-foreground/50 rounded-full transition-all"
+                  style={{ width: `${100 - parseFloat(conversionRate)}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 space-y-2 border-t">
+              <div className="flex items-center justify-between text-sm">
+                <span>Receita Média por Usuário (ARPU)</span>
+                <span className="font-semibold">
+                  R$ {totalUsers > 0 ? ((premiumUsers * 12.49) / totalUsers).toFixed(2) : "0.00"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span>Valor Vitalício do Cliente (LTV)</span>
+                <span className="font-semibold">R$ 149.88</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

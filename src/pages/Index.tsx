@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Bell, TrendingUp, ArrowRight, Check } from "lucide-react";
+import { CreditCard, Bell, TrendingUp, ArrowRight, Check, Star, Quote } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Logo } from "@/components/Logo";
 import { DemoModal } from "@/components/DemoModal";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Index = () => {
   const [showDemo, setShowDemo] = useState(false);
@@ -123,6 +124,40 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="container mx-auto px-4 py-20">
+        <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
+          O que dizem nossos usuários +Premium
+        </h2>
+        <p className="text-xl text-muted-foreground text-center mb-16">
+          Veja como o +Ctrl transformou a gestão financeira de quem usa
+        </p>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <TestimonialCard
+            name="Maria Silva"
+            role="Empresária"
+            content="Com o +Ctrl consegui economizar mais de R$ 300 por mês cancelando assinaturas que nem usava mais. O relatório mensal é incrível!"
+            rating={5}
+            initials="MS"
+          />
+          <TestimonialCard
+            name="João Santos"
+            role="Desenvolvedor"
+            content="O recurso de dividir assinaturas com amigos (+Share) foi um divisor de águas. Netflix, Spotify... agora tudo sai mais barato!"
+            rating={5}
+            initials="JS"
+          />
+          <TestimonialCard
+            name="Ana Costa"
+            role="Designer"
+            content="Os insights automáticos me alertaram sobre um aumento de 40% em uma assinatura. Cancelei na hora e migrei para uma opção melhor!"
+            rating={5}
+            initials="AC"
+          />
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-32">
         <div className="bg-gradient-primary rounded-3xl p-12 md:p-20 text-center shadow-glow">
@@ -210,6 +245,46 @@ const PricingCard = ({
           {highlighted ? "Começar Premium" : "Começar grátis"}
         </Button>
       </Link>
+    </div>
+  );
+};
+
+const TestimonialCard = ({ 
+  name, 
+  role, 
+  content, 
+  rating, 
+  initials 
+}: { 
+  name: string; 
+  role: string; 
+  content: string; 
+  rating: number; 
+  initials: string;
+}) => {
+  return (
+    <div className="bg-card rounded-2xl p-8 border border-border hover:shadow-elegant transition-all duration-300 relative">
+      <Quote className="absolute top-6 right-6 w-8 h-8 text-primary/20" />
+      
+      <div className="flex items-center gap-4 mb-6">
+        <Avatar className="h-12 w-12">
+          <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h4 className="font-semibold">{name}</h4>
+          <p className="text-sm text-muted-foreground">{role}</p>
+        </div>
+      </div>
+
+      <div className="flex gap-1 mb-4">
+        {Array.from({ length: rating }).map((_, i) => (
+          <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+        ))}
+      </div>
+
+      <p className="text-muted-foreground leading-relaxed">{content}</p>
     </div>
   );
 };

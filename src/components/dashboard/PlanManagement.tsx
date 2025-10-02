@@ -65,7 +65,11 @@ export const PlanManagement = ({ isPremium = false }: PlanManagementProps) => {
               <Button
                 className="w-full bg-gradient-primary"
                 size="lg"
-                onClick={() => navigate("/pricing")}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate("/pricing");
+                }}
               >
                 <Crown className="mr-2 h-5 w-5" />
                 Fazer Upgrade para +Premium

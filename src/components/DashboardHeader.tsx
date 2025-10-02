@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
-import { LogOut, User, Settings, Crown, Users, Globe, MessageSquare, Activity, HelpCircle, Share2 } from "lucide-react";
+import { LogOut, User, Settings, Crown, Users, Globe, MessageSquare, Activity, HelpCircle, Share2, Shield } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -159,6 +159,14 @@ export const DashboardHeader = () => {
                         <DropdownMenuLabel className="text-xs text-muted-foreground px-2 py-1">
                           ADMINISTRAÇÃO
                         </DropdownMenuLabel>
+                        
+                        <DropdownMenuItem 
+                          onClick={() => navigate("/admin")}
+                          className="cursor-pointer hover:bg-primary/10"
+                        >
+                          <Shield className="h-4 w-4 mr-2 text-primary" />
+                          Painel Admin
+                        </DropdownMenuItem>
                         
                         {isOwner && (
                           <>

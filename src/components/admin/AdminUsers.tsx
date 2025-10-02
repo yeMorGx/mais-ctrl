@@ -5,6 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -34,12 +45,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const AdminUsers = () => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPlan, setFilterPlan] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [showAddUser, setShowAddUser] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Fetch all users with their subscription data
   const { data: users = [], isLoading, refetch } = useQuery({
@@ -123,6 +137,40 @@ export const AdminUsers = () => {
   const handleViewDetails = (user: any) => {
     setSelectedUser(user);
     setShowUserDetails(true);
+  };
+
+  const handleDeleteClick = (user: any) => {
+    setUserToDelete(user);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", userToDelete.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Usuário excluído",
+        description: `${userToDelete.full_name || userToDelete.email} foi removido do sistema.`,
+      });
+
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao excluir",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setShowDeleteDialog(false);
+      setUserToDelete(null);
+    }
   };
 
   const exportToCSV = () => {
@@ -325,8 +373,11 @@ export const AdminUsers = () => {
                               Gerenciar Assinatura
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
-                              Desativar Usuário
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleDeleteClick(user)}
+                            >
+                              Excluir Usuário
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -352,6 +403,28 @@ export const AdminUsers = () => {
         onOpenChange={setShowAddUser}
         onRefetch={refetch}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você está prestes a excluir o usuário <strong>{userToDelete?.full_name || userToDelete?.email}</strong>.
+              Esta ação não pode ser desfeita e removerá permanentemente todos os dados do usuário.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir Usuário
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

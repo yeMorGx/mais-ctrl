@@ -4,15 +4,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Check, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/Logo";
+import { Progress } from "@/components/ui/progress";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [signUpPassword, setSignUpPassword] = useState("");
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+
+  // Password strength validation
+  const getPasswordStrength = (password: string) => {
+    let strength = 0;
+    const checks = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[^A-Za-z0-9]/.test(password),
+    };
+
+    if (checks.length) strength += 20;
+    if (checks.uppercase) strength += 20;
+    if (checks.lowercase) strength += 20;
+    if (checks.number) strength += 20;
+    if (checks.special) strength += 20;
+
+    return { strength, checks };
+  };
+
+  const passwordAnalysis = getPasswordStrength(signUpPassword);
+  const isPasswordStrong = passwordAnalysis.strength >= 80;
 
   // Redirect if already logged in
   useEffect(() => {
@@ -35,6 +62,11 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!isPasswordStrong) {
+      return; // Form won't submit if password is weak
+    }
+
     setIsLoading(true);
     
     const formData = new FormData(e.currentTarget);
@@ -89,13 +121,29 @@ const Auth = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password">Senha</Label>
-                    <Input 
-                      id="signin-password"
-                      name="signin-password"
-                      type="password" 
-                      placeholder="••••••••"
-                      required 
-                    />
+                    <div className="relative">
+                      <Input 
+                        id="signin-password"
+                        name="signin-password"
+                        type={showSignInPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        required
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() => setShowSignInPassword(!showSignInPassword)}
+                      >
+                        {showSignInPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <Button 
                     type="submit" 
@@ -132,20 +180,80 @@ const Auth = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Senha</Label>
-                    <Input 
-                      id="signup-password"
-                      name="signup-password"
-                      type="password" 
-                      placeholder="••••••••"
-                      minLength={6}
-                      required 
-                    />
+                    <div className="relative">
+                      <Input 
+                        id="signup-password"
+                        name="signup-password"
+                        type={showSignUpPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        minLength={8}
+                        required
+                        value={signUpPassword}
+                        onChange={(e) => setSignUpPassword(e.target.value)}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                      >
+                        {showSignUpPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {/* Password Strength Indicator */}
+                    {signUpPassword && (
+                      <div className="space-y-2 mt-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Força da senha:</span>
+                          <span className={`font-medium ${
+                            passwordAnalysis.strength >= 80 ? 'text-green-600' :
+                            passwordAnalysis.strength >= 60 ? 'text-yellow-600' :
+                            'text-destructive'
+                          }`}>
+                            {passwordAnalysis.strength >= 80 ? 'Forte' :
+                             passwordAnalysis.strength >= 60 ? 'Média' :
+                             'Fraca'}
+                          </span>
+                        </div>
+                        <Progress value={passwordAnalysis.strength} className="h-1" />
+                        
+                        <div className="space-y-1 text-xs">
+                          <div className={`flex items-center gap-2 ${passwordAnalysis.checks.length ? 'text-green-600' : 'text-muted-foreground'}`}>
+                            {passwordAnalysis.checks.length ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>Mínimo 8 caracteres</span>
+                          </div>
+                          <div className={`flex items-center gap-2 ${passwordAnalysis.checks.uppercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                            {passwordAnalysis.checks.uppercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>Uma letra maiúscula</span>
+                          </div>
+                          <div className={`flex items-center gap-2 ${passwordAnalysis.checks.lowercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                            {passwordAnalysis.checks.lowercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>Uma letra minúscula</span>
+                          </div>
+                          <div className={`flex items-center gap-2 ${passwordAnalysis.checks.number ? 'text-green-600' : 'text-muted-foreground'}`}>
+                            {passwordAnalysis.checks.number ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>Um número</span>
+                          </div>
+                          <div className={`flex items-center gap-2 ${passwordAnalysis.checks.special ? 'text-green-600' : 'text-muted-foreground'}`}>
+                            {passwordAnalysis.checks.special ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                            <span>Um caractere especial</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <Button 
                     type="submit" 
                     className="w-full" 
                     variant="gradient"
-                    disabled={isLoading}
+                    disabled={isLoading || !isPasswordStrong}
                   >
                     {isLoading ? "Criando conta..." : "Criar conta"}
                   </Button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -226,9 +226,13 @@ export const UserDetailsDialog = ({ user, open, onOpenChange, onRefetch }: UserD
           {/* Roles Management Tab - Only for Owner */}
           {isOwner && (
             <TabsContent value="roles">
-              <ManageRolesForm user={user} onSuccess={() => {
-                onRefetch();
-              }} />
+              <ManageRolesForm 
+                user={user} 
+                isOwner={isOwner}
+                onSuccess={() => {
+                  onRefetch();
+                }} 
+              />
             </TabsContent>
           )}
         </Tabs>

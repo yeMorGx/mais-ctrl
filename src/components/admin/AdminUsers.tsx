@@ -282,10 +282,18 @@ export const AdminUsers = () => {
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{user.full_name || "Sem nome"}</p>
-                            {user.roles.includes("admin") && (
-                              <Badge variant="outline" className="text-xs">Admin</Badge>
-                            )}
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{user.full_name || "Sem nome"}</p>
+                              {user.roles && user.roles.length > 0 && (
+                                <div className="flex gap-1">
+                                  {user.roles.map((role: string) => (
+                                    <Badge key={role} variant="outline" className="text-xs">
+                                      {role}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </TableCell>

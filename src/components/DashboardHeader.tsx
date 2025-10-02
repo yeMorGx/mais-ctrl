@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
-import { ThemeToggle } from "./ThemeToggle";
 import { LogOut, User, Settings, Crown, Users, Globe, MessageSquare, Activity, HelpCircle, Share2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -13,6 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +22,24 @@ export const DashboardHeader = () => {
   const navigate = useNavigate();
   const OWNER_ID = "0aa7f072-7169-48f3-9389-170100fb2418";
   const isOwner = user?.id === OWNER_ID;
+
+  // Fetch user profile
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("avatar_url, full_name")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
 
   // Fetch user roles
   const { data: userRoles = [] } = useQuery({
@@ -42,6 +60,18 @@ export const DashboardHeader = () => {
 
   const isAdmin = userRoles.includes("admin");
   const hasAdminAccess = isOwner || isAdmin;
+  
+  const getUserInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name
+        .split(" ")
+        .map(n => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    return user?.email?.slice(0, 2).toUpperCase() || "U";
+  };
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
@@ -50,173 +80,124 @@ export const DashboardHeader = () => {
           <Logo />
           
           <div className="flex items-center gap-3">
-            {/* Admin Dropdown - Only for Owner and Admins */}
-            {hasAdminAccess && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="border-primary/50 bg-gradient-to-r from-primary/10 to-secondary/10 hover:from-primary/20 hover:to-secondary/20 shadow-sm"
-                  >
-                    <Crown className="h-4 w-4 mr-2 text-primary" />
-                    <span className="hidden sm:inline">Admin</span>
-                    <Badge variant="secondary" className="ml-2 hidden md:inline-flex">
-                      {isOwner ? "Dono" : "Admin"}
-                    </Badge>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  align="end" 
-                  className="w-72 bg-card border-2 border-primary/20 shadow-xl z-50"
-                >
-                  <DropdownMenuLabel className="flex items-center gap-2 py-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-primary">
-                      <Crown className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-bold bg-gradient-primary bg-clip-text text-transparent">
-                        Painel Administrativo
-                      </p>
-                      <p className="text-xs text-muted-foreground font-normal">
-                        Ferramentas de gestão
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  
-                  <DropdownMenuGroup>
-                    {isOwner && (
-                      <>
-                        <DropdownMenuItem 
-                          onClick={() => navigate("/dashboard?tab=team")}
-                          className="cursor-pointer hover:bg-primary/10 py-3"
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 mr-3">
-                            <Users className="h-4 w-4 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium">Gerenciar Equipe</p>
-                            <p className="text-xs text-muted-foreground">Usuários e cargos</p>
-                          </div>
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem 
-                          onClick={() => navigate("/dashboard?tab=site-management")}
-                          className="cursor-pointer hover:bg-primary/10 py-3"
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-secondary/10 mr-3">
-                            <Globe className="h-4 w-4 text-secondary" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium">Gerenciar Site</p>
-                            <p className="text-xs text-muted-foreground">Configurações gerais</p>
-                          </div>
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    
-                    <DropdownMenuItem 
-                      onClick={() => navigate("/dashboard?tab=live-chat")}
-                      className="cursor-pointer hover:bg-primary/10 py-3"
-                    >
-                      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-500/10 mr-3">
-                        <MessageSquare className="h-4 w-4 text-blue-500" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">Chat ao Vivo</p>
-                        <p className="text-xs text-muted-foreground">Atendimento em tempo real</p>
-                      </div>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem 
-                      onClick={() => navigate("/dashboard?tab=support-admin")}
-                      className="cursor-pointer hover:bg-primary/10 py-3"
-                    >
-                      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-500/10 mr-3">
-                        <Activity className="h-4 w-4 text-green-500" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">Suporte Admin</p>
-                        <p className="text-xs text-muted-foreground">Tickets e contatos</p>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  <div className="px-2 py-3 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Status do Sistema</span>
-                      <Badge className="bg-green-500 hover:bg-green-600 text-white">
-                        ● Online
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Seu Cargo</span>
-                      <Badge 
-                        variant={isOwner ? "destructive" : "default"}
-                        className="font-bold"
-                      >
-                        {isOwner ? "👑 Proprietário" : "🛡️ Administrador"}
-                      </Badge>
-                    </div>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-
-            <ThemeToggle />
-
-            {/* User Dropdown */}
+            {/* User Avatar Dropdown */}
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10">
-                    <User className="h-5 w-5" />
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="rounded-full h-10 w-10 p-0 hover:ring-2 hover:ring-primary/20 transition-all"
+                  >
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "User"} />
+                      <AvatarFallback className="bg-gradient-primary text-white font-semibold">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-card shadow-lg z-50">
+                <DropdownMenuContent align="end" className="w-72 bg-card shadow-lg z-50">
                   <DropdownMenuLabel>
-                    <div className="flex flex-col">
-                      <span className="font-medium">Minha Conta</span>
-                      <span className="text-xs text-muted-foreground truncate">
-                        {user.email}
-                      </span>
+                    <div className="flex items-center gap-3 py-2">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "User"} />
+                        <AvatarFallback className="bg-gradient-primary text-white font-semibold">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">
+                          {profile?.full_name || "Usuário"}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {user.email}
+                        </p>
+                      </div>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   
-                  <DropdownMenuItem 
-                    onClick={() => navigate("/dashboard?tab=profile")}
-                    className="cursor-pointer"
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Perfil
-                  </DropdownMenuItem>
+                  {hasAdminAccess && (
+                    <>
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel className="text-xs text-muted-foreground px-2 py-1">
+                          ADMINISTRAÇÃO
+                        </DropdownMenuLabel>
+                        
+                        {isOwner && (
+                          <>
+                            <DropdownMenuItem 
+                              onClick={() => navigate("/dashboard?tab=team")}
+                              className="cursor-pointer hover:bg-primary/10"
+                            >
+                              <Users className="h-4 w-4 mr-2 text-primary" />
+                              Gerenciar Equipe
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuItem 
+                              onClick={() => navigate("/dashboard?tab=site-management")}
+                              className="cursor-pointer hover:bg-primary/10"
+                            >
+                              <Globe className="h-4 w-4 mr-2 text-secondary" />
+                              Gerenciar Site
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        
+                        <DropdownMenuItem 
+                          onClick={() => navigate("/dashboard?tab=live-chat")}
+                          className="cursor-pointer hover:bg-primary/10"
+                        >
+                          <MessageSquare className="h-4 w-4 mr-2 text-blue-500" />
+                          Chat ao Vivo
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuItem 
+                          onClick={() => navigate("/dashboard?tab=support-admin")}
+                          className="cursor-pointer hover:bg-primary/10"
+                        >
+                          <Activity className="h-4 w-4 mr-2 text-green-500" />
+                          Suporte Admin
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                   
-                  <DropdownMenuItem 
-                    onClick={() => navigate("/dashboard?tab=share")}
-                    className="cursor-pointer"
-                  >
-                    <Share2 className="h-4 w-4 mr-2" />
-                    +Share
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem 
-                    onClick={() => navigate("/dashboard?tab=settings")}
-                    className="cursor-pointer"
-                  >
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configurações
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem 
-                    onClick={() => navigate("/dashboard?tab=help")}
-                    className="cursor-pointer"
-                  >
-                    <HelpCircle className="h-4 w-4 mr-2" />
-                    Ajuda
-                  </DropdownMenuItem>
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem 
+                      onClick={() => navigate("/dashboard?tab=profile")}
+                      className="cursor-pointer"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Perfil
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem 
+                      onClick={() => navigate("/dashboard?tab=share")}
+                      className="cursor-pointer"
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      +Share
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem 
+                      onClick={() => navigate("/dashboard?tab=settings")}
+                      className="cursor-pointer"
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configurações
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem 
+                      onClick={() => navigate("/dashboard?tab=help")}
+                      className="cursor-pointer"
+                    >
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      Ajuda
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                   
                   <DropdownMenuSeparator />
                   

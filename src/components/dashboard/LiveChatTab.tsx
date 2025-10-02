@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface ChatSession {
   id: string;
@@ -36,6 +37,7 @@ interface ChatMessage {
 export const LiveChatTab = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [messageText, setMessageText] = useState("");
 
@@ -166,11 +168,19 @@ export const LiveChatTab = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Chat ao Vivo</h1>
-        <p className="text-muted-foreground">
-          Atenda seus clientes em tempo real
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Chat ao Vivo - Painel de Atendimento</h1>
+          <p className="text-muted-foreground">
+            Atenda seus clientes em tempo real
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/support")}
+        >
+          Ver como Cliente
+        </Button>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 h-[calc(100vh-300px)]">

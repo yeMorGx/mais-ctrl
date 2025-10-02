@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
@@ -18,6 +18,7 @@ import { FinancialTips } from "@/components/dashboard/FinancialTips";
 import { TeamManagement } from "@/components/dashboard/TeamManagement";
 import { PlanManagement } from "@/components/dashboard/PlanManagement";
 import { LiveChatTab } from "@/components/dashboard/LiveChatTab";
+import { SiteManagement } from "@/components/dashboard/SiteManagement";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
 import { SuccessAnimation } from "@/components/SuccessAnimation";
@@ -184,14 +185,24 @@ const Dashboard = () => {
                   )}
                   
                   {isOwner && (
-                    <Button
-                      variant={activeTab === "team" ? "default" : "ghost"}
-                      className="justify-start"
-                      onClick={() => { setActiveTab("team"); setMobileMenuOpen(false); }}
-                    >
-                      <Users className="h-4 w-4 mr-2" />
-                      Equipe
-                    </Button>
+                    <>
+                      <Button
+                        variant={activeTab === "team" ? "default" : "ghost"}
+                        className="justify-start"
+                        onClick={() => { setActiveTab("team"); setMobileMenuOpen(false); }}
+                      >
+                        <Users className="h-4 w-4 mr-2" />
+                        Equipe
+                      </Button>
+                      <Button
+                        variant={activeTab === "site-management" ? "default" : "ghost"}
+                        className="justify-start"
+                        onClick={() => { setActiveTab("site-management"); setMobileMenuOpen(false); }}
+                      >
+                        <Globe className="h-4 w-4 mr-2" />
+                        Gerenciar Site
+                      </Button>
+                    </>
                   )}
 
                   {isLiveChatAgent && (
@@ -246,7 +257,7 @@ const Dashboard = () => {
           </div>
 
           {/* Desktop Tabs */}
-          <TabsList className={`hidden lg:grid w-full ${isOwner || isLiveChatAgent ? 'grid-cols-11' : 'grid-cols-9'} mb-8`}>
+          <TabsList className={`hidden lg:grid w-full ${isOwner ? 'grid-cols-12' : isLiveChatAgent ? 'grid-cols-10' : 'grid-cols-9'} mb-8`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -292,10 +303,16 @@ const Dashboard = () => {
               <span className="hidden sm:inline">Plano</span>
             </TabsTrigger>
             {isOwner && (
-              <TabsTrigger value="team" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Equipe</span>
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="team" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">Equipe</span>
+                </TabsTrigger>
+                <TabsTrigger value="site-management" className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" />
+                  <span className="hidden sm:inline">Site</span>
+                </TabsTrigger>
+              </>
             )}
             {isLiveChatAgent && (
               <TabsTrigger value="live-chat" className="flex items-center gap-2">
@@ -407,10 +424,16 @@ const Dashboard = () => {
 
           {/* Team Management Tab - Owner Only */}
           {isOwner && (
-            <TabsContent value="team">
-              <h1 className="text-3xl font-bold mb-6">Gerenciamento de Equipe</h1>
-              <TeamManagement />
-            </TabsContent>
+            <>
+              <TabsContent value="team">
+                <h1 className="text-3xl font-bold mb-6">Gerenciamento de Equipe</h1>
+                <TeamManagement />
+              </TabsContent>
+              
+              <TabsContent value="site-management">
+                <SiteManagement />
+              </TabsContent>
+            </>
           )}
 
           {/* Live Chat Tab - Agents Only */}

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, UserMinus, Shield, Crown, User, Search, Filter } from "lucide-react";
+import { UserPlus, UserMinus, Shield, Crown, User, Search, Filter, Headphones, Code, Megaphone, Briefcase } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface UserWithDetails {
@@ -153,22 +153,44 @@ export const TeamManagement = () => {
       case 'admin':
         return <Crown className="h-4 w-4" />;
       case 'support':
-        return <Shield className="h-4 w-4" />;
+        return <Headphones className="h-4 w-4" />;
+      case 'technology':
+        return <Code className="h-4 w-4" />;
+      case 'marketing':
+        return <Megaphone className="h-4 w-4" />;
+      case 'management':
+        return <Briefcase className="h-4 w-4" />;
       default:
         return <User className="h-4 w-4" />;
     }
   };
 
-  const getRoleBadgeVariant = (role: string): "default" | "secondary" | "outline" => {
+  const getRoleBadgeVariant = (role: string): "default" | "secondary" | "outline" | "destructive" => {
     switch (role) {
       case 'admin':
-        return 'default';
+        return 'destructive';
       case 'support':
+        return 'default';
+      case 'technology':
         return 'secondary';
+      case 'marketing':
+        return 'outline';
+      case 'management':
+        return 'default';
       default:
         return 'outline';
     }
   };
+
+  const roleNames: Record<string, string> = {
+    admin: "Administração",
+    support: "Atendimento",
+    technology: "Tecnologia",
+    marketing: "Marketing",
+    management: "Gestão"
+  };
+
+  const availableRoles = ["admin", "support", "technology", "marketing", "management"];
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = !searchTerm || 
@@ -274,7 +296,7 @@ export const TeamManagement = () => {
                           user.roles.map((role) => (
                             <Badge key={role} variant={getRoleBadgeVariant(role)} className="gap-1">
                               {getRoleIcon(role)}
-                              {role === 'admin' ? 'Admin' : role === 'support' ? 'Suporte' : role}
+                              {roleNames[role] || role}
                             </Badge>
                           ))
                         ) : (
@@ -287,50 +309,32 @@ export const TeamManagement = () => {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                    {!user.roles.includes('admin') && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addRole(user.id, 'admin')}
-                        className="flex-1 sm:flex-none"
-                      >
-                        <Crown className="h-4 w-4 mr-1" />
-                        Admin
-                      </Button>
-                    )}
-                    {user.roles.includes('admin') && (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => removeRole(user.id, 'admin')}
-                        className="flex-1 sm:flex-none"
-                      >
-                        <UserMinus className="h-4 w-4 mr-1" />
-                        Admin
-                      </Button>
-                    )}
-                    {!user.roles.includes('support') && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addRole(user.id, 'support')}
-                        className="flex-1 sm:flex-none"
-                      >
-                        <Shield className="h-4 w-4 mr-1" />
-                        Suporte
-                      </Button>
-                    )}
-                    {user.roles.includes('support') && (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => removeRole(user.id, 'support')}
-                        className="flex-1 sm:flex-none"
-                      >
-                        <UserMinus className="h-4 w-4 mr-1" />
-                        Suporte
-                      </Button>
-                    )}
+                    {availableRoles.map((roleType) => {
+                      const hasRole = user.roles.includes(roleType);
+                      return hasRole ? (
+                        <Button
+                          key={`remove-${roleType}`}
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => removeRole(user.id, roleType)}
+                          className="flex-1 sm:flex-none"
+                        >
+                          <UserMinus className="h-4 w-4 mr-1" />
+                          {roleNames[roleType]}
+                        </Button>
+                      ) : (
+                        <Button
+                          key={`add-${roleType}`}
+                          size="sm"
+                          variant="outline"
+                          onClick={() => addRole(user.id, roleType)}
+                          className="flex-1 sm:flex-none"
+                        >
+                          {getRoleIcon(roleType)}
+                          <span className="ml-1">{roleNames[roleType]}</span>
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

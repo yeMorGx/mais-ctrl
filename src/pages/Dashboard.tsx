@@ -45,6 +45,12 @@ const Dashboard = () => {
       // Remove query params from URL
       window.history.replaceState({}, '', '/dashboard');
     }
+
+    // Handle tab parameter
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
   }, [searchParams]);
 
   // Redirect if not logged in

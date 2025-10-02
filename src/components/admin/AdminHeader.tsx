@@ -1,4 +1,4 @@
-import { Crown, Moon, Sun } from "lucide-react";
+import { Crown, Moon, Sun, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "next-themes";
@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface AdminHeaderProps {
   isOwner: boolean;
@@ -14,6 +15,7 @@ interface AdminHeaderProps {
 export const AdminHeader = ({ isOwner }: AdminHeaderProps) => {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -49,6 +51,16 @@ export const AdminHeader = ({ isOwner }: AdminHeaderProps) => {
     <header className="h-16 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10 px-6">
       <div className="h-full flex items-center justify-between">
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/dashboard")}
+            className="rounded-full"
+            title="Voltar para +Ctrl"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          
           <div>
             <h1 className="text-xl font-bold">Painel Administrativo</h1>
             <p className="text-sm text-muted-foreground">

@@ -105,31 +105,10 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5.5 3.5L20 18M20 18h-8M20 18v-8" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'), auto;
-  }
-
-  .dark * {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5.5 3.5L20 18M20 18h-8M20 18v-8" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'), auto;
   }
 
   body {
     @apply bg-background text-foreground;
-  }
-
-  button, a, [role="button"], [data-clickable="true"] {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6.5 4.5L22 20M22 20h-9M22 20v-9" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'), pointer;
-  }
-
-  .dark button, .dark a, .dark [role="button"], .dark [data-clickable="true"] {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6.5 4.5L22 20M22 20h-9M22 20v-9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'), pointer;
-  }
-
-  input, textarea, select {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="2" height="20" viewBox="0 0 2 20"><rect width="2" height="20" fill="black"/></svg>'), text;
-  }
-
-  .dark input, .dark textarea, .dark select {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="2" height="20" viewBox="0 0 2 20"><rect width="2" height="20" fill="white"/></svg>'), text;
   }
 }
 

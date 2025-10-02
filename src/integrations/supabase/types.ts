@@ -71,6 +71,51 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          billing_interval: string
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          is_popular: boolean | null
+          max_subscriptions: number | null
+          name: string
+          price: number
+          stripe_price_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_interval?: string
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          max_subscriptions?: number | null
+          name: string
+          price?: number
+          stripe_price_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_interval?: string
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          max_subscriptions?: number | null
+          name?: string
+          price?: number
+          stripe_price_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string | null

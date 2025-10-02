@@ -1,12 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { CreditCard, Bell, TrendingUp, ArrowRight, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Navigation } from "@/components/Navigation";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <Navigation />
+      
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-20 pb-32">
+      <section id="hero" className="container mx-auto px-4 pt-32 pb-32">
         <div className="text-center max-w-4xl mx-auto space-y-8">
           <div className="inline-block mb-4">
             <div className="bg-gradient-primary bg-clip-text text-transparent font-black text-6xl md:text-8xl">
@@ -50,7 +53,7 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="container mx-auto px-4 py-20">
+      <section id="features" className="container mx-auto px-4 py-20">
         <div className="grid md:grid-cols-3 gap-8">
           <FeatureCard
             icon={<CreditCard className="w-8 h-8" />}
@@ -71,7 +74,7 @@ const Index = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="container mx-auto px-4 py-20">
+      <section id="pricing" className="container mx-auto px-4 py-20">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
           Planos para cada necessidade
         </h2>

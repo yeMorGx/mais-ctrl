@@ -76,6 +76,9 @@ const Pricing = () => {
           {/* Plano Mensal - Simples */}
           <Card className="border-border hover:shadow-md transition-shadow">
             <CardHeader className="text-center">
+              <Badge className="mb-2 mx-auto w-fit bg-primary/10 text-primary border-primary/20">
+                7 Dias Grátis
+              </Badge>
               <CardTitle className="text-2xl">Mensal</CardTitle>
               <CardDescription>Pague mês a mês, sem compromisso</CardDescription>
             </CardHeader>
@@ -130,6 +133,9 @@ const Pricing = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 animate-border-flow" />
             
             <CardHeader className="text-center relative z-10 pt-10">
+              <Badge className="mb-3 mx-auto w-fit bg-gradient-primary border-0 text-white shadow-lg animate-pulse">
+                7 Dias Grátis
+              </Badge>
               <CardTitle className="text-3xl bg-gradient-primary bg-clip-text text-transparent">
                 Anual
               </CardTitle>
@@ -195,10 +201,30 @@ const Pricing = () => {
         </div>
 
         {/* Informação adicional */}
-        <div className="max-w-4xl mx-auto mt-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            💳 Pagamento seguro via Stripe • 🔒 Cancele quando quiser • ✨ Teste grátis por 7 dias
-          </p>
+        <div className="max-w-4xl mx-auto mt-12">
+          <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20 rounded-2xl p-8 text-center">
+            <h3 className="text-2xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+              🎉 Teste Grátis por 7 Dias
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+              Experimente todos os recursos Premium sem compromisso. Você só será cobrado após o período de teste. 
+              Cancele quando quiser, sem taxas ou multas.
+            </p>
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <Check className="h-5 w-5 text-primary" />
+                <span>💳 Cartão solicitado mas não cobrado no trial</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="h-5 w-5 text-primary" />
+                <span>🔒 Cancele quando quiser</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="h-5 w-5 text-primary" />
+                <span>✨ Acesso completo por 7 dias</span>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>

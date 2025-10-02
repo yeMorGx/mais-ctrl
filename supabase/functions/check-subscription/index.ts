@@ -68,12 +68,17 @@ serve(async (req) => {
 
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
+      status: "all",
       limit: 1,
     });
 
-    if (subscriptions.data.length === 0) {
-      logStep("No active subscription");
+    // Check for active or trialing subscriptions
+    const activeSubscription = subscriptions.data.find(
+      sub => sub.status === 'active' || sub.status === 'trialing'
+    );
+
+    if (!activeSubscription) {
+      logStep("No active or trialing subscription");
       
       await supabaseClient
         .from('user_subscriptions')
@@ -85,15 +90,23 @@ serve(async (req) => {
         })
         .eq('user_id', user.id);
       
-      return new Response(JSON.stringify({ subscribed: false, plan: 'free' }), {
+      return new Response(JSON.stringify({ 
+        subscribed: false, 
+        plan: 'free' 
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const subscription = subscriptions.data[0];
+    const subscription = activeSubscription;
     const subscriptionEnd = new Date(subscription.current_period_end * 1000);
+    const isTrialing = subscription.status === 'trialing';
     
-    logStep("Active subscription found", { id: subscription.id });
+    logStep("Active/trialing subscription found", { 
+      id: subscription.id, 
+      status: subscription.status,
+      trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null
+    });
 
     // Update user subscription status
     await supabaseClient
@@ -111,7 +124,9 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       subscribed: true,
       plan: 'premium',
-      subscription_end: subscriptionEnd.toISOString()
+      subscription_end: subscriptionEnd.toISOString(),
+      is_trialing: isTrialing,
+      trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

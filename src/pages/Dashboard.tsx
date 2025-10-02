@@ -14,6 +14,8 @@ import { ShareTab } from "@/components/dashboard/ShareTab";
 import { SettingsTab } from "@/components/dashboard/SettingsTab";
 import { HelpTab } from "@/components/dashboard/HelpTab";
 import { SupportAdminTab } from "@/components/dashboard/SupportAdminTab";
+import { FinancialTips } from "@/components/dashboard/FinancialTips";
+import { TeamManagement } from "@/components/dashboard/TeamManagement";
 import { PlanManagement } from "@/components/dashboard/PlanManagement";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
@@ -259,6 +261,9 @@ const Dashboard = () => {
               isPremium={isPremium}
             />
             <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} />
+            
+            {/* Financial Tips */}
+            <FinancialTips />
           </TabsContent>
 
           {/* Financial Analysis Tab - Premium Only */}

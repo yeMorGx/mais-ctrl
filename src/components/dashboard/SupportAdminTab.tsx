@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, Mail, Send } from "lucide-react";
+import { MessageSquare, Mail, Send, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { TeamManagement } from "./TeamManagement";
 
 interface SupportMessage {
   id: string;
@@ -153,7 +154,7 @@ export const SupportAdminTab = () => {
       <h1 className="text-3xl font-bold">Suporte Admin</h1>
       
       <Tabs defaultValue="live-chat" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="live-chat">
             <MessageSquare className="h-4 w-4 mr-2" />
             Chat ao Vivo
@@ -161,6 +162,10 @@ export const SupportAdminTab = () => {
           <TabsTrigger value="contacts">
             <Mail className="h-4 w-4 mr-2" />
             Contatos
+          </TabsTrigger>
+          <TabsTrigger value="team">
+            <Users className="h-4 w-4 mr-2" />
+            Equipe
           </TabsTrigger>
         </TabsList>
 
@@ -327,6 +332,10 @@ export const SupportAdminTab = () => {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="team" className="space-y-4">
+          <TeamManagement />
         </TabsContent>
       </Tabs>
     </div>

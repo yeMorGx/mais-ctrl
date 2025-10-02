@@ -7,7 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { CreditCard, Bell, TrendingUp, ArrowRight, BarChart3, Calendar, Share2 } from "lucide-react";
+import { CreditCard, Bell, TrendingUp, ArrowRight, BarChart3, Calendar, Share2, Play } from "lucide-react";
+import { useState } from "react";
 
 interface DemoModalProps {
   open: boolean;
@@ -15,6 +16,8 @@ interface DemoModalProps {
 }
 
 export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
+  const [showVideo, setShowVideo] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -28,6 +31,38 @@ export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Video Demo */}
+          <div className="rounded-lg border border-primary/30 overflow-hidden bg-gradient-to-br from-primary/5 to-secondary/5">
+            {!showVideo ? (
+              <div 
+                className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center cursor-pointer group relative overflow-hidden"
+                onClick={() => setShowVideo(true)}
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                <div className="relative z-10 text-center space-y-4">
+                  <div className="w-20 h-20 mx-auto bg-gradient-primary rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-glow">
+                    <Play className="w-10 h-10 text-primary-foreground ml-1" />
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold mb-2">Assista à demonstração completa</p>
+                    <p className="text-sm text-muted-foreground">
+                      Veja todas as funcionalidades em ação (2 min)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="aspect-video bg-background">
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                  title="Demonstração +Ctrl"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            )}
+          </div>
           {/* Feature 1 */}
           <div className="flex gap-4 items-start p-4 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
             <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center flex-shrink-0">

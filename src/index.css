@@ -105,18 +105,21 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="rgba(147, 51, 234, 0.4)" stroke="rgba(147, 51, 234, 0.8)" stroke-width="1.5"/></svg>'), auto;
   }
 
   body {
     @apply bg-background text-foreground;
   }
+}
 
-  button, a, [role="button"] {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="rgba(147, 51, 234, 0.6)" stroke="rgba(147, 51, 234, 1)" stroke-width="2"/></svg>'), pointer;
-  }
+@keyframes float {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-20px) translateX(10px); }
+  50% { transform: translateY(-10px) translateX(-10px); }
+  75% { transform: translateY(-30px) translateX(5px); }
+}
 
-  input, textarea, select {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect x="8" y="2" width="2" height="16" fill="rgba(147, 51, 234, 0.8)"/></svg>'), text;
-  }
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }

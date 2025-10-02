@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Logo } from "@/components/Logo";
 import { DemoModal } from "@/components/DemoModal";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import testimonialMaria from "@/assets/testimonial-maria.jpg";
 import testimonialJoao from "@/assets/testimonial-joao.jpg";
@@ -14,7 +15,9 @@ const Index = () => {
   const [showDemo, setShowDemo] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen relative">
+      <AnimatedBackground />
+      <div className="relative z-10 bg-gradient-hero">
       <Navigation />
       <DemoModal open={showDemo} onOpenChange={setShowDemo} />
       
@@ -192,6 +195,7 @@ const Index = () => {
           <p>© 2025 +Ctrl. Todos os direitos reservados.</p>
         </div>
       </footer>
+      </div>
     </div>
   );
 };

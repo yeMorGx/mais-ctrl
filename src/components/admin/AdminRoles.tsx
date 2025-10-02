@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, UserCog, Headphones, Crown, Plus, Trash2, Users, UserPlus, X } from "lucide-react";
+import { Shield, UserCog, Headphones, Crown, Plus, Trash2, Users, UserPlus, X, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { CreateRoleDialog } from "./CreateRoleDialog";
 import { useToast } from "@/hooks/use-toast";
@@ -204,6 +204,14 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
   };
 
   const handleDeleteClick = (role: string) => {
+    if (role === "owner") {
+      toast({
+        title: "Ação não permitida",
+        description: "O Owner não pode ser removido.",
+        variant: "destructive",
+      });
+      return;
+    }
     setRoleToDelete(role);
     setShowDeleteDialog(true);
   };
@@ -288,16 +296,16 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
       {/* Roles Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {rolesData.length === 0 ? (
-          <Card className="col-span-full">
+          <Card className="col-span-full animate-fade-in">
             <CardContent className="py-12 text-center">
-              <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4 animate-pulse" />
               <p className="text-muted-foreground">
                 Nenhuma função cadastrada no sistema
               </p>
               {isOwner && (
                 <Button
                   variant="outline"
-                  className="mt-4"
+                  className="mt-4 hover-scale"
                   onClick={() => setShowCreateRole(true)}
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -310,20 +318,24 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
           rolesData.map(({ role, userCount }) => (
             <Card 
               key={role} 
-              className={`relative ${role === 'owner' ? 'border-2 border-yellow-500/50 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20' : ''}`}
+              className={`relative transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fade-in ${
+                role === 'owner' 
+                  ? 'border-2 border-yellow-500/50 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 shadow-yellow-500/20' 
+                  : 'hover:border-primary/50'
+              }`}
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${
+                    <div className={`p-2 rounded-lg transition-all duration-300 ${
                       role === 'owner' 
-                        ? 'bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg shadow-yellow-500/50' 
-                        : 'bg-primary/10'
+                        ? 'bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg shadow-yellow-500/50 animate-pulse' 
+                        : 'bg-primary/10 hover:bg-primary/20'
                     }`}>
                       {role === 'owner' ? (
                         <Crown className="h-5 w-5 text-white" />
                       ) : (
-                        getRoleIcon(role)
+                        <span className="text-primary">{getRoleIcon(role)}</span>
                       )}
                     </div>
                     <div>
@@ -347,7 +359,7 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-8 w-8 transition-all duration-200 hover:scale-110"
                       onClick={() => handleManageUsers(role)}
                     >
                       <UserPlus className="h-4 w-4" />
@@ -356,7 +368,7 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-200 hover:scale-110"
                         onClick={() => handleDeleteClick(role)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -413,20 +425,29 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
       )}
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="animate-scale-in">
           <AlertDialogHeader>
-            <AlertDialogTitle>Remover função?</AlertDialogTitle>
+            <div className="flex items-center gap-2 text-destructive mb-2">
+              <AlertTriangle className="h-5 w-5" />
+              <AlertDialogTitle>Remover função?</AlertDialogTitle>
+            </div>
             <AlertDialogDescription>
-              Você está prestes a remover a função <strong>{roleLabels[roleToDelete || ""] || roleToDelete}</strong> de todos os usuários.
-              Esta ação não pode ser desfeita.
+              Você está prestes a remover permanentemente a função{" "}
+              <strong className="text-foreground">{roleLabels[roleToDelete || ""] || roleToDelete}</strong> de todos os usuários.
+              <br />
+              <br />
+              Esta ação <strong className="text-destructive">não pode ser desfeita</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="transition-all duration-200 hover:scale-105">
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all duration-200 hover:scale-105"
             >
+              <Trash2 className="h-4 w-4 mr-2" />
               Remover Função
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -435,10 +456,12 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
 
       {/* Manage Users Dialog */}
       <Dialog open={showManageUsers} onOpenChange={setShowManageUsers}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl animate-scale-in">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {selectedRole && getRoleIcon(selectedRole)}
+              <span className="transition-all duration-200 hover:scale-110 inline-block">
+                {selectedRole && getRoleIcon(selectedRole)}
+              </span>
               Gerenciar Usuários - {selectedRole && (roleLabels[selectedRole] || selectedRole)}
             </DialogTitle>
             <DialogDescription>
@@ -449,7 +472,7 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             {/* Add User Section - Hide for owner role */}
             {selectedRole !== "owner" && (
-              <Card>
+              <Card className="animate-fade-in">
                 <CardHeader>
                   <CardTitle className="text-sm">Adicionar Usuário</CardTitle>
                 </CardHeader>
@@ -477,7 +500,7 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
             )}
 
             {/* Current Users */}
-            <Card>
+            <Card className="animate-fade-in">
               <CardHeader>
                 <CardTitle className="text-sm">Usuários com esta função</CardTitle>
               </CardHeader>
@@ -488,7 +511,10 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
                   </p>
                 ) : (
                   roleUsers.map((user: any) => (
-                    <div key={user.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div 
+                      key={user.id} 
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg transition-all duration-200 hover:bg-muted hover:scale-[1.02]"
+                    >
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={user.avatar_url || undefined} />
@@ -505,7 +531,7 @@ export const AdminRoles = ({ isOwner }: AdminRolesProps) => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-200 hover:scale-110"
                           onClick={() => handleRemoveUserFromRole(user.id)}
                         >
                           <X className="h-4 w-4" />

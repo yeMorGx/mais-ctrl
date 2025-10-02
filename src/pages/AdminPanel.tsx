@@ -10,6 +10,7 @@ import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminPlans } from "@/components/admin/AdminPlans";
 import { AdminPayments } from "@/components/admin/AdminPayments";
+import { AdminReports } from "@/components/admin/AdminReports";
 import { AdminSettings } from "@/components/admin/AdminSettings";
 import { Logo } from "@/components/Logo";
 
@@ -66,6 +67,8 @@ const AdminPanel = () => {
         return <AdminPlans />;
       case "payments":
         return <AdminPayments />;
+      case "reports":
+        return <AdminReports />;
       case "settings":
         return <AdminSettings />;
       default:

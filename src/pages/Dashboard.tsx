@@ -54,6 +54,26 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
+  // Fetch user subscription plan
+  const { data: userSubscription } = useQuery({
+    queryKey: ["userSubscription", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const { data, error } = await supabase
+        .from("user_subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const isPremium = userSubscription?.plan === "premium" && userSubscription?.status === "active";
+
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -64,9 +84,6 @@ const Dashboard = () => {
       </div>
     );
   }
-
-  // Mock: determinar se usuário é Premium (substituir por lógica real)
-  const isPremium = true; // Alterar para verificação real do banco
 
   return (
     <div className="min-h-screen bg-background">

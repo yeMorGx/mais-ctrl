@@ -9,12 +9,22 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/Logo";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [signUpPassword, setSignUpPassword] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetStep, setResetStep] = useState<"email" | "code" | "password">("email");
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
@@ -76,6 +86,71 @@ const Auth = () => {
 
     await signUp(email, password, fullName);
     setIsLoading(false);
+  };
+
+  const handleSendResetCode = async () => {
+    if (!resetEmail) {
+      toast.error("Por favor, insira seu email");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-reset-code", {
+        body: { email: resetEmail },
+      });
+
+      if (error) throw error;
+
+      toast.success("Código enviado para seu email");
+      setResetStep("code");
+    } catch (error: any) {
+      console.error("Error sending reset code:", error);
+      toast.error("Erro ao enviar código");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (resetCode.length !== 4) {
+      toast.error("Por favor, insira o código de 4 dígitos");
+      return;
+    }
+
+    setResetStep("password");
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword || newPassword.length < 8) {
+      toast.error("A senha deve ter no mínimo 8 caracteres");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke("verify-reset-code", {
+        body: {
+          email: resetEmail,
+          code: resetCode,
+          newPassword,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Senha redefinida com sucesso!");
+      setShowForgotPassword(false);
+      setResetStep("email");
+      setResetEmail("");
+      setResetCode("");
+      setNewPassword("");
+    } catch (error: any) {
+      console.error("Error resetting password:", error);
+      toast.error(error.message || "Erro ao redefinir senha");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -152,6 +227,14 @@ const Auth = () => {
                     disabled={isLoading}
                   >
                     {isLoading ? "Entrando..." : "Entrar"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="w-full text-sm"
+                    onClick={() => setShowForgotPassword(true)}
+                  >
+                    Esqueci minha senha
                   </Button>
                 </form>
               </TabsContent>
@@ -270,6 +353,128 @@ const Auth = () => {
           <a href="#" className="text-primary hover:underline">Política de Privacidade</a>
         </p>
       </div>
+
+      {/* Forgot Password Dialog */}
+      <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Recuperar Senha</DialogTitle>
+            <DialogDescription>
+              {resetStep === "email" && "Digite seu email para receber um código de verificação"}
+              {resetStep === "code" && "Digite o código de 4 dígitos enviado ao seu email"}
+              {resetStep === "password" && "Digite sua nova senha"}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {resetStep === "email" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={handleSendResetCode}
+                  disabled={isLoading}
+                  className="w-full"
+                  variant="gradient"
+                >
+                  {isLoading ? "Enviando..." : "Enviar Código"}
+                </Button>
+              </>
+            )}
+
+            {resetStep === "code" && (
+              <>
+                <div className="space-y-2">
+                  <Label>Código de Verificação</Label>
+                  <div className="flex justify-center">
+                    <InputOTP
+                      maxLength={4}
+                      value={resetCode}
+                      onChange={setResetCode}
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground mt-2">
+                    O código expira em 10 minutos
+                  </p>
+                </div>
+                <Button
+                  onClick={handleVerifyCode}
+                  disabled={resetCode.length !== 4}
+                  className="w-full"
+                  variant="gradient"
+                >
+                  Verificar Código
+                </Button>
+                <Button
+                  variant="link"
+                  onClick={() => setResetStep("email")}
+                  className="w-full text-sm"
+                >
+                  Voltar
+                </Button>
+              </>
+            )}
+
+            {resetStep === "password" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">Nova Senha</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      minLength={8}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Mínimo de 8 caracteres
+                  </p>
+                </div>
+                <Button
+                  onClick={handleResetPassword}
+                  disabled={isLoading || newPassword.length < 8}
+                  className="w-full"
+                  variant="gradient"
+                >
+                  {isLoading ? "Redefinindo..." : "Redefinir Senha"}
+                </Button>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

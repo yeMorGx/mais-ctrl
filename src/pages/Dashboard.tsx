@@ -25,17 +25,60 @@ import { SuccessAnimation } from "@/components/SuccessAnimation";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const OWNER_ID = "0aa7f072-7169-48f3-9389-170100fb2418";
+
+  // Manual subscription check function
+  const handleCheckSubscription = async () => {
+    setIsCheckingSubscription(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data, error } = await supabase.functions.invoke('check-subscription', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        });
+        
+        if (error) {
+          toast({
+            title: "Erro ao verificar assinatura",
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          // Refresh all queries
+          await queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
+          toast({
+            title: "Assinatura verificada",
+            description: data.plan === 'premium' ? "Você tem o plano Premium ativo!" : "Você está no plano Free",
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check subscription:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível verificar a assinatura",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCheckingSubscription(false);
+    }
+  };
 
   // Check for payment success and show animation
   useEffect(() => {
@@ -45,31 +88,10 @@ const Dashboard = () => {
       // Remove query params from URL
       window.history.replaceState({}, '', '/dashboard');
       
-      // Verify subscription status after successful payment
-      const checkSubscription = async () => {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            const { data, error } = await supabase.functions.invoke('check-subscription', {
-              headers: {
-                Authorization: `Bearer ${session.access_token}`
-              }
-            });
-            
-            if (error) {
-              console.error('Error checking subscription:', error);
-            } else {
-              console.log('Subscription check result:', data);
-              // Refresh the page to update subscription status
-              window.location.reload();
-            }
-          }
-        } catch (error) {
-          console.error('Failed to check subscription:', error);
-        }
-      };
-      
-      checkSubscription();
+      // Automatically check subscription after successful payment
+      setTimeout(() => {
+        handleCheckSubscription();
+      }, 2000);
     }
 
     // Handle tab parameter
@@ -461,7 +483,16 @@ const Dashboard = () => {
 
           {/* Plan Tab */}
           <TabsContent value="plan">
-            <h1 className="text-3xl font-bold mb-6">Meu Plano</h1>
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold">Meu Plano</h1>
+              <Button
+                variant="outline"
+                onClick={handleCheckSubscription}
+                disabled={isCheckingSubscription}
+              >
+                {isCheckingSubscription ? "Verificando..." : "Verificar Status"}
+              </Button>
+            </div>
             <PlanManagement isPremium={isPremium} />
           </TabsContent>
 

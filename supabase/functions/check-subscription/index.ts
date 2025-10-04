@@ -69,7 +69,7 @@ serve(async (req) => {
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "all",
-      limit: 1,
+      limit: 10,
     });
 
     // Check for active or trialing subscriptions

@@ -7,8 +7,8 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-const MONTHLY_PRICE_ID = "price_1SDmCURx6z0kwL9Skw33cZ8l";
-const ANNUAL_PRICE_ID = "price_1SDmCfRx6z0kwL9SqC0sYN0c";
+const MONTHLY_PRICE_ID = "price_1SEa8gRx6z0kwL9Sc54pVBXG";
+const ANNUAL_PRICE_ID = "price_1SEa8pRx6z0kwL9SQgV247Ne";
 
 const Pricing = () => {
   const [loading, setLoading] = useState<string | null>(null);

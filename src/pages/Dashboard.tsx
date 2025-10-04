@@ -44,6 +44,32 @@ const Dashboard = () => {
       setShowSuccessAnimation(true);
       // Remove query params from URL
       window.history.replaceState({}, '', '/dashboard');
+      
+      // Verify subscription status after successful payment
+      const checkSubscription = async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            const { data, error } = await supabase.functions.invoke('check-subscription', {
+              headers: {
+                Authorization: `Bearer ${session.access_token}`
+              }
+            });
+            
+            if (error) {
+              console.error('Error checking subscription:', error);
+            } else {
+              console.log('Subscription check result:', data);
+              // Refresh the page to update subscription status
+              window.location.reload();
+            }
+          }
+        } catch (error) {
+          console.error('Failed to check subscription:', error);
+        }
+      };
+      
+      checkSubscription();
     }
 
     // Handle tab parameter

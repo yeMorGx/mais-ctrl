@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const MONTHLY_PRICE_ID = "price_1SEa8gRx6z0kwL9Sc54pVBXG";
-const ANNUAL_PRICE_ID = "price_1SEa8pRx6z0kwL9SQgV247Ne";
+const ANNUAL_PRICE_ID = "price_1SEGLYRx6z0kwL9Seel9fua1";
 
 const Pricing = () => {
   const [loading, setLoading] = useState<string | null>(null);

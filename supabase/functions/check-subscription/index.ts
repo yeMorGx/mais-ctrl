@@ -107,18 +107,22 @@ serve(async (req) => {
     
     if (isTrialing && subscription.trial_end) {
       subscriptionEnd = new Date(subscription.trial_end * 1000).toISOString();
-      periodStart = new Date(subscription.current_period_start * 1000).toISOString();
+      // Use created date as start for trial subscriptions
+      periodStart = new Date(subscription.created * 1000).toISOString();
     } else {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       periodStart = new Date(subscription.current_period_start * 1000).toISOString();
     }
     
-    logStep("Active/trialing subscription found", { 
+    logStep("Processing subscription dates", { 
       id: subscription.id, 
       status: subscription.status,
-      trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
-      subscription_end: subscriptionEnd,
-      period_start: periodStart
+      isTrialing,
+      trial_end: subscription.trial_end,
+      current_period_start: subscription.current_period_start,
+      created: subscription.created,
+      calculated_end: subscriptionEnd,
+      calculated_start: periodStart
     });
 
     // Update user subscription status

@@ -74,7 +74,7 @@ serve(async (req) => {
 
     // Check for active or trialing subscriptions
     const activeSubscription = subscriptions.data.find(
-      sub => sub.status === 'active' || sub.status === 'trialing'
+      (sub: any) => sub.status === 'active' || sub.status === 'trialing'
     );
 
     if (!activeSubscription) {
@@ -99,32 +99,47 @@ serve(async (req) => {
     }
 
     const subscription = activeSubscription;
-    const subscriptionEnd = new Date(subscription.current_period_end * 1000);
     const isTrialing = subscription.status === 'trialing';
+    
+    // Handle subscription dates - use trial_end for trialing subscriptions
+    let subscriptionEnd: string | null = null;
+    let periodStart: string | null = null;
+    
+    if (isTrialing && subscription.trial_end) {
+      subscriptionEnd = new Date(subscription.trial_end * 1000).toISOString();
+      periodStart = new Date(subscription.created * 1000).toISOString();
+    } else if (subscription.current_period_end && subscription.current_period_start) {
+      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      periodStart = new Date(subscription.current_period_start * 1000).toISOString();
+    }
     
     logStep("Active/trialing subscription found", { 
       id: subscription.id, 
       status: subscription.status,
-      trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null
+      trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+      subscription_end: subscriptionEnd
     });
 
     // Update user subscription status
+    const updateData: any = {
+      plan: 'premium',
+      status: 'active',
+      stripe_customer_id: customerId,
+      stripe_subscription_id: subscription.id
+    };
+    
+    if (periodStart) updateData.current_period_start = periodStart;
+    if (subscriptionEnd) updateData.current_period_end = subscriptionEnd;
+    
     await supabaseClient
       .from('user_subscriptions')
-      .update({
-        plan: 'premium',
-        status: 'active',
-        stripe_customer_id: customerId,
-        stripe_subscription_id: subscription.id,
-        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-        current_period_end: subscriptionEnd.toISOString()
-      })
+      .update(updateData)
       .eq('user_id', user.id);
 
     return new Response(JSON.stringify({
       subscribed: true,
       plan: 'premium',
-      subscription_end: subscriptionEnd.toISOString(),
+      subscription_end: subscriptionEnd,
       is_trialing: isTrialing,
       trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null
     }), {

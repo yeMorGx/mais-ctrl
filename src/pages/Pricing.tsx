@@ -26,12 +26,12 @@ const Pricing = () => {
     "Backup automático",
   ];
 
-  const handleSubscribe = async (priceId: string, planName: string) => {
+  const handleSubscribe = async (priceId: string, planName: string, trialDays: number = 0) => {
     try {
       setLoading(priceId);
       
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId }
+        body: { priceId, trialDays }
       });
 
       if (error) throw error;
@@ -76,9 +76,6 @@ const Pricing = () => {
           {/* Plano Mensal - Simples */}
           <Card className="border-border hover:shadow-md transition-shadow">
             <CardHeader className="text-center">
-              <Badge className="mb-2 mx-auto w-fit bg-primary/10 text-primary border-primary/20">
-                7 Dias Grátis
-              </Badge>
               <CardTitle className="text-2xl">Mensal</CardTitle>
               <CardDescription>Pague mês a mês, sem compromisso</CardDescription>
             </CardHeader>
@@ -104,7 +101,7 @@ const Pricing = () => {
                 variant="outline" 
                 className="w-full" 
                 size="lg"
-                onClick={() => handleSubscribe(MONTHLY_PRICE_ID, "Mensal")}
+                onClick={() => handleSubscribe(MONTHLY_PRICE_ID, "Mensal", 0)}
                 disabled={loading !== null}
               >
                 {loading === MONTHLY_PRICE_ID ? (
@@ -134,7 +131,7 @@ const Pricing = () => {
             
             <CardHeader className="text-center relative z-10 pt-10">
               <Badge className="mb-3 mx-auto w-fit bg-gradient-primary border-0 text-white shadow-lg animate-pulse">
-                7 Dias Grátis
+                3 Dias Grátis
               </Badge>
               <CardTitle className="text-3xl bg-gradient-primary bg-clip-text text-transparent">
                 Anual
@@ -181,7 +178,7 @@ const Pricing = () => {
               <Button 
                 className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-lg h-14 font-bold shadow-lg" 
                 size="lg"
-                onClick={() => handleSubscribe(ANNUAL_PRICE_ID, "Anual")}
+                onClick={() => handleSubscribe(ANNUAL_PRICE_ID, "Anual", 3)}
                 disabled={loading !== null}
               >
                 {loading === ANNUAL_PRICE_ID ? (
@@ -204,10 +201,10 @@ const Pricing = () => {
         <div className="max-w-4xl mx-auto mt-12">
           <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20 rounded-2xl p-8 text-center">
             <h3 className="text-2xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-              🎉 Teste Grátis por 7 Dias
+              🎉 Teste Grátis por 3 Dias no Plano Anual
             </h3>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Experimente todos os recursos Premium sem compromisso. Você só será cobrado após o período de teste. 
+              Experimente todos os recursos Premium no plano anual sem compromisso. Você só será cobrado após o período de teste. 
               Cancele quando quiser, sem taxas ou multas.
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-sm">
@@ -221,7 +218,7 @@ const Pricing = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-primary" />
-                <span>✨ Acesso completo por 7 dias</span>
+                <span>✨ Acesso completo por 3 dias</span>
               </div>
             </div>
           </div>

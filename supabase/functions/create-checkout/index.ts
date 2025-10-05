@@ -18,7 +18,7 @@ serve(async (req) => {
   );
 
   try {
-    const { priceId } = await req.json();
+    const { priceId, trialDays = 0 } = await req.json();
     
     if (!priceId) {
       throw new Error("Price ID is required");
@@ -45,8 +45,8 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Create checkout session with 7-day trial
-    const session = await stripe.checkout.sessions.create({
+    // Create checkout session with optional trial
+    const sessionConfig: any = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
@@ -56,21 +56,27 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      subscription_data: {
-        trial_period_days: 7,
-        trial_settings: {
-          end_behavior: {
-            missing_payment_method: 'cancel',
-          },
-        },
-      },
       payment_method_collection: 'always',
       success_url: `${req.headers.get("origin")}/dashboard?success=true`,
       cancel_url: `${req.headers.get("origin")}/pricing`,
       metadata: {
         user_id: user.id,
       },
-    });
+    };
+
+    // Add trial only if trialDays > 0
+    if (trialDays > 0) {
+      sessionConfig.subscription_data = {
+        trial_period_days: trialDays,
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: 'cancel',
+          },
+        },
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

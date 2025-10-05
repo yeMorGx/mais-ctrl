@@ -102,13 +102,13 @@ serve(async (req) => {
     const isTrialing = subscription.status === 'trialing';
     
     // Handle subscription dates - use trial_end for trialing subscriptions
-    let subscriptionEnd: string | null = null;
-    let periodStart: string | null = null;
+    let subscriptionEnd: string;
+    let periodStart: string;
     
     if (isTrialing && subscription.trial_end) {
       subscriptionEnd = new Date(subscription.trial_end * 1000).toISOString();
-      periodStart = new Date(subscription.created * 1000).toISOString();
-    } else if (subscription.current_period_end && subscription.current_period_start) {
+      periodStart = new Date(subscription.current_period_start * 1000).toISOString();
+    } else {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       periodStart = new Date(subscription.current_period_start * 1000).toISOString();
     }
@@ -117,24 +117,29 @@ serve(async (req) => {
       id: subscription.id, 
       status: subscription.status,
       trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
-      subscription_end: subscriptionEnd
+      subscription_end: subscriptionEnd,
+      period_start: periodStart
     });
 
     // Update user subscription status
-    const updateData: any = {
-      plan: 'premium',
-      status: 'active',
-      stripe_customer_id: customerId,
-      stripe_subscription_id: subscription.id
-    };
-    
-    if (periodStart) updateData.current_period_start = periodStart;
-    if (subscriptionEnd) updateData.current_period_end = subscriptionEnd;
-    
-    await supabaseClient
+    const { error: updateError } = await supabaseClient
       .from('user_subscriptions')
-      .update(updateData)
+      .update({
+        plan: 'premium',
+        status: 'active',
+        stripe_customer_id: customerId,
+        stripe_subscription_id: subscription.id,
+        current_period_start: periodStart,
+        current_period_end: subscriptionEnd
+      })
       .eq('user_id', user.id);
+      
+    if (updateError) {
+      logStep("ERROR updating subscription", { error: updateError });
+      throw new Error(`Failed to update subscription: ${updateError.message}`);
+    }
+    
+    logStep("Subscription updated successfully");
 
     return new Response(JSON.stringify({
       subscribed: true,

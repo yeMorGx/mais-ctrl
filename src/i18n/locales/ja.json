@@ -1,0 +1,48 @@
+{
+  "common": {
+    "loading": "読み込み中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "back": "戻る"
+  },
+  "nav": {
+    "home": "ホーム",
+    "pricing": "プラン",
+    "support": "サポート",
+    "dashboard": "ダッシュボード",
+    "login": "ログイン",
+    "signup": "新規登録"
+  },
+  "auth": {
+    "welcome": "ようこそ",
+    "signIn": "ログイン",
+    "signUp": "新規登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "fullName": "氏名",
+    "forgotPassword": "パスワードを忘れた",
+    "signingIn": "ログイン中...",
+    "signingUp": "アカウント作成中...",
+    "backToHome": "ホームに戻る",
+    "tagline": "サブスクリプションをスマートに管理",
+    "welcomeMessage": "アカウントにログインするか、新しく作成してください",
+    "passwordStrength": "パスワード強度:",
+    "weak": "弱い",
+    "medium": "普通",
+    "strong": "強い",
+    "minChars": "最低8文字",
+    "uppercase": "大文字1文字",
+    "lowercase": "小文字1文字",
+    "number": "数字1文字",
+    "specialChar": "特殊文字1文字"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "overview": "サブスクリプション概要",
+    "newSubscription": "新規サブスクリプション",
+    "limitReached": "上限に達しました",
+    "unlock": "解除"
+  }
+}

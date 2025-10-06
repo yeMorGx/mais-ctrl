@@ -1,0 +1,48 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back"
+  },
+  "nav": {
+    "home": "Home",
+    "pricing": "Pricing",
+    "support": "Support",
+    "dashboard": "Dashboard",
+    "login": "Sign in",
+    "signup": "Sign up"
+  },
+  "auth": {
+    "welcome": "Welcome",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full name",
+    "forgotPassword": "Forgot my password",
+    "signingIn": "Signing in...",
+    "signingUp": "Creating account...",
+    "backToHome": "Back to home",
+    "tagline": "Manage your subscriptions intelligently",
+    "welcomeMessage": "Sign in to your account or create a new one",
+    "passwordStrength": "Password strength:",
+    "weak": "Weak",
+    "medium": "Medium",
+    "strong": "Strong",
+    "minChars": "Minimum 8 characters",
+    "uppercase": "One uppercase letter",
+    "lowercase": "One lowercase letter",
+    "number": "One number",
+    "specialChar": "One special character"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview of your subscriptions",
+    "newSubscription": "New subscription",
+    "limitReached": "Limit reached",
+    "unlock": "Unlock"
+  }
+}

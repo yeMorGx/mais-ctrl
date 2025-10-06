@@ -3,10 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -17,9 +20,9 @@ export const Navigation = () => {
   };
 
   const navLinks = [
-    { label: "Início", href: "#hero" },
+    { label: t("nav.home"), href: "#hero" },
     { label: "Recursos", href: "#features" },
-    { label: "Planos", href: "#pricing" },
+    { label: t("nav.pricing"), href: "#pricing" },
   ];
 
   return (
@@ -44,11 +47,12 @@ export const Navigation = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher />
             <Link to="/auth">
-              <Button variant="ghost">Entrar</Button>
+              <Button variant="ghost">{t("nav.login")}</Button>
             </Link>
             <Link to="/auth">
-              <Button variant="gradient">Começar grátis</Button>
+              <Button variant="gradient">{t("nav.signup")}</Button>
             </Link>
           </div>
 
@@ -77,14 +81,15 @@ export const Navigation = () => {
                 </button>
               ))}
               <div className="flex flex-col gap-2 px-4 pt-4 border-t border-border">
+                <LanguageSwitcher />
                 <Link to="/auth" onClick={() => setIsOpen(false)}>
                   <Button variant="ghost" className="w-full">
-                    Entrar
+                    {t("nav.login")}
                   </Button>
                 </Link>
                 <Link to="/auth" onClick={() => setIsOpen(false)}>
                   <Button variant="gradient" className="w-full">
-                    Começar grátis
+                    {t("nav.signup")}
                   </Button>
                 </Link>
               </div>

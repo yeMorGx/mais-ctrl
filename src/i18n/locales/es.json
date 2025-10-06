@@ -1,0 +1,48 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Volver"
+  },
+  "nav": {
+    "home": "Inicio",
+    "pricing": "Planes",
+    "support": "Soporte",
+    "dashboard": "Panel",
+    "login": "Iniciar sesión",
+    "signup": "Crear cuenta"
+  },
+  "auth": {
+    "welcome": "Bienvenido",
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "fullName": "Nombre completo",
+    "forgotPassword": "Olvidé mi contraseña",
+    "signingIn": "Iniciando sesión...",
+    "signingUp": "Creando cuenta...",
+    "backToHome": "Volver al inicio",
+    "tagline": "Administra tus suscripciones con inteligencia",
+    "welcomeMessage": "Inicia sesión en tu cuenta o crea una nueva",
+    "passwordStrength": "Fuerza de la contraseña:",
+    "weak": "Débil",
+    "medium": "Media",
+    "strong": "Fuerte",
+    "minChars": "Mínimo 8 caracteres",
+    "uppercase": "Una letra mayúscula",
+    "lowercase": "Una letra minúscula",
+    "number": "Un número",
+    "specialChar": "Un carácter especial"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "overview": "Resumen de tus suscripciones",
+    "newSubscription": "Nueva suscripción",
+    "limitReached": "Límite alcanzado",
+    "unlock": "Desbloquear"
+  }
+}

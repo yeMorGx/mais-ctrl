@@ -1,0 +1,48 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "back": "Voltar"
+  },
+  "nav": {
+    "home": "Início",
+    "pricing": "Planos",
+    "support": "Suporte",
+    "dashboard": "Dashboard",
+    "login": "Entrar",
+    "signup": "Criar conta"
+  },
+  "auth": {
+    "welcome": "Bem-vindo",
+    "signIn": "Entrar",
+    "signUp": "Criar conta",
+    "email": "Email",
+    "password": "Senha",
+    "fullName": "Nome completo",
+    "forgotPassword": "Esqueci minha senha",
+    "signingIn": "Entrando...",
+    "signingUp": "Criando conta...",
+    "backToHome": "Voltar para o início",
+    "tagline": "Gerencie suas assinaturas com inteligência",
+    "welcomeMessage": "Entre na sua conta ou crie uma nova",
+    "passwordStrength": "Força da senha:",
+    "weak": "Fraca",
+    "medium": "Média",
+    "strong": "Forte",
+    "minChars": "Mínimo 8 caracteres",
+    "uppercase": "Uma letra maiúscula",
+    "lowercase": "Uma letra minúscula",
+    "number": "Um número",
+    "specialChar": "Um caractere especial"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Visão geral das suas assinaturas",
+    "newSubscription": "Nova assinatura",
+    "limitReached": "Limite atingido",
+    "unlock": "Desbloqueie"
+  }
+}

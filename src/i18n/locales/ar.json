@@ -1,0 +1,48 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "pricing": "الخطط",
+    "support": "الدعم",
+    "dashboard": "لوحة التحكم",
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب"
+  },
+  "auth": {
+    "welcome": "مرحباً",
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "fullName": "الاسم الكامل",
+    "forgotPassword": "نسيت كلمة المرور",
+    "signingIn": "جاري تسجيل الدخول...",
+    "signingUp": "جاري إنشاء الحساب...",
+    "backToHome": "العودة إلى الرئيسية",
+    "tagline": "إدارة اشتراكاتك بذكاء",
+    "welcomeMessage": "قم بتسجيل الدخول إلى حسابك أو إنشاء حساب جديد",
+    "passwordStrength": "قوة كلمة المرور:",
+    "weak": "ضعيفة",
+    "medium": "متوسطة",
+    "strong": "قوية",
+    "minChars": "الحد الأدنى 8 أحرف",
+    "uppercase": "حرف كبير واحد",
+    "lowercase": "حرف صغير واحد",
+    "number": "رقم واحد",
+    "specialChar": "حرف خاص واحد"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "overview": "نظرة عامة على اشتراكاتك",
+    "newSubscription": "اشتراك جديد",
+    "limitReached": "تم الوصول للحد",
+    "unlock": "فتح"
+  }
+}

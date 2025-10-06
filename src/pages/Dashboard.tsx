@@ -323,7 +323,11 @@ const Dashboard = () => {
           </div>
 
           {/* Desktop Tabs */}
-          <TabsList className={`hidden lg:grid w-full ${isOwner ? 'grid-cols-10' : isLiveChatAgent ? 'grid-cols-9' : 'grid-cols-8'} mb-8`}>
+          <TabsList className={`hidden lg:grid w-full ${
+            isOwner ? 'grid-cols-12' : 
+            isPremium ? 'grid-cols-10' : 
+            'grid-cols-8'
+          } mb-8`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>

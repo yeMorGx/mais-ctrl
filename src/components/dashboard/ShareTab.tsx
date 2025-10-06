@@ -4,29 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Users, Plus, Share2, CheckCircle, XCircle, Clock } from "lucide-react";
 
 export const ShareTab = () => {
-  // Mock data
-  const sharedSubscriptions = [
-    {
-      id: "1",
-      name: "Netflix Premium",
-      totalValue: 55.90,
-      partners: [
-        { name: "João Silva", status: "paid", value: 13.98 },
-        { name: "Maria Santos", status: "pending", value: 13.98 },
-        { name: "Pedro Costa", status: "paid", value: 13.98 },
-        { name: "Você", status: "paid", value: 13.96 },
-      ],
-    },
-    {
-      id: "2",
-      name: "Spotify Família",
-      totalValue: 34.90,
-      partners: [
-        { name: "Ana Lima", status: "paid", value: 17.45 },
-        { name: "Você", status: "paid", value: 17.45 },
-      ],
-    },
-  ];
+  // Dados reais - vazio por padrão
+  const sharedSubscriptions: any[] = [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -78,6 +57,22 @@ export const ShareTab = () => {
       </Card>
 
       {/* Assinaturas Compartilhadas */}
+      {sharedSubscriptions.length === 0 && (
+        <Card className="border-dashed">
+          <CardContent className="py-12 text-center">
+            <Share2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+            <h3 className="font-semibold text-lg mb-2">Nenhuma assinatura compartilhada</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Comece a compartilhar assinaturas e dividir custos com amigos
+            </p>
+            <Button className="bg-gradient-primary">
+              <Plus className="mr-2 h-4 w-4" />
+              Criar Primeira Conta Compartilhada
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+      
       {sharedSubscriptions.map((subscription) => (
         <Card key={subscription.id}>
           <CardHeader>

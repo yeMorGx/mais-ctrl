@@ -79,39 +79,7 @@ export const PlanManagement = ({ isPremium = false }: PlanManagementProps) => {
         </CardContent>
       </Card>
 
-      {/* Histórico de Pagamentos */}
-      {isPremium && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Histórico de Pagamentos</CardTitle>
-            <CardDescription>Seus pagamentos do plano +Premium</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {[
-                { date: "15/01/2025", amount: "R$ 149,90", status: "Pago" },
-                { date: "15/01/2024", amount: "R$ 149,90", status: "Pago" },
-              ].map((payment, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-semibold">{payment.date}</p>
-                      <Badge variant="secondary" className="mt-1">
-                        {payment.status}
-                      </Badge>
-                    </div>
-                  </div>
-                  <p className="font-bold">{payment.amount}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Histórico de Pagamentos - removido dados mock */}
 
       {/* Gerenciar Assinatura */}
       {isPremium && (

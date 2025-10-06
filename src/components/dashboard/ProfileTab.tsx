@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Upload, Loader2, Mail, DollarSign, Building2, Crown } from "lucide-react";
+import { User, Upload, Loader2, Mail, DollarSign, Building2, Crown, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -290,22 +290,24 @@ export const ProfileTab = () => {
         </CardContent>
       </Card>
 
-      {/* Contas Vinculadas */}
+      {/* Contas Vinculadas - Em breve */}
       <Card>
         <CardHeader>
-          <CardTitle>Contas Vinculadas</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle>Contas Vinculadas</CardTitle>
+            <Badge variant="secondary" className="animate-pulse">
+              <Clock className="mr-1 h-3 w-3" />
+              Em breve
+            </Badge>
+          </div>
           <CardDescription>Conecte suas contas bancárias e cartões</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
-              <Building2 className="mr-2 h-4 w-4" />
-              Adicionar Conta Bancária
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <DollarSign className="mr-2 h-4 w-4" />
-              Adicionar Cartão
-            </Button>
+          <div className="p-6 bg-muted/30 rounded-lg border border-dashed text-center">
+            <Building2 className="h-10 w-10 mx-auto text-muted-foreground/50 mb-3" />
+            <p className="text-sm text-muted-foreground">
+              A funcionalidade de vincular contas bancárias e cartões estará disponível em breve
+            </p>
           </div>
         </CardContent>
       </Card>

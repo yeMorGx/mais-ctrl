@@ -32,15 +32,10 @@ export const FinancialAnalysis = ({ subscriptions }: FinancialAnalysisProps) => 
     value: sub.frequency === "monthly" ? sub.value : sub.value / 12,
   }));
 
-  // Dados para gráfico de barras (últimos 6 meses - mock)
-  const barData = [
-    { month: "Ago", value: monthlyTotal * 0.85 },
-    { month: "Set", value: monthlyTotal * 0.92 },
-    { month: "Out", value: monthlyTotal * 0.88 },
-    { month: "Nov", value: monthlyTotal * 0.95 },
-    { month: "Dez", value: monthlyTotal },
-    { month: "Jan", value: monthlyTotal },
-  ];
+  // Dados para gráfico de barras (baseado em dados reais)
+  const barData = subscriptions.length > 0 ? [
+    { month: "Mês atual", value: monthlyTotal }
+  ] : [];
 
   const COLORS = [
     "hsl(262 83% 58%)",
@@ -50,21 +45,29 @@ export const FinancialAnalysis = ({ subscriptions }: FinancialAnalysisProps) => 
     "hsl(262 83% 48%)",
   ];
 
-  // Insights
-  const insights = [
-    {
+  // Insights baseados em dados reais
+  const monthlySubscriptions = subscriptions.filter(s => s.frequency === "monthly").length;
+  const annualSubscriptions = subscriptions.filter(s => s.frequency === "annual").length;
+  
+  const insights = [];
+  
+  if (monthlySubscriptions >= 2) {
+    insights.push({
       icon: TrendingDown,
       title: "Oportunidade de economia",
-      description: "Considere trocar 2 assinaturas mensais por planos anuais e economize até 20%",
+      description: `Você tem ${monthlySubscriptions} assinaturas mensais. Considere planos anuais para economizar até 20%`,
       color: "text-secondary",
-    },
-    {
-      icon: TrendingUp,
-      title: "Tendência de gastos",
-      description: "Seus gastos aumentaram 8% nos últimos 3 meses",
-      color: "text-destructive",
-    },
-  ];
+    });
+  }
+  
+  if (subscriptions.length > 0) {
+    insights.push({
+      icon: Lightbulb,
+      title: "Total de assinaturas",
+      description: `Você gerencia ${subscriptions.length} assinatura${subscriptions.length !== 1 ? 's' : ''} (${monthlySubscriptions} mensais, ${annualSubscriptions} anuais)`,
+      color: "text-primary",
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -116,23 +119,25 @@ export const FinancialAnalysis = ({ subscriptions }: FinancialAnalysisProps) => 
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Evolução Mensal</CardTitle>
-              <CardDescription>Últimos 6 meses</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={barData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
-                  <Bar dataKey="value" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          {barData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumo de Gastos</CardTitle>
+                <CardDescription>Baseado nas suas assinaturas ativas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={barData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
+                    <Bar dataKey="value" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="annual" className="space-y-6">
@@ -154,25 +159,27 @@ export const FinancialAnalysis = ({ subscriptions }: FinancialAnalysisProps) => 
       </Tabs>
 
       {/* Insights */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-primary" />
-            Insights Financeiros
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {insights.map((insight, i) => (
-            <div key={i} className="flex gap-3 p-4 bg-muted/50 rounded-lg">
-              <insight.icon className={`h-5 w-5 ${insight.color} flex-shrink-0 mt-0.5`} />
-              <div>
-                <h4 className="font-semibold mb-1">{insight.title}</h4>
-                <p className="text-sm text-muted-foreground">{insight.description}</p>
+      {insights.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-primary" />
+              Insights Financeiros
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {insights.map((insight, i) => (
+              <div key={i} className="flex gap-3 p-4 bg-muted/50 rounded-lg">
+                <insight.icon className={`h-5 w-5 ${insight.color} flex-shrink-0 mt-0.5`} />
+                <div>
+                  <h4 className="font-semibold mb-1">{insight.title}</h4>
+                  <p className="text-sm text-muted-foreground">{insight.description}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

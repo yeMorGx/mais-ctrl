@@ -64,12 +64,17 @@ export const ProfileTab = () => {
 
       const file = event.target.files[0];
       
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      // Validate file type - allow GIF for premium users
+      const validTypes = isPremium 
+        ? ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+        : ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      
       if (!validTypes.includes(file.type)) {
         toast({
           title: "Tipo de arquivo inválido",
-          description: "Apenas JPG, PNG, GIF e WEBP são permitidos",
+          description: isPremium 
+            ? "Apenas JPG, PNG, GIF e WEBP são permitidos"
+            : "Apenas JPG, PNG e WEBP são permitidos. GIFs são exclusivos para usuários Premium",
           variant: "destructive"
         });
         return;
@@ -186,7 +191,10 @@ export const ProfileTab = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                accept={isPremium 
+                  ? "image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  : "image/jpeg,image/jpg,image/png,image/webp"
+                }
                 onChange={uploadAvatar}
                 className="hidden"
               />
@@ -194,6 +202,7 @@ export const ProfileTab = () => {
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
+                className={isPremium ? 'border-primary/50 hover:border-primary' : ''}
               >
                 {uploading ? (
                   <>
@@ -208,7 +217,10 @@ export const ProfileTab = () => {
                 )}
               </Button>
               <p className="text-xs text-muted-foreground">
-                JPG, PNG, GIF ou WEBP. Máx 5MB.
+                {isPremium 
+                  ? "JPG, PNG, GIF ou WEBP. Máx 5MB."
+                  : "JPG, PNG ou WEBP. Máx 5MB. GIFs exclusivos Premium."
+                }
               </p>
             </div>
           </div>

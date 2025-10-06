@@ -53,6 +53,16 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 5% 10%;
     --sidebar-border: 240 6% 90%;
     --sidebar-ring: 262 83% 58%;
+    
+    /* Premium Golden Theme */
+    --premium-gold: 45 100% 51%;
+    --premium-gold-light: 48 100% 67%;
+    --premium-gold-dark: 38 92% 41%;
+    --premium-background: 45 23% 97%;
+    --premium-card: 48 27% 94%;
+    --premium-border: 45 15% 82%;
+    --gradient-premium: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 41%));
+    --shadow-premium: 0 10px 40px -10px hsl(45 100% 51% / 0.4);
   }
 
   .dark {
@@ -99,6 +109,28 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 5% 90%;
     --sidebar-border: 240 10% 20%;
     --sidebar-ring: 262 83% 58%;
+    
+    /* Premium Golden Theme - Dark Mode */
+    --premium-gold: 45 100% 51%;
+    --premium-gold-light: 48 100% 67%;
+    --premium-gold-dark: 38 92% 41%;
+    --premium-background: 42 15% 13%;
+    --premium-card: 42 13% 18%;
+    --premium-border: 42 10% 28%;
+    --gradient-premium: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 41%));
+    --shadow-premium: 0 10px 40px -10px hsl(45 100% 51% / 0.5);
+  }
+
+  .premium-theme {
+    --background: var(--premium-background);
+    --card: var(--premium-card);
+    --border: var(--premium-border);
+    --primary: var(--premium-gold);
+    --primary-foreground: 42 15% 13%;
+    --primary-glow: var(--premium-gold-light);
+    --accent: var(--premium-gold);
+    --gradient-primary: var(--gradient-premium);
+    --shadow-elegant: var(--shadow-premium);
   }
 }
 
@@ -122,4 +154,13 @@ All colors MUST be HSL.
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(234, 179, 8, 0.8); }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
 }

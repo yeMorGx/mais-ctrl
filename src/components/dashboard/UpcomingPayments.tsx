@@ -5,6 +5,7 @@ import { useState } from "react";
 import { format, parseISO, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getSubscriptionLogo } from "@/lib/subscriptionLogos";
+import { DollarSign } from "lucide-react";
 
 interface Subscription {
   id: string;
@@ -39,23 +40,61 @@ export const UpcomingPayments = ({ subscriptions }: UpcomingPaymentsProps) => {
           <CardDescription>Selecione uma data para ver os pagamentos</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            locale={ptBR}
-            className="rounded-md border"
-            modifiers={{
-              payment: datesWithPayments,
-            }}
-            modifiersStyles={{
-              payment: {
-                backgroundColor: "hsl(var(--primary))",
-                color: "white",
-                fontWeight: "bold",
-              },
-            }}
-          />
+          <div className="relative">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              locale={ptBR}
+              className="rounded-md border-0"
+              modifiers={{
+                payment: datesWithPayments,
+              }}
+              modifiersClassNames={{
+                payment: "payment-day",
+              }}
+            />
+            <style>{`
+              .payment-day {
+                position: relative;
+                background-color: transparent !important;
+                color: hsl(var(--foreground)) !important;
+                font-weight: 600 !important;
+              }
+              .payment-day::after {
+                content: '';
+                position: absolute;
+                bottom: 2px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 4px;
+                height: 4px;
+                background: hsl(var(--primary));
+                border-radius: 50%;
+                animation: payment-pulse 2s ease-in-out infinite;
+              }
+              .payment-day::before {
+                content: '$';
+                position: absolute;
+                top: 1px;
+                right: 1px;
+                font-size: 8px;
+                font-weight: 700;
+                color: hsl(var(--primary));
+                opacity: 0.7;
+              }
+              @keyframes payment-pulse {
+                0%, 100% {
+                  opacity: 0.5;
+                  transform: translateX(-50%) scale(0.8);
+                }
+                50% {
+                  opacity: 1;
+                  transform: translateX(-50%) scale(1.2);
+                }
+              }
+            `}</style>
+          </div>
         </CardContent>
       </Card>
 

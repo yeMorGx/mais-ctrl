@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Sparkles, Trash2, Link2, Copy, MessageCircle } from "lucide-react";
+import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Sparkles, Trash2, Link2, Copy, MessageCircle, RotateCcw, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,62 @@ export const ShareTab = () => {
     totalValue: "",
     partners: [{ name: "", email: "", value: "" }]
   });
+
+  const handleRenewSubscription = (subscriptionId: string, subscriptionName: string) => {
+    const subscription = sharedSubscriptions.find(s => s.id === subscriptionId);
+    if (subscription?.status === 'cancelled') {
+      const updatedSubs = sharedSubscriptions.map(sub =>
+        sub.id === subscriptionId
+          ? { ...sub, status: 'active', recurringBilling: true }
+          : sub
+      );
+      setSharedSubscriptions(updatedSubs);
+      toast({
+        title: "Assinatura renovada!",
+        description: `${subscriptionName} foi reativada com sucesso`
+      });
+    } else {
+      toast({
+        title: "Não é possível renovar",
+        description: "Apenas assinaturas canceladas podem ser renovadas",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleToggleRecurringBilling = (subscriptionId: string, subscriptionName: string) => {
+    const subscription = sharedSubscriptions.find(s => s.id === subscriptionId);
+    const newRecurringState = !subscription?.recurringBilling;
+    
+    const updatedSubs = sharedSubscriptions.map(sub =>
+      sub.id === subscriptionId
+        ? { ...sub, recurringBilling: newRecurringState }
+        : sub
+    );
+    setSharedSubscriptions(updatedSubs);
+    
+    toast({
+      title: newRecurringState ? "Cobrança recorrente ativada" : "Cobrança recorrente desativada",
+      description: `${subscriptionName} - ${newRecurringState ? 'A assinatura será renovada automaticamente' : 'A assinatura não será renovada automaticamente'}`
+    });
+  };
+
+  const handleCancelSubscription = (subscriptionId: string, subscriptionName: string) => {
+    if (confirm(`Tem certeza que deseja cancelar a assinatura "${subscriptionName}"?`)) {
+      const updatedSubs = sharedSubscriptions.map(sub =>
+        sub.id === subscriptionId
+          ? { ...sub, status: 'cancelled', recurringBilling: false }
+          : sub
+      );
+      setSharedSubscriptions(updatedSubs);
+      
+      toast({
+        title: "Assinatura cancelada",
+        description: `${subscriptionName} foi cancelada com sucesso`,
+        variant: "destructive"
+      });
+    }
+  };
 
   const generateInviteLink = (subscriptionId: string) => {
     return `${window.location.origin}/share/invite/${subscriptionId}`;
@@ -78,6 +134,8 @@ export const ShareTab = () => {
       id: Date.now().toString(),
       name: newSubscription.name,
       totalValue: parseFloat(newSubscription.totalValue),
+      status: 'active',
+      recurringBilling: true,
       partners: validPartners.map(p => ({
         ...p,
         value: parseFloat(p.value),
@@ -384,9 +442,14 @@ export const ShareTab = () => {
                 </CardContent>
               </Card>
 
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span>{subscription.partners.length} participantes</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  <span>{subscription.partners.length} participantes</span>
+                </div>
+                <Badge variant={subscription.status === 'active' ? 'default' : 'destructive'}>
+                  {subscription.status === 'active' ? 'Ativa' : 'Cancelada'}
+                </Badge>
               </div>
 
               {subscription.partners.map((partner: any, i: number) => (
@@ -417,7 +480,58 @@ export const ShareTab = () => {
                 </div>
               ))}
 
-              <div className="flex gap-2 pt-4">
+              {/* Subscription Management Actions */}
+              <Card className="bg-muted/30 border-muted">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium">Gerenciar Assinatura</CardTitle>
+                  <CardDescription className="text-xs">Opções de gerenciamento do seu plano</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2 pt-0">
+                  {subscription.status === 'cancelled' && (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => handleRenewSubscription(subscription.id, subscription.name)}
+                    >
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      Renovar Agora
+                    </Button>
+                  )}
+                  
+                  {subscription.status === 'active' && (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => handleToggleRecurringBilling(subscription.id, subscription.name)}
+                    >
+                      {subscription.recurringBilling ? (
+                        <>
+                          <X className="h-4 w-4 mr-2" />
+                          Desativar Cobrança Recorrente
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Ativar Cobrança Recorrente
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  
+                  {subscription.status === 'active' && (
+                    <Button
+                      variant="destructive"
+                      className="w-full justify-start"
+                      onClick={() => handleCancelSubscription(subscription.id, subscription.name)}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancelar Assinatura
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+
+              <div className="flex gap-2 pt-2">
                 <Button variant="outline" className="flex-1">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Adicionar Parceiro

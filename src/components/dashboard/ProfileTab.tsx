@@ -174,15 +174,15 @@ export const ProfileTab = () => {
         <CardContent className="space-y-6">
           {/* Avatar Upload */}
           <div className="flex items-center gap-6">
-            <div className="relative">
-              <Avatar className={`h-24 w-24 ${isPremium ? 'ring-4 ring-primary shadow-[0_0_25px_rgba(139,92,246,0.6)] animate-glow-pulse' : ''}`}>
+            <div className={isPremium ? "premium-avatar-frame" : "relative"}>
+              <Avatar className="h-24 w-24">
                 <AvatarImage src={profile?.avatar_url || ''} />
                 <AvatarFallback className="text-2xl bg-gradient-primary text-white">
                   <User className="h-12 w-12" />
                 </AvatarFallback>
               </Avatar>
               {isPremium && (
-                <div className="absolute -top-1 -right-1 bg-gradient-primary rounded-full p-1.5 shadow-lg">
+                <div className="absolute -top-1 -right-1 bg-gradient-premium rounded-full p-1.5 shadow-lg z-10">
                   <Crown className="h-4 w-4 text-white" />
                 </div>
               )}

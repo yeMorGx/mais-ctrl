@@ -117,19 +117,19 @@ const Pricing = () => {
           </Card>
 
           {/* Plano Anual - DESTAQUE COM ANIMAÇÃO */}
-          <Card className="relative border-2 border-primary shadow-glow animate-glow-pulse overflow-hidden">
-            {/* Selo de destaque */}
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 z-10">
-              <Badge className="bg-gradient-primary border-0 px-6 py-2 text-base font-bold shadow-lg animate-float">
+          <Card className="relative border-2 border-primary shadow-glow overflow-visible">
+            {/* Selo de destaque - sobreposto */}
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+              <Badge className="bg-gradient-primary border-0 px-6 py-2.5 text-base font-bold shadow-xl animate-float">
                 <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
                 Mais Popular
               </Badge>
             </div>
 
             {/* Brilho de fundo animado */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 animate-border-flow" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 pointer-events-none" />
             
-            <CardHeader className="text-center relative z-10 pt-10">
+            <CardHeader className="text-center relative z-10 pt-12">
               <Badge className="mb-3 mx-auto w-fit bg-gradient-primary border-0 text-white shadow-lg animate-pulse">
                 3 Dias Grátis
               </Badge>

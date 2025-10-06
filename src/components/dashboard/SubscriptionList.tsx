@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, CreditCard } from "lucide-react";
-import { format } from "date-fns";
+import { Pencil, Trash2, CreditCard, CheckCircle2 } from "lucide-react";
+import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -92,6 +92,13 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
     return frequency === "monthly" ? "Mensal" : "Anual";
   };
 
+  const handleMarkAsPaid = (subId: string, subName: string) => {
+    toast({
+      title: "Assinatura marcada como paga",
+      description: `${subName} foi marcada como paga com sucesso`,
+    });
+  };
+
   return (
     <Card className="border-border">
       <CardHeader>
@@ -105,6 +112,9 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
           {subscriptions.map((sub) => {
             const logo = getSubscriptionLogo(sub.name);
             const IconComponent = logo.icon;
+            const renewalDate = new Date(sub.renewal_date);
+            const daysUntilRenewal = differenceInDays(renewalDate, new Date());
+            const isPaid = daysUntilRenewal > 7;
             
             return (
               <div 
@@ -119,7 +129,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
                     <h4 className="font-semibold truncate">{sub.name}</h4>
                     <div className="flex flex-wrap gap-2 mt-1">
                       <p className="text-sm text-muted-foreground">
-                        Próximo: {format(new Date(sub.renewal_date), "dd/MM/yyyy", { locale: ptBR })}
+                        Próximo: {format(renewalDate, "dd/MM/yyyy", { locale: ptBR })}
                       </p>
                       <Badge variant="outline" className="text-xs">
                         {getPaymentMethodLabel(sub.payment_method)}
@@ -139,6 +149,23 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
                   </div>
 
                   <div className="flex gap-2">
+                    {isPaid ? (
+                      <Badge className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30 hover:bg-green-500/20">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Paga
+                      </Badge>
+                    ) : (
+                      <Button 
+                        variant="default"
+                        size="sm"
+                        className="bg-gradient-primary"
+                        onClick={() => handleMarkAsPaid(sub.id, sub.name)}
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Pagar
+                      </Button>
+                    )}
+                    
                     {showEdit && (
                       <Button 
                         variant="ghost" 

@@ -323,7 +323,7 @@ const Dashboard = () => {
           </div>
 
           {/* Desktop Tabs */}
-          <TabsList className={`hidden lg:grid w-full ${isOwner ? 'grid-cols-12' : isLiveChatAgent ? 'grid-cols-10' : 'grid-cols-9'} mb-8`}>
+          <TabsList className={`hidden lg:grid w-full ${isOwner ? 'grid-cols-10' : isLiveChatAgent ? 'grid-cols-9' : 'grid-cols-8'} mb-8`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -379,18 +379,6 @@ const Dashboard = () => {
                   <span className="hidden sm:inline">Site</span>
                 </TabsTrigger>
               </>
-            )}
-            {isLiveChatAgent && (
-              <TabsTrigger value="live-chat" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">Chat</span>
-              </TabsTrigger>
-            )}
-            {isAdmin && (
-              <TabsTrigger value="support-admin" className="flex items-center gap-2">
-                <Headphones className="h-4 w-4" />
-                <span className="hidden sm:inline">Suporte</span>
-              </TabsTrigger>
             )}
           </TabsList>
 
@@ -535,10 +523,12 @@ const Dashboard = () => {
             </TabsContent>
           )}
 
-          {/* Support Admin Tab */}
-          <TabsContent value="support-admin">
-            <SupportAdminTab />
-          </TabsContent>
+          {/* Support Admin Tab - Admins Only */}
+          {isAdmin && (
+            <TabsContent value="support-admin">
+              <SupportAdminTab />
+            </TabsContent>
+          )}
         </Tabs>
       </main>
 

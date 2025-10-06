@@ -25,6 +25,7 @@ const Auth = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [loginError, setLoginError] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
@@ -61,12 +62,16 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoginError(false);
     
     const formData = new FormData(e.currentTarget);
     const email = formData.get("signin-email") as string;
     const password = formData.get("signin-password") as string;
 
-    await signIn(email, password);
+    const result = await signIn(email, password);
+    if (result.error) {
+      setLoginError(true);
+    }
     setIsLoading(false);
   };
 
@@ -228,14 +233,16 @@ const Auth = () => {
                   >
                     {isLoading ? "Entrando..." : "Entrar"}
                   </Button>
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="w-full text-sm"
-                    onClick={() => setShowForgotPassword(true)}
-                  >
-                    Esqueci minha senha
-                  </Button>
+                  {loginError && (
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="w-full text-sm"
+                      onClick={() => setShowForgotPassword(true)}
+                    >
+                      Esqueci minha senha
+                    </Button>
+                  )}
                 </form>
               </TabsContent>
 

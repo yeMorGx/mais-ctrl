@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Sparkles, Mail, Trash2 } from "lucide-react";
+import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Sparkles, Trash2, Link2, Copy, MessageCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,29 @@ export const ShareTab = () => {
     partners: [{ name: "", email: "", value: "" }]
   });
 
+  const generateInviteLink = (subscriptionId: string) => {
+    return `${window.location.origin}/share/invite/${subscriptionId}`;
+  };
+
+  const copyInviteLink = (subscriptionId: string) => {
+    const link = generateInviteLink(subscriptionId);
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Link copiado!",
+      description: "O link de convite foi copiado para a área de transferência"
+    });
+  };
+
+  const shareViaWhatsApp = (subscription: any) => {
+    const link = generateInviteLink(subscription.id);
+    const message = encodeURIComponent(
+      `🎉 Você foi convidado para dividir a assinatura de *${subscription.name}*!\n\n` +
+      `💰 Valor: R$ ${subscription.totalValue.toFixed(2)}\n` +
+      `👥 Participe e economize junto!\n\n` +
+      `Clique no link para aceitar: ${link}`
+    );
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+  };
 
   const addPartner = () => {
     setNewSubscription({
@@ -133,7 +156,6 @@ export const ShareTab = () => {
                 </DialogHeader>
                 
                 <div className="space-y-6 py-4">
-                  {/* Dados da Assinatura */}
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="subscription-name">Nome da Assinatura</Label>
@@ -158,7 +180,6 @@ export const ShareTab = () => {
                     </div>
                   </div>
 
-                  {/* Parceiros */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <Label>Parceiros</Label>
@@ -251,35 +272,29 @@ export const ShareTab = () => {
         </CardHeader>
       </Card>
 
-      {/* Assinaturas Compartilhadas */}
+      {/* Empty State */}
       {sharedSubscriptions.length === 0 && (
         <Card className="border-dashed border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
           <CardContent className="py-16 text-center">
-            {/* Ilustração de Pessoas Conectadas */}
             <div className="relative w-48 h-32 mx-auto mb-8">
-              {/* Pessoa 1 */}
               <div className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center text-white shadow-lg animate-pulse">
                 <Users className="h-6 w-6" />
               </div>
               
-              {/* Pessoa 2 */}
               <div className="absolute left-1/2 top-0 -translate-x-1/2 w-12 h-12 rounded-full bg-gradient-to-br from-secondary to-secondary-glow flex items-center justify-center text-white shadow-lg animate-pulse" style={{ animationDelay: '0.5s' }}>
                 <Users className="h-6 w-6" />
               </div>
               
-              {/* Pessoa 3 */}
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center text-white shadow-lg animate-pulse" style={{ animationDelay: '1s' }}>
                 <Users className="h-6 w-6" />
               </div>
               
-              {/* Linhas de Conexão */}
               <svg className="absolute inset-0 w-full h-full" style={{ zIndex: -1 }}>
                 <line x1="24" y1="50%" x2="50%" y2="24" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 4" className="animate-pulse" opacity="0.4" />
                 <line x1="50%" y1="24" x2="calc(100% - 24px)" y2="50%" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 4" className="animate-pulse" style={{ animationDelay: '0.5s' }} opacity="0.4" />
                 <line x1="24" y1="50%" x2="calc(100% - 24px)" y2="50%" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 4" className="animate-pulse" style={{ animationDelay: '1s' }} opacity="0.4" />
               </svg>
               
-              {/* Ícone Central */}
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center text-white shadow-xl">
                 <Share2 className="h-8 w-8" />
               </div>
@@ -302,132 +317,12 @@ export const ShareTab = () => {
                   Criar Primeira Conta Compartilhada
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Criar Conta Compartilhada</DialogTitle>
-                  <DialogDescription>
-                    Configure a assinatura e adicione parceiros para dividir os custos
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="space-y-6 py-4">
-                  {/* Mesmo conteúdo do dialog acima */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="subscription-name-2">Nome da Assinatura</Label>
-                      <Input
-                        id="subscription-name-2"
-                        placeholder="Ex: Netflix Premium"
-                        value={newSubscription.name}
-                        onChange={(e) => setNewSubscription({ ...newSubscription, name: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="total-value-2">Valor Total Mensal (R$)</Label>
-                      <Input
-                        id="total-value-2"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={newSubscription.totalValue}
-                        onChange={(e) => setNewSubscription({ ...newSubscription, totalValue: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label>Parceiros</Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={addPartner}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Adicionar Parceiro
-                      </Button>
-                    </div>
-
-                    {newSubscription.partners.map((partner, index) => (
-                      <Card key={index} className="p-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium text-sm">Parceiro {index + 1}</h4>
-                            {index > 0 && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removePartner(index)}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            )}
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div className="space-y-2">
-                              <Label className="text-xs">Nome</Label>
-                              <Input
-                                placeholder="Nome completo"
-                                value={partner.name}
-                                onChange={(e) => {
-                                  const updatedPartners = [...newSubscription.partners];
-                                  updatedPartners[index].name = e.target.value;
-                                  setNewSubscription({ ...newSubscription, partners: updatedPartners });
-                                }}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label className="text-xs">E-mail</Label>
-                              <Input
-                                type="email"
-                                placeholder="email@exemplo.com"
-                                value={partner.email}
-                                onChange={(e) => {
-                                  const updatedPartners = [...newSubscription.partners];
-                                  updatedPartners[index].email = e.target.value;
-                                  setNewSubscription({ ...newSubscription, partners: updatedPartners });
-                                }}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label className="text-xs">Valor (R$)</Label>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="0.00"
-                                value={partner.value}
-                                onChange={(e) => {
-                                  const updatedPartners = [...newSubscription.partners];
-                                  updatedPartners[index].value = e.target.value;
-                                  setNewSubscription({ ...newSubscription, partners: updatedPartners });
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-
-                  <Button
-                    className="w-full bg-gradient-primary"
-                    onClick={handleCreateSubscription}
-                  >
-                    Criar e Enviar Convites
-                  </Button>
-                </div>
-              </DialogContent>
             </Dialog>
           </CardContent>
         </Card>
       )}
       
+      {/* Subscription Cards */}
       {sharedSubscriptions.map((subscription) => (
         <Card key={subscription.id}>
           <CardHeader>
@@ -442,13 +337,59 @@ export const ShareTab = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+            <div className="space-y-4">
+              {/* Invite Links Section */}
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="pt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Link2 className="h-4 w-4 text-primary" />
+                      Link de Convite
+                    </Label>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Input
+                      readOnly
+                      value={generateInviteLink(subscription.id)}
+                      className="text-xs bg-background"
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => copyInviteLink(subscription.id)}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => shareViaWhatsApp(subscription)}
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2 text-green-600" />
+                      Compartilhar no WhatsApp
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => copyInviteLink(subscription.id)}
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copiar Link
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="h-4 w-4" />
                 <span>{subscription.partners.length} participantes</span>
               </div>
 
-              {subscription.partners.map((partner, i) => (
+              {subscription.partners.map((partner: any, i: number) => (
                 <div
                   key={i}
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
@@ -478,6 +419,7 @@ export const ShareTab = () => {
 
               <div className="flex gap-2 pt-4">
                 <Button variant="outline" className="flex-1">
+                  <UserPlus className="h-4 w-4 mr-2" />
                   Adicionar Parceiro
                 </Button>
                 <Button variant="outline" className="flex-1">
@@ -489,7 +431,7 @@ export const ShareTab = () => {
         </Card>
       ))}
 
-      {/* Como Funciona */}
+      {/* How It Works */}
       <Card className="border-primary/10">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

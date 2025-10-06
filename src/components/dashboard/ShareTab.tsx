@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Share2, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Link2, Sparkles } from "lucide-react";
 
 export const ShareTab = () => {
   // Dados reais - vazio por padrão
@@ -48,7 +48,7 @@ export const ShareTab = () => {
                 Compartilhe assinaturas e divida custos
               </CardDescription>
             </div>
-            <Button className="bg-gradient-primary">
+            <Button className="bg-gradient-primary hover:shadow-glow transition-all duration-300">
               <Plus className="mr-2 h-4 w-4" />
               Nova Conta Compartilhada
             </Button>
@@ -58,15 +58,32 @@ export const ShareTab = () => {
 
       {/* Assinaturas Compartilhadas */}
       {sharedSubscriptions.length === 0 && (
-        <Card className="border-dashed">
-          <CardContent className="py-12 text-center">
-            <Share2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Nenhuma assinatura compartilhada</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              Comece a compartilhar assinaturas e dividir custos com amigos
+        <Card className="border-dashed border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+          <CardContent className="py-16 text-center">
+            {/* Ilustração Animada */}
+            <div className="relative w-24 h-24 mx-auto mb-6">
+              <div className="absolute inset-0 bg-gradient-primary rounded-full opacity-20 animate-ping" />
+              <div className="absolute inset-2 bg-gradient-primary rounded-full opacity-30 animate-pulse" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative">
+                  <Share2 className="h-12 w-12 text-primary animate-float" />
+                  <Sparkles className="h-5 w-5 text-secondary absolute -top-1 -right-1 animate-pulse" />
+                </div>
+              </div>
+            </div>
+            
+            <h3 className="font-semibold text-xl mb-2 bg-gradient-primary bg-clip-text text-transparent">
+              Nenhuma assinatura compartilhada
+            </h3>
+            <p className="text-sm text-muted-foreground mb-2 max-w-md mx-auto">
+              Economize junto. Crie sua primeira conta compartilhada e divida custos com segurança.
             </p>
-            <Button className="bg-gradient-primary">
-              <Plus className="mr-2 h-4 w-4" />
+            <p className="text-xs text-muted-foreground/70 mb-8 max-w-sm mx-auto">
+              Compartilhe Netflix, Spotify, Prime e mais com amigos e família
+            </p>
+            
+            <Button className="bg-gradient-primary hover:shadow-glow transition-all duration-300 text-base px-8 py-6 h-auto">
+              <Plus className="mr-2 h-5 w-5" />
               Criar Primeira Conta Compartilhada
             </Button>
           </CardContent>
@@ -135,41 +152,91 @@ export const ShareTab = () => {
       ))}
 
       {/* Como Funciona */}
-      <Card>
+      <Card className="border-primary/10">
         <CardHeader>
-          <CardTitle>Como funciona o +Share?</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Como funciona o +Share?
+          </CardTitle>
+          <CardDescription>
+            Simples, seguro e rápido - comece a economizar em minutos
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <ol className="space-y-3 text-sm">
-            <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
+          <ol className="space-y-4">
+            <li className="flex gap-4 items-start group hover:bg-primary/5 p-3 rounded-lg transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary text-white flex items-center justify-center text-sm font-bold shadow-md group-hover:shadow-glow transition-shadow">
                 1
-              </span>
-              <span>Crie uma conta compartilhada para uma assinatura específica</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Plus className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Crie uma conta compartilhada</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Para uma assinatura específica (Netflix, Spotify, etc)
+                </p>
+              </div>
             </li>
-            <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
+            
+            <li className="flex gap-4 items-start group hover:bg-primary/5 p-3 rounded-lg transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary text-white flex items-center justify-center text-sm font-bold shadow-md group-hover:shadow-glow transition-shadow">
                 2
-              </span>
-              <span>Adicione parceiros através de convite por e-mail ou link</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <UserPlus className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Adicione parceiros</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Através de convite por e-mail ou link compartilhável
+                </p>
+              </div>
             </li>
-            <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
+            
+            <li className="flex gap-4 items-start group hover:bg-primary/5 p-3 rounded-lg transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary text-white flex items-center justify-center text-sm font-bold shadow-md group-hover:shadow-glow transition-shadow">
                 3
-              </span>
-              <span>Defina a divisão do valor (igualitária ou personalizada)</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Defina a divisão</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Do valor (igualitária ou personalizada)
+                </p>
+              </div>
             </li>
-            <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
+            
+            <li className="flex gap-4 items-start group hover:bg-primary/5 p-3 rounded-lg transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary text-white flex items-center justify-center text-sm font-bold shadow-md group-hover:shadow-glow transition-shadow">
                 4
-              </span>
-              <span>Cada parceiro paga sua parte via Stripe</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Pagamento seguro</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Cada parceiro paga sua parte via Stripe
+                </p>
+              </div>
             </li>
-            <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
+            
+            <li className="flex gap-4 items-start group hover:bg-primary/5 p-3 rounded-lg transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary text-white flex items-center justify-center text-sm font-bold shadow-md group-hover:shadow-glow transition-shadow">
                 5
-              </span>
-              <span>Acompanhe o status de pagamento de todos em tempo real</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Eye className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Acompanhe em tempo real</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Status de pagamento de todos os participantes
+                </p>
+              </div>
             </li>
           </ol>
         </CardContent>

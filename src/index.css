@@ -151,6 +151,10 @@ All colors MUST be HSL.
   75% { transform: translateY(-30px) translateX(5px); }
 }
 
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }

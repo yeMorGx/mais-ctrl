@@ -293,7 +293,7 @@ const PricingCard = ({
         </div>
         {annualPrice && (
           <p className="text-sm text-muted-foreground mt-2">
-            Cobrado anualmente: {annualPrice}
+            {annualPrice}
           </p>
         )}
       </div>

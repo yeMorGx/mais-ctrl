@@ -9,6 +9,7 @@
   },
   "nav": {
     "home": "ホーム",
+    "features": "機能",
     "pricing": "プラン",
     "support": "サポート",
     "dashboard": "ダッシュボード",
@@ -44,5 +45,67 @@
     "newSubscription": "新規サブスクリプション",
     "limitReached": "上限に達しました",
     "unlock": "解除"
+  },
+  "hero": {
+    "title": "あなたの",
+    "titleHighlight": "サブスクリプションを完全管理",
+    "description": "月額サブスクリプションを整理、管理、節約。もう支出管理に困りません。",
+    "cta": "今すぐ始める",
+    "demo": "デモを見る",
+    "free5": "5つまで無料",
+    "trial3Days": "プレミアム3日間無料",
+    "noCard": "クレジットカード不要"
+  },
+  "features": {
+    "management": {
+      "title": "完全な管理",
+      "description": "すべてのサブスクリプションを一箇所で追加、編集、整理"
+    },
+    "alerts": {
+      "title": "スマートアラート",
+      "description": "課金前にリマインダーを受け取り、驚かされることはありません"
+    },
+    "insights": {
+      "title": "財務インサイト",
+      "description": "グラフとレポートで月次支出を理解"
+    }
+  },
+  "pricing": {
+    "title": "あらゆるニーズに対応するプラン",
+    "subtitle": "無料で始めて、必要に応じてアップグレード",
+    "free": {
+      "name": "無料",
+      "price": "¥0",
+      "period": "/月",
+      "feature1": "最大5つのサブスクリプション",
+      "feature2": "基本ダッシュボード",
+      "feature3": "メール通知",
+      "feature4": "メールサポート",
+      "cta": "無料で始める"
+    },
+    "premium": {
+      "name": "+プレミアム",
+      "price": "¥400",
+      "period": "/月",
+      "annual": "年間請求: ¥4,800/年",
+      "trial": "3日間無料",
+      "feature1": "無制限のサブスクリプション",
+      "feature2": "グラフ付き高度なダッシュボード",
+      "feature3": "スマート通知",
+      "feature4": "レポートとPDFエクスポート",
+      "feature5": "+Share: サブスクリプション共有",
+      "feature6": "自動インサイト",
+      "feature7": "優先サポート",
+      "cta": "プレミアムを始める"
+    }
+  },
+  "testimonials": {
+    "title": "+プレミアムユーザーの声",
+    "subtitle": "+Ctrlがユーザーの財務管理をどのように変えたかをご覧ください"
+  },
+  "cta": {
+    "title": "管理を始める準備はできましたか？",
+    "subtitle": "+Ctrlで既に節約している数千人のユーザーに参加",
+    "button": "無料アカウント作成"
   }
 }

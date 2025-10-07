@@ -9,6 +9,7 @@
   },
   "nav": {
     "home": "Inicio",
+    "features": "Características",
     "pricing": "Planes",
     "support": "Soporte",
     "dashboard": "Panel",
@@ -44,5 +45,67 @@
     "newSubscription": "Nueva suscripción",
     "limitReached": "Límite alcanzado",
     "unlock": "Desbloquear"
+  },
+  "hero": {
+    "title": "Control total de tus",
+    "titleHighlight": "suscripciones",
+    "description": "Organiza, gestiona y ahorra con tus suscripciones mensuales. Nunca más pierdas el control de tus gastos.",
+    "cta": "Comenzar ahora",
+    "demo": "Ver demostración",
+    "free5": "Gratis para 5 suscripciones",
+    "trial3Days": "3 días gratis en Premium",
+    "noCard": "Sin tarjeta de crédito"
+  },
+  "features": {
+    "management": {
+      "title": "Gestión completa",
+      "description": "Añade, edita y organiza todas tus suscripciones en un solo lugar"
+    },
+    "alerts": {
+      "title": "Alertas inteligentes",
+      "description": "Recibe recordatorios antes de los cobros y nunca más te sorprendas"
+    },
+    "insights": {
+      "title": "Análisis financiero",
+      "description": "Visualiza gráficos e informes para entender tus gastos mensuales"
+    }
+  },
+  "pricing": {
+    "title": "Planes para cada necesidad",
+    "subtitle": "Comienza gratis y mejora cuando lo necesites",
+    "free": {
+      "name": "Gratis",
+      "price": "$0",
+      "period": "/mes",
+      "feature1": "Hasta 5 suscripciones",
+      "feature2": "Panel básico",
+      "feature3": "Notificaciones por correo",
+      "feature4": "Soporte por correo",
+      "cta": "Comenzar gratis"
+    },
+    "premium": {
+      "name": "+Premium",
+      "price": "$2.99",
+      "period": "/mes",
+      "annual": "Facturado anualmente: $35.90/año",
+      "trial": "3 días gratis",
+      "feature1": "Suscripciones ilimitadas",
+      "feature2": "Panel avanzado con gráficos",
+      "feature3": "Notificaciones inteligentes",
+      "feature4": "Informes y exportación a PDF",
+      "feature5": "+Share: Divide suscripciones",
+      "feature6": "Análisis automático",
+      "feature7": "Soporte prioritario",
+      "cta": "Comenzar Premium"
+    }
+  },
+  "testimonials": {
+    "title": "Lo que dicen nuestros usuarios +Premium",
+    "subtitle": "Descubre cómo +Ctrl transformó la gestión financiera de nuestros usuarios"
+  },
+  "cta": {
+    "title": "¿Listo para tomar control?",
+    "subtitle": "Únete a miles de usuarios que ya ahorran con +Ctrl",
+    "button": "Crear cuenta gratis"
   }
 }

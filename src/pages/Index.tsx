@@ -7,12 +7,21 @@ import { Logo } from "@/components/Logo";
 import { DemoModal } from "@/components/DemoModal";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import testimonialMaria from "@/assets/testimonial-maria.jpg";
 import testimonialJoao from "@/assets/testimonial-joao.jpg";
 import testimonialAna from "@/assets/testimonial-ana.jpg";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
   const [showDemo, setShowDemo] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen relative">
@@ -29,19 +38,18 @@ const Index = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-            Controle total das suas
-            <span className="bg-gradient-primary bg-clip-text text-transparent"> assinaturas</span>
+            {t("hero.title")}
+            <span className="bg-gradient-primary bg-clip-text text-transparent"> {t("hero.titleHighlight")}</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-            Organize, gerencie e economize com suas assinaturas mensais. 
-            Nunca mais perca o controle dos seus gastos.
+            {t("hero.description")}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Link to="/auth">
               <Button variant="hero" size="xl" className="group">
-                Começar agora
+                {t("hero.cta")}
                 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
@@ -51,22 +59,22 @@ const Index = () => {
               onClick={() => setShowDemo(true)}
               className="hover-scale"
             >
-              Ver demonstração
+              {t("hero.demo")}
             </Button>
           </div>
 
           <div className="pt-8 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Check className="w-5 h-5 text-primary" />
-              <span>Gratuito para 5 assinaturas</span>
+              <span>{t("hero.free5")}</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-5 h-5 text-primary" />
-              <span>7 dias grátis no Premium</span>
+              <span>{t("hero.trial3Days")}</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-5 h-5 text-primary" />
-              <span>Sem cartão de crédito</span>
+              <span>{t("hero.noCard")}</span>
             </div>
           </div>
         </div>
@@ -77,18 +85,18 @@ const Index = () => {
         <div className="grid md:grid-cols-3 gap-8">
           <FeatureCard
             icon={<CreditCard className="w-8 h-8" />}
-            title="Gestão completa"
-            description="Adicione, edite e organize todas as suas assinaturas em um único lugar"
+            title={t("features.management.title")}
+            description={t("features.management.description")}
           />
           <FeatureCard
             icon={<Bell className="w-8 h-8" />}
-            title="Alertas inteligentes"
-            description="Receba lembretes antes das cobranças e nunca mais seja pego de surpresa"
+            title={t("features.alerts.title")}
+            description={t("features.alerts.description")}
           />
           <FeatureCard
             icon={<TrendingUp className="w-8 h-8" />}
-            title="Insights financeiros"
-            description="Visualize gráficos e relatórios para entender seus gastos mensais"
+            title={t("features.insights.title")}
+            description={t("features.insights.description")}
           />
         </div>
       </section>
@@ -96,41 +104,43 @@ const Index = () => {
       {/* Pricing Section */}
       <section id="pricing" className="container mx-auto px-4 py-20">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
-          Planos para cada necessidade
+          {t("pricing.title")}
         </h2>
         <p className="text-xl text-muted-foreground text-center mb-16">
-          Comece grátis e evolua quando precisar
+          {t("pricing.subtitle")}
         </p>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <PricingCard
-            name="Gratuito"
-            price="R$ 0"
-            period="/mês"
+            name={t("pricing.free.name")}
+            price={t("pricing.free.price")}
+            period={t("pricing.free.period")}
             features={[
-              "Até 5 assinaturas",
-              "Dashboard básico",
-              "Notificações por email",
-              "Suporte por email"
+              t("pricing.free.feature1"),
+              t("pricing.free.feature2"),
+              t("pricing.free.feature3"),
+              t("pricing.free.feature4")
             ]}
             highlighted={false}
+            ctaText={t("pricing.free.cta")}
           />
           <PricingCard
-            name="+Premium"
-            price="R$ 12,49"
-            period="/mês"
-            annualPrice="R$ 149,90/ano"
-            trialBadge="7 dias grátis"
+            name={t("pricing.premium.name")}
+            price={t("pricing.premium.price")}
+            period={t("pricing.premium.period")}
+            annualPrice={t("pricing.premium.annual")}
+            trialBadge={t("pricing.premium.trial")}
             features={[
-              "Assinaturas ilimitadas",
-              "Dashboard avançado com gráficos",
-              "Notificações inteligentes",
-              "Relatórios e exportação em PDF",
-              "+Share: Divida assinaturas",
-              "Insights automáticos",
-              "Suporte prioritário"
+              t("pricing.premium.feature1"),
+              t("pricing.premium.feature2"),
+              t("pricing.premium.feature3"),
+              t("pricing.premium.feature4"),
+              t("pricing.premium.feature5"),
+              t("pricing.premium.feature6"),
+              t("pricing.premium.feature7")
             ]}
             highlighted={true}
+            ctaText={t("pricing.premium.cta")}
           />
         </div>
       </section>
@@ -138,52 +148,95 @@ const Index = () => {
       {/* Testimonials Section */}
       <section className="container mx-auto px-4 py-20">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
-          O que dizem nossos usuários +Premium
+          {t("testimonials.title")}
         </h2>
         <p className="text-xl text-muted-foreground text-center mb-16">
-          Veja como o +Ctrl transformou a gestão financeira de quem usa
+          {t("testimonials.subtitle")}
         </p>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <TestimonialCard
-            name="Maria Silva"
-            role="Empresária"
-            content="Com o +Ctrl consegui economizar mais de R$ 300 por mês cancelando assinaturas que nem usava mais. O relatório mensal é incrível!"
-            rating={5}
-            initials="MS"
-            image={testimonialMaria}
-          />
-          <TestimonialCard
-            name="João Santos"
-            role="Desenvolvedor"
-            content="O recurso de dividir assinaturas com amigos (+Share) foi um divisor de águas. Netflix, Spotify... agora tudo sai mais barato!"
-            rating={5}
-            initials="JS"
-            image={testimonialJoao}
-          />
-          <TestimonialCard
-            name="Ana Costa"
-            role="Designer"
-            content="Os insights automáticos me alertaram sobre um aumento de 40% em uma assinatura. Cancelei na hora e migrei para uma opção melhor!"
-            rating={5}
-            initials="AC"
-            image={testimonialAna}
-          />
-        </div>
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="max-w-6xl mx-auto"
+        >
+          <CarouselContent>
+            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+              <TestimonialCard
+                name="Maria Silva"
+                role="Empresária"
+                content="Com o +Ctrl consegui economizar mais de R$ 300 por mês cancelando assinaturas que nem usava mais. O relatório mensal é incrível!"
+                rating={5}
+                initials="MS"
+                image={testimonialMaria}
+              />
+            </CarouselItem>
+            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+              <TestimonialCard
+                name="João Santos"
+                role="Desenvolvedor"
+                content="O recurso de dividir assinaturas com amigos (+Share) foi um divisor de águas. Netflix, Spotify... agora tudo sai mais barato!"
+                rating={5}
+                initials="JS"
+                image={testimonialJoao}
+              />
+            </CarouselItem>
+            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+              <TestimonialCard
+                name="Ana Costa"
+                role="Designer"
+                content="Os insights automáticos me alertaram sobre um aumento de 40% em uma assinatura. Cancelei na hora e migrei para uma opção melhor!"
+                rating={5}
+                initials="AC"
+                image={testimonialAna}
+              />
+            </CarouselItem>
+            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+              <TestimonialCard
+                name="Pedro Oliveira"
+                role="Estudante"
+                content="Como estudante, cada real conta. O +Ctrl me ajudou a identificar gastos desnecessários e hoje economizo quase 30% ao mês!"
+                rating={5}
+                initials="PO"
+              />
+            </CarouselItem>
+            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+              <TestimonialCard
+                name="Carla Mendes"
+                role="Fotógrafa"
+                content="Os alertas inteligentes salvaram minha vida! Nunca mais fui pega de surpresa com cobranças inesperadas. Recomendo muito!"
+                rating={5}
+                initials="CM"
+              />
+            </CarouselItem>
+            <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+              <TestimonialCard
+                name="Roberto Lima"
+                role="Empreendedor"
+                content="Gerencio várias ferramentas para meu negócio. O +Ctrl centralizou tudo e me deu visibilidade total dos custos. Essencial!"
+                rating={5}
+                initials="RL"
+              />
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious className="hidden md:flex" />
+          <CarouselNext className="hidden md:flex" />
+        </Carousel>
       </section>
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-32">
         <div className="bg-gradient-primary rounded-3xl p-12 md:p-20 text-center shadow-glow">
           <h2 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
-            Pronto para ter controle?
+            {t("cta.title")}
           </h2>
           <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Junte-se a milhares de usuários que já economizam com +Ctrl
+            {t("cta.subtitle")}
           </p>
           <Link to="/auth">
             <Button variant="outline" size="xl" className="bg-background hover:bg-background/90">
-              Criar conta grátis
+              {t("cta.button")}
             </Button>
           </Link>
         </div>
@@ -219,7 +272,8 @@ const PricingCard = ({
   annualPrice,
   trialBadge,
   features, 
-  highlighted 
+  highlighted,
+  ctaText 
 }: { 
   name: string; 
   price: string; 
@@ -228,6 +282,7 @@ const PricingCard = ({
   trialBadge?: string;
   features: string[]; 
   highlighted: boolean;
+  ctaText: string;
 }) => {
   return (
     <div className={`bg-card rounded-2xl p-8 border ${highlighted ? 'border-primary shadow-glow' : 'border-border'} transition-all duration-300 hover:scale-105 relative`}>
@@ -266,7 +321,7 @@ const PricingCard = ({
           className="w-full"
           size="lg"
         >
-          {highlighted ? "Começar Premium" : "Começar grátis"}
+          {ctaText}
         </Button>
       </Link>
     </div>

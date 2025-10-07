@@ -95,6 +95,9 @@ export const useAuth = () => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
+      // Remove premium theme on logout
+      document.body.classList.remove('premium-theme');
+
       toast({
         title: "Logout realizado",
         description: "Até a próxima!",

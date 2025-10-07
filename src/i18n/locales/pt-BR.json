@@ -9,6 +9,7 @@
   },
   "nav": {
     "home": "Início",
+    "features": "Recursos",
     "pricing": "Planos",
     "support": "Suporte",
     "dashboard": "Dashboard",
@@ -44,5 +45,67 @@
     "newSubscription": "Nova assinatura",
     "limitReached": "Limite atingido",
     "unlock": "Desbloqueie"
+  },
+  "hero": {
+    "title": "Controle total das suas",
+    "titleHighlight": "assinaturas",
+    "description": "Organize, gerencie e economize com suas assinaturas mensais. Nunca mais perca o controle dos seus gastos.",
+    "cta": "Começar agora",
+    "demo": "Ver demonstração",
+    "free5": "Gratuito para 5 assinaturas",
+    "trial3Days": "3 dias grátis no Premium",
+    "noCard": "Sem cartão de crédito"
+  },
+  "features": {
+    "management": {
+      "title": "Gestão completa",
+      "description": "Adicione, edite e organize todas as suas assinaturas em um único lugar"
+    },
+    "alerts": {
+      "title": "Alertas inteligentes",
+      "description": "Receba lembretes antes das cobranças e nunca mais seja pego de surpresa"
+    },
+    "insights": {
+      "title": "Insights financeiros",
+      "description": "Visualize gráficos e relatórios para entender seus gastos mensais"
+    }
+  },
+  "pricing": {
+    "title": "Planos para cada necessidade",
+    "subtitle": "Comece grátis e evolua quando precisar",
+    "free": {
+      "name": "Gratuito",
+      "price": "R$ 0",
+      "period": "/mês",
+      "feature1": "Até 5 assinaturas",
+      "feature2": "Dashboard básico",
+      "feature3": "Notificações por email",
+      "feature4": "Suporte por email",
+      "cta": "Começar grátis"
+    },
+    "premium": {
+      "name": "+Premium",
+      "price": "R$ 12,49",
+      "period": "/mês",
+      "annual": "Cobrado anualmente: R$ 149,90/ano",
+      "trial": "3 dias grátis",
+      "feature1": "Assinaturas ilimitadas",
+      "feature2": "Dashboard avançado com gráficos",
+      "feature3": "Notificações inteligentes",
+      "feature4": "Relatórios e exportação em PDF",
+      "feature5": "+Share: Divida assinaturas",
+      "feature6": "Insights automáticos",
+      "feature7": "Suporte prioritário",
+      "cta": "Começar Premium"
+    }
+  },
+  "testimonials": {
+    "title": "O que dizem nossos usuários +Premium",
+    "subtitle": "Veja como o +Ctrl transformou a gestão financeira de quem usa"
+  },
+  "cta": {
+    "title": "Pronto para ter controle?",
+    "subtitle": "Junte-se a milhares de usuários que já economizam com +Ctrl",
+    "button": "Criar conta grátis"
   }
 }

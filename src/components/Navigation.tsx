@@ -21,7 +21,7 @@ export const Navigation = () => {
 
   const navLinks = [
     { label: t("nav.home"), href: "#hero" },
-    { label: "Recursos", href: "#features" },
+    { label: t("nav.features"), href: "#features" },
     { label: t("nav.pricing"), href: "#pricing" },
   ];
 
@@ -32,8 +32,8 @@ export const Navigation = () => {
           {/* Logo */}
           <Logo size="md" linkTo="/" />
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => (
               <button
                 key={link.href}

@@ -9,6 +9,7 @@
   },
   "nav": {
     "home": "Home",
+    "features": "Features",
     "pricing": "Pricing",
     "support": "Support",
     "dashboard": "Dashboard",
@@ -44,5 +45,67 @@
     "newSubscription": "New subscription",
     "limitReached": "Limit reached",
     "unlock": "Unlock"
+  },
+  "hero": {
+    "title": "Full control of your",
+    "titleHighlight": "subscriptions",
+    "description": "Organize, manage and save with your monthly subscriptions. Never lose control of your expenses again.",
+    "cta": "Get started",
+    "demo": "View demo",
+    "free5": "Free for 5 subscriptions",
+    "trial3Days": "3 days free on Premium",
+    "noCard": "No credit card required"
+  },
+  "features": {
+    "management": {
+      "title": "Complete management",
+      "description": "Add, edit and organize all your subscriptions in one place"
+    },
+    "alerts": {
+      "title": "Smart alerts",
+      "description": "Get reminders before charges and never be caught by surprise"
+    },
+    "insights": {
+      "title": "Financial insights",
+      "description": "View charts and reports to understand your monthly expenses"
+    }
+  },
+  "pricing": {
+    "title": "Plans for every need",
+    "subtitle": "Start free and upgrade when you need",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "/month",
+      "feature1": "Up to 5 subscriptions",
+      "feature2": "Basic dashboard",
+      "feature3": "Email notifications",
+      "feature4": "Email support",
+      "cta": "Start free"
+    },
+    "premium": {
+      "name": "+Premium",
+      "price": "$2.99",
+      "period": "/month",
+      "annual": "Billed annually: $35.90/year",
+      "trial": "3 days free",
+      "feature1": "Unlimited subscriptions",
+      "feature2": "Advanced dashboard with charts",
+      "feature3": "Smart notifications",
+      "feature4": "Reports and PDF export",
+      "feature5": "+Share: Split subscriptions",
+      "feature6": "Automatic insights",
+      "feature7": "Priority support",
+      "cta": "Start Premium"
+    }
+  },
+  "testimonials": {
+    "title": "What our +Premium users say",
+    "subtitle": "See how +Ctrl transformed the financial management of our users"
+  },
+  "cta": {
+    "title": "Ready to take control?",
+    "subtitle": "Join thousands of users already saving with +Ctrl",
+    "button": "Create free account"
   }
 }

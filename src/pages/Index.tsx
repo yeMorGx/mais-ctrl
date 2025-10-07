@@ -46,21 +46,13 @@ const Index = () => {
             {t("hero.description")}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+          <div className="flex justify-center pt-4">
             <Link to="/auth">
               <Button variant="hero" size="xl" className="group">
                 {t("hero.cta")}
                 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Button 
-              variant="outline" 
-              size="xl"
-              onClick={() => setShowDemo(true)}
-              className="hover-scale"
-            >
-              {t("hero.demo")}
-            </Button>
           </div>
 
           <div className="pt-8 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">

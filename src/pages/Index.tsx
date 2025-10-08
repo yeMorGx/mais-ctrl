@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Bell, TrendingUp, ArrowRight, Check, Star, Quote } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
+import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { DemoModal } from "@/components/DemoModal";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
@@ -23,6 +24,7 @@ import { useTranslation } from "react-i18next";
 const Index = () => {
   const [showDemo, setShowDemo] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen relative">
@@ -277,6 +279,17 @@ const PricingCard = ({
   highlighted: boolean;
   ctaText: string;
 }) => {
+  const navigate = useNavigate();
+  
+  const handleCTA = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate('/auth');
+    } else {
+      navigate('/pricing');
+    }
+  };
+
   return (
     <div className={`bg-card rounded-2xl p-8 border ${highlighted ? 'border-primary shadow-glow' : 'border-border'} transition-all duration-300 hover:scale-105 relative`}>
       {trialBadge && (
@@ -295,14 +308,32 @@ const PricingCard = ({
       
       <div className="mb-6">
         <h3 className="text-2xl font-bold mb-2">{name}</h3>
-        <div className="flex items-baseline gap-1">
-          <span className="text-5xl font-black bg-gradient-primary bg-clip-text text-transparent">{price}</span>
-          <span className="text-muted-foreground">{period}</span>
-        </div>
-        {annualPrice && (
-          <p className="text-sm text-muted-foreground mt-2">
-            {annualPrice}
-          </p>
+        {highlighted ? (
+          <div className="space-y-2">
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-semibold text-muted-foreground line-through">
+                R$ 249,90
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-5xl font-black bg-gradient-primary bg-clip-text text-transparent">
+                R$ 179,90
+              </span>
+              <span className="text-muted-foreground">/ano</span>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-5xl font-black bg-gradient-primary bg-clip-text text-transparent">{price}</span>
+              <span className="text-muted-foreground">{period}</span>
+            </div>
+            {annualPrice && (
+              <p className="text-sm text-muted-foreground mt-2">
+                {annualPrice}
+              </p>
+            )}
+          </div>
         )}
       </div>
       
@@ -315,15 +346,14 @@ const PricingCard = ({
         ))}
       </ul>
       
-      <Link to="/auth">
-        <Button 
-          variant={highlighted ? "gradient" : "outline"} 
-          className="w-full"
-          size="lg"
-        >
-          {ctaText}
-        </Button>
-      </Link>
+      <Button 
+        variant={highlighted ? "gradient" : "outline"} 
+        className="w-full"
+        size="lg"
+        onClick={handleCTA}
+      >
+        {ctaText}
+      </Button>
     </div>
   );
 };

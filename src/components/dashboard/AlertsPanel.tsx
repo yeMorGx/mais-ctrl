@@ -17,24 +17,30 @@ interface AlertsPanelProps {
 }
 
 export const AlertsPanel = ({ subscriptions }: AlertsPanelProps) => {
-  // Categorizar alertas por urgência
-  const alerts = subscriptions.map((sub) => {
-    const renewalDate = parseISO(sub.renewal_date);
-    const daysUntil = differenceInDays(renewalDate, new Date());
-    const isOverdue = isPast(renewalDate) && daysUntil < 0;
+  // Categorizar alertas por urgência - excluir assinaturas já pagas (com data futura)
+  const alerts = subscriptions
+    .filter((sub) => {
+      const renewalDate = parseISO(sub.renewal_date);
+      const daysUntil = differenceInDays(renewalDate, new Date());
+      return daysUntil <= 7; // Mostrar apenas alertas dos próximos 7 dias ou vencidos
+    })
+    .map((sub) => {
+      const renewalDate = parseISO(sub.renewal_date);
+      const daysUntil = differenceInDays(renewalDate, new Date());
+      const isOverdue = isPast(renewalDate) && daysUntil < 0;
 
-    let urgency: "critical" | "warning" | "info" = "info";
-    if (isOverdue) urgency = "critical";
-    else if (daysUntil <= 1) urgency = "critical";
-    else if (daysUntil <= 3) urgency = "warning";
+      let urgency: "critical" | "warning" | "info" = "info";
+      if (isOverdue) urgency = "critical";
+      else if (daysUntil <= 1) urgency = "critical";
+      else if (daysUntil <= 3) urgency = "warning";
 
-    return {
-      ...sub,
-      daysUntil,
-      isOverdue,
-      urgency,
-    };
-  }).sort((a, b) => a.daysUntil - b.daysUntil);
+      return {
+        ...sub,
+        daysUntil,
+        isOverdue,
+        urgency,
+      };
+    }).sort((a, b) => a.daysUntil - b.daysUntil);
 
   const getAlertColor = (urgency: string) => {
     switch (urgency) {

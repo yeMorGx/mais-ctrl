@@ -92,11 +92,38 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
     return frequency === "monthly" ? "Mensal" : "Anual";
   };
 
-  const handleMarkAsPaid = (subId: string, subName: string) => {
-    toast({
-      title: "Assinatura marcada como paga",
-      description: `${subName} foi marcada como paga com sucesso`,
-    });
+  const handleMarkAsPaid = async (subId: string, subName: string) => {
+    // Calculate next month's renewal date
+    const subscription = subscriptions.find(s => s.id === subId);
+    if (!subscription) return;
+
+    const currentRenewalDate = new Date(subscription.renewal_date);
+    const nextRenewalDate = new Date(currentRenewalDate);
+    
+    if (subscription.frequency === 'monthly') {
+      nextRenewalDate.setMonth(nextRenewalDate.getMonth() + 1);
+    } else {
+      nextRenewalDate.setFullYear(nextRenewalDate.getFullYear() + 1);
+    }
+
+    const { error } = await supabase
+      .from("subscriptions")
+      .update({ renewal_date: nextRenewalDate.toISOString().split('T')[0] })
+      .eq("id", subId);
+
+    if (error) {
+      toast({
+        title: "Erro ao marcar como paga",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Assinatura marcada como paga",
+        description: `${subName} foi marcada como paga. Próximo pagamento: ${format(nextRenewalDate, "dd/MM/yyyy", { locale: ptBR })}`,
+      });
+      onUpdate();
+    }
   };
 
   return (
@@ -114,7 +141,8 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
             const IconComponent = logo.icon;
             const renewalDate = new Date(sub.renewal_date);
             const daysUntilRenewal = differenceInDays(renewalDate, new Date());
-            const isPaid = daysUntilRenewal > 7;
+            const isPaymentDay = daysUntilRenewal === 0;
+            const isPaid = daysUntilRenewal > 0;
             
             return (
               <div 
@@ -154,7 +182,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
                         <CheckCircle2 className="h-3 w-3 mr-1" />
                         Paga
                       </Badge>
-                    ) : (
+                    ) : isPaymentDay ? (
                       <Button 
                         variant="default"
                         size="sm"
@@ -164,7 +192,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
                         <CheckCircle2 className="h-4 w-4 mr-2" />
                         Pagar
                       </Button>
-                    )}
+                    ) : null}
                     
                     {showEdit && (
                       <Button 

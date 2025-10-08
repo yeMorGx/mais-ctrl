@@ -417,8 +417,8 @@ const Auth = () => {
                           onClick={() => handleSocialLogin('azure')}
                           disabled={isLoading}
                         >
-                          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M11.4 24H0L7.7 8.7 11.4 0l4.2 8.7L23.6 24z"/>
+                          <svg className="h-5 w-5" viewBox="0 0 23 23" fill="currentColor">
+                            <path d="M0 0h11v11H0zm12 0h11v11H12zM0 12h11v11H0zm12 0h11v11H12z"/>
                           </svg>
                         </Button>
                         <Button

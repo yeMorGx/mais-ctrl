@@ -28,7 +28,7 @@ export const CountdownTimer = () => {
 
   return (
     <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500/20 to-orange-500/20 border-2 border-red-500/40 rounded-xl p-4 mb-4">
-      <Timer className="h-5 w-5 text-red-500 animate-pulse" />
+      <Timer className="h-5 w-5 text-red-500 animate-spin" />
       <p className="font-bold text-red-600 dark:text-red-400">
         Promoção acaba em: {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
       </p>

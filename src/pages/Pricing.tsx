@@ -108,7 +108,7 @@ const Pricing = () => {
               <>
                 {/* Selo de destaque */}
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                  <Badge className="bg-gradient-primary border-0 px-6 py-2.5 text-base font-bold shadow-xl animate-float">
+                  <Badge className="bg-gradient-primary border-0 px-6 py-2.5 text-base font-bold shadow-xl">
                     <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
                     Mais Popular
                   </Badge>

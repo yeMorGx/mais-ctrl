@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Share2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ interface Subscription {
   frequency: string;
   payment_method: string;
   renewal_date: string;
+  is_shared?: boolean;
 }
 
 interface SubscriptionListProps {
@@ -154,7 +156,15 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
                     <IconComponent className="w-6 h-6" style={{ color: logo.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold truncate">{sub.name}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold truncate">{sub.name}</h4>
+                      {sub.is_shared && (
+                        <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                          <Share2 className="w-3 h-3" />
+                          Compartilhada
+                        </Badge>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-2 mt-1">
                       <p className="text-sm text-muted-foreground">
                         Próximo: {format(renewalDate, "dd/MM/yyyy", { locale: ptBR })}

@@ -2,19 +2,22 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Sparkles, Trash2, Link2, Copy, MessageCircle, RotateCcw, X } from "lucide-react";
+import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Sparkles, Link2, Copy, MessageCircle, Settings, X, RotateCcw } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { EditSharedSubscriptionDialog } from "./EditSharedSubscriptionDialog";
 
 export const ShareTab = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [sharedSubscriptions, setSharedSubscriptions] = useState<any[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newSubscription, setNewSubscription] = useState({
     name: "",
     totalValue: "",
@@ -278,6 +281,7 @@ export const ShareTab = () => {
   };
 
   return (
+    <>
     <div className="space-y-6">
       {/* Header */}
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5">
@@ -712,5 +716,33 @@ export const ShareTab = () => {
         </CardContent>
       </Card>
     </div>
+    
+    <EditSharedSubscriptionDialog
+      open={isEditDialogOpen}
+      onOpenChange={setIsEditDialogOpen}
+      subscription={editingSubscription}
+      onSuccess={() => {
+        const loadSharedSubscriptions = async () => {
+          if (!user) return;
+          const { data: subs } = await supabase
+            .from('shared_subscriptions')
+            .select('*')
+            .eq('user_id', user.id);
+          if (subs && subs.length > 0) {
+            const { data: partners } = await supabase
+              .from('shared_subscription_partners')
+              .select('*')
+              .in('shared_subscription_id', subs.map(s => s.id));
+            const combined = subs.map(sub => ({
+              ...sub,
+              shared_subscription_partners: partners?.filter(p => p.shared_subscription_id === sub.id) || []
+            }));
+            setSharedSubscriptions(combined);
+          }
+        };
+        loadSharedSubscriptions();
+      }}
+    />
+    </>
   );
 };

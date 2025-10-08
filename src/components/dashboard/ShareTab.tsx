@@ -94,9 +94,10 @@ export const ShareTab = () => {
 
   const shareViaWhatsApp = (subscription: any) => {
     const link = generateInviteLink(subscription.id);
+    const totalValue = subscription.total_value || subscription.totalValue || 0;
     const message = encodeURIComponent(
       `🎉 Você foi convidado para dividir a assinatura de *${subscription.name}*!\n\n` +
-      `💰 Valor: R$ ${subscription.totalValue.toFixed(2)}\n` +
+      `💰 Valor: R$ ${parseFloat(totalValue).toFixed(2)}\n` +
       `👥 Participe e economize junto!\n\n` +
       `Clique no link para aceitar: ${link}`
     );
@@ -451,7 +452,11 @@ export const ShareTab = () => {
       )}
       
       {/* Subscription Cards */}
-      {sharedSubscriptions.map((subscription) => (
+      {sharedSubscriptions.map((subscription) => {
+        const totalValue = subscription.total_value || subscription.totalValue || 0;
+        const partners = subscription.shared_subscription_partners || [];
+        
+        return (
         <Card key={subscription.id}>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -459,7 +464,7 @@ export const ShareTab = () => {
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Valor Total</p>
                 <p className="text-2xl font-bold">
-                  R$ {subscription.totalValue.toFixed(2)}
+                  R$ {parseFloat(totalValue).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -515,14 +520,14 @@ export const ShareTab = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Users className="h-4 w-4" />
-                  <span>{subscription.partners.length} participantes</span>
+                  <span>{partners.length} participantes</span>
                 </div>
-                <Badge variant={subscription.status === 'active' ? 'default' : 'destructive'}>
-                  {subscription.status === 'active' ? 'Ativa' : 'Cancelada'}
+                <Badge variant={subscription.is_active ? 'default' : 'destructive'}>
+                  {subscription.is_active ? 'Ativa' : 'Cancelada'}
                 </Badge>
               </div>
 
-              {subscription.partners.map((partner: any, i: number) => (
+              {partners.map((partner: any, i: number) => (
                 <div
                   key={i}
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
@@ -545,7 +550,7 @@ export const ShareTab = () => {
                     variant={partner.status === "paid" ? "secondary" : "destructive"}
                     className="font-bold"
                   >
-                    R$ {partner.value.toFixed(2)}
+                    R$ {parseFloat(partner.value || 0).toFixed(2)}
                   </Badge>
                 </div>
               ))}
@@ -613,7 +618,8 @@ export const ShareTab = () => {
             </div>
           </CardContent>
         </Card>
-      ))}
+        );
+      })}
 
       {/* How It Works */}
       <Card className="border-primary/10">

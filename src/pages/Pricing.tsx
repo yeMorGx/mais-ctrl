@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { CountdownTimer } from "@/components/CountdownTimer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -60,9 +61,10 @@ const Pricing = () => {
   };
 
   const monthlyPrice = 29.90;
-  const annualPrice = 12.49;
-  const annualTotal = 149.90;
-  const savings = Math.round(((monthlyPrice * 12 - annualTotal) / (monthlyPrice * 12)) * 100);
+  const annualPrice = 14.99;
+  const annualTotal = 179.90;
+  const originalAnnualTotal = 249.90;
+  const savings = Math.round(((originalAnnualTotal - annualTotal) / originalAnnualTotal) * 100);
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -131,8 +133,18 @@ const Pricing = () => {
             </CardHeader>
             
             <CardContent className="space-y-6 relative z-10">
+              {/* Countdown Timer */}
+              {isAnnual && <CountdownTimer />}
+              
               {/* Preço */}
               <div className={`text-center py-6 rounded-xl ${isAnnual ? 'bg-card/80 border border-primary/20' : ''}`}>
+                {isAnnual && (
+                  <div className="mb-3">
+                    <span className="text-2xl text-muted-foreground line-through">
+                      R$ {originalAnnualTotal.toFixed(2)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-baseline justify-center gap-2 mb-2">
                   <span className={`text-6xl font-bold ${isAnnual ? 'bg-gradient-primary bg-clip-text text-transparent' : ''}`}>
                     R$ {isAnnual ? annualPrice.toFixed(2) : monthlyPrice.toFixed(2)}
@@ -141,7 +153,7 @@ const Pricing = () => {
                 </div>
                 {isAnnual && (
                   <p className="text-sm text-muted-foreground">
-                    Equivale a <span className="font-semibold">R$ {annualTotal.toFixed(2)}/ano</span>
+                    Equivale a <span className="font-semibold text-green-600 dark:text-green-400">R$ {annualTotal.toFixed(2)}/ano</span>
                   </p>
                 )}
               </div>
@@ -150,7 +162,7 @@ const Pricing = () => {
               {isAnnual && (
                 <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-2 border-green-500/30 rounded-xl p-4">
                   <p className="text-center font-bold text-green-600 dark:text-green-400 flex items-center justify-center gap-2">
-                    💰 Economize 58% comparado ao plano mensal!
+                    💰 Economize {savings}% com a promoção!
                   </p>
                 </div>
               )}

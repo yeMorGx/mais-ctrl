@@ -6,6 +6,7 @@ import { Navigation } from "@/components/Navigation";
 import { Logo } from "@/components/Logo";
 import { DemoModal } from "@/components/DemoModal";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { CountdownTimer } from "@/components/CountdownTimer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Carousel,
@@ -285,6 +286,13 @@ const PricingCard = ({
           </span>
         </div>
       )}
+      
+      {highlighted && (
+        <div className="mb-4">
+          <CountdownTimer />
+        </div>
+      )}
+      
       <div className="mb-6">
         <h3 className="text-2xl font-bold mb-2">{name}</h3>
         <div className="flex items-baseline gap-1">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,14 +7,20 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export const ShareTab = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [sharedSubscriptions, setSharedSubscriptions] = useState<any[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newSubscription, setNewSubscription] = useState({
     name: "",
     totalValue: "",
+    renewalDate: "",
+    paymentMethod: "credit",
+    frequency: "monthly",
     partners: [{ name: "", email: "", value: "" }]
   });
 
@@ -110,11 +116,37 @@ export const ShareTab = () => {
     setNewSubscription({ ...newSubscription, partners: updatedPartners });
   };
 
-  const handleCreateSubscription = () => {
-    if (!newSubscription.name || !newSubscription.totalValue) {
+  // Carregar assinaturas compartilhadas do banco
+  useEffect(() => {
+    const loadSharedSubscriptions = async () => {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('shared_subscriptions')
+        .select(`
+          *,
+          shared_subscription_partners(*)
+        `)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error loading shared subscriptions:', error);
+        return;
+      }
+
+      setSharedSubscriptions(data || []);
+    };
+
+    loadSharedSubscriptions();
+  }, [user]);
+
+  const handleCreateSubscription = async () => {
+    if (!user) return;
+
+    if (!newSubscription.name || !newSubscription.totalValue || !newSubscription.renewalDate) {
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha o nome e valor total da assinatura",
+        description: "Preencha nome, valor total e data de renovação",
         variant: "destructive"
       });
       return;
@@ -130,30 +162,77 @@ export const ShareTab = () => {
       return;
     }
 
-    const newSub = {
-      id: Date.now().toString(),
-      name: newSubscription.name,
-      totalValue: parseFloat(newSubscription.totalValue),
-      status: 'active',
-      recurringBilling: true,
-      partners: validPartners.map(p => ({
-        ...p,
-        value: parseFloat(p.value),
-        status: "pending"
-      }))
-    };
+    // Criar assinatura compartilhada
+    const { data: subscription, error: subError } = await supabase
+      .from('shared_subscriptions')
+      .insert({
+        user_id: user.id,
+        name: newSubscription.name,
+        total_value: parseFloat(newSubscription.totalValue),
+        renewal_date: newSubscription.renewalDate,
+        payment_method: newSubscription.paymentMethod,
+        frequency: newSubscription.frequency,
+        is_active: true,
+        recurring_billing: true
+      })
+      .select()
+      .single();
 
-    setSharedSubscriptions([...sharedSubscriptions, newSub]);
+    if (subError) {
+      toast({
+        title: "Erro ao criar assinatura",
+        description: subError.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Adicionar parceiros
+    const partners = validPartners.map(p => ({
+      shared_subscription_id: subscription.id,
+      name: p.name,
+      email: p.email,
+      value: parseFloat(p.value),
+      status: 'pending'
+    }));
+
+    const { error: partnersError } = await supabase
+      .from('shared_subscription_partners')
+      .insert(partners);
+
+    if (partnersError) {
+      toast({
+        title: "Erro ao adicionar parceiros",
+        description: partnersError.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsCreateDialogOpen(false);
     setNewSubscription({
       name: "",
       totalValue: "",
+      renewalDate: "",
+      paymentMethod: "credit",
+      frequency: "monthly",
       partners: [{ name: "", email: "", value: "" }]
     });
 
+    // Recarregar lista
+    const { data } = await supabase
+      .from('shared_subscriptions')
+      .select(`
+        *,
+        shared_subscription_partners(*)
+      `)
+      .eq('user_id', user.id);
+
+    setSharedSubscriptions(data || []);
+
     toast({
       title: "Conta criada!",
-      description: "Convites serão enviados aos parceiros em breve"
+      description: "Assinatura compartilhada criada com sucesso"
     });
   };
 
@@ -225,16 +304,58 @@ export const ShareTab = () => {
                       />
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="total-value">Valor Total Mensal (R$)</Label>
-                      <Input
-                        id="total-value"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={newSubscription.totalValue}
-                        onChange={(e) => setNewSubscription({ ...newSubscription, totalValue: e.target.value })}
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="total-value">Valor Total Mensal (R$)</Label>
+                        <Input
+                          id="total-value"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={newSubscription.totalValue}
+                          onChange={(e) => setNewSubscription({ ...newSubscription, totalValue: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="renewal-date">Data de Renovação</Label>
+                        <Input
+                          id="renewal-date"
+                          type="date"
+                          value={newSubscription.renewalDate}
+                          onChange={(e) => setNewSubscription({ ...newSubscription, renewalDate: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="payment-method">Método de Pagamento</Label>
+                        <select
+                          id="payment-method"
+                          className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
+                          value={newSubscription.paymentMethod}
+                          onChange={(e) => setNewSubscription({ ...newSubscription, paymentMethod: e.target.value })}
+                        >
+                          <option value="credit">Crédito</option>
+                          <option value="debit">Débito</option>
+                          <option value="pix">PIX</option>
+                          <option value="boleto">Boleto</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="frequency">Frequência</Label>
+                        <select
+                          id="frequency"
+                          className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
+                          value={newSubscription.frequency}
+                          onChange={(e) => setNewSubscription({ ...newSubscription, frequency: e.target.value })}
+                        >
+                          <option value="monthly">Mensal</option>
+                          <option value="yearly">Anual</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 

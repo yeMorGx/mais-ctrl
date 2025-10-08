@@ -98,6 +98,92 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_subscription_partners: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          shared_subscription_id: string
+          status: string
+          updated_at: string | null
+          user_id: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          name: string
+          shared_subscription_id: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          shared_subscription_id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_subscription_partners_shared_subscription_id_fkey"
+            columns: ["shared_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "shared_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shared_subscriptions: {
+        Row: {
+          created_at: string | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          name: string
+          payment_method: string
+          recurring_billing: boolean | null
+          renewal_date: string
+          total_value: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          payment_method: string
+          recurring_billing?: boolean | null
+          renewal_date: string
+          total_value: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          payment_method?: string
+          recurring_billing?: boolean | null
+          renewal_date?: string
+          total_value?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           billing_interval: string

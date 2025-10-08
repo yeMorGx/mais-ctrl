@@ -28,6 +28,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAllSubscriptions } from "@/hooks/useAllSubscriptions";
 
 const Dashboard = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -109,24 +110,8 @@ const Dashboard = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Fetch subscriptions
-  const { data: subscriptions = [], refetch } = useQuery({
-    queryKey: ["subscriptions", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("is_active", true)
-        .order("renewal_date", { ascending: true });
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!user,
-  });
+  // Fetch all subscriptions (normal + shared)
+  const { data: subscriptions = [], refetch } = useAllSubscriptions();
 
   // Fetch user subscription plan
   const { data: userSubscription } = useQuery({

@@ -33,25 +33,43 @@ export const useAllSubscriptions = () => {
       // Buscar assinaturas compartilhadas onde o usuário é dono
       const { data: ownedShared, error: ownedError } = await supabase
         .from("shared_subscriptions")
-        .select(`
-          *,
-          shared_subscription_partners(*)
-        `)
+        .select("*")
         .eq("user_id", user.id)
         .eq("is_active", true);
 
-      if (ownedError) throw ownedError;
+      if (ownedError) {
+        console.error('Error fetching owned shared subs:', ownedError);
+      }
+
+      // Buscar parceiros das assinaturas compartilhadas
+      const { data: partners, error: partnersError } = await supabase
+        .from("shared_subscription_partners")
+        .select("*")
+        .in("shared_subscription_id", ownedShared?.map(s => s.id) || []);
+
+      if (partnersError) {
+        console.error('Error fetching partners:', partnersError);
+      }
 
       // Buscar assinaturas compartilhadas onde o usuário é parceiro
-      const { data: partnerSubs, error: partnerError } = await supabase
+      const { data: partnerLinks, error: partnerError } = await supabase
         .from("shared_subscription_partners")
-        .select(`
-          *,
-          shared_subscriptions(*)
-        `)
+        .select("*")
         .eq("user_id", user.id);
 
-      if (partnerError) throw partnerError;
+      if (partnerError) {
+        console.error('Error fetching partner links:', partnerError);
+      }
+
+      // Buscar detalhes das assinaturas compartilhadas onde é parceiro
+      const { data: partnerSharedSubs, error: partnerSharedError } = await supabase
+        .from("shared_subscriptions")
+        .select("*")
+        .in("id", partnerLinks?.map(p => p.shared_subscription_id) || []);
+
+      if (partnerSharedError) {
+        console.error('Error fetching partner shared subs:', partnerSharedError);
+      }
 
       const combined: CombinedSubscription[] = [];
 
@@ -83,17 +101,22 @@ export const useAllSubscriptions = () => {
       }
 
       // Adicionar assinaturas compartilhadas onde é parceiro (valor = o que ele paga)
-      if (partnerSubs) {
-        combined.push(...partnerSubs.map(partner => ({
-          id: `partner-${partner.id}`,
-          name: partner.shared_subscriptions.name,
-          value: Number(partner.value), // Valor que o parceiro paga
-          frequency: partner.shared_subscriptions.frequency,
-          payment_method: partner.shared_subscriptions.payment_method,
-          renewal_date: partner.shared_subscriptions.renewal_date,
-          is_shared: true,
-          total_value: Number(partner.shared_subscriptions.total_value)
-        })));
+      if (partnerLinks && partnerSharedSubs) {
+        combined.push(...partnerLinks.map(partner => {
+          const sharedSub = partnerSharedSubs.find(s => s.id === partner.shared_subscription_id);
+          if (!sharedSub) return null;
+          
+          return {
+            id: `partner-${partner.id}`,
+            name: sharedSub.name,
+            value: Number(partner.value), // Valor que o parceiro paga
+            frequency: sharedSub.frequency,
+            payment_method: sharedSub.payment_method,
+            renewal_date: sharedSub.renewal_date,
+            is_shared: true,
+            total_value: Number(sharedSub.total_value)
+          };
+        }).filter(Boolean) as CombinedSubscription[]);
       }
 
       return combined;

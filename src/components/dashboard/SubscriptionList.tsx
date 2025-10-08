@@ -141,7 +141,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
             const IconComponent = logo.icon;
             const renewalDate = new Date(sub.renewal_date);
             const daysUntilRenewal = differenceInDays(renewalDate, new Date());
-            const isPaymentDay = daysUntilRenewal === 0;
+            const isPaymentDay = daysUntilRenewal <= 0; // Mostra botão no dia ou se atrasado
             const isPaid = daysUntilRenewal > 0;
             
             return (

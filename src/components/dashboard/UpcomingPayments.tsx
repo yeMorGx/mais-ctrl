@@ -24,9 +24,13 @@ export const UpcomingPayments = ({ subscriptions }: UpcomingPaymentsProps) => {
 
   // Encontrar assinaturas na data selecionada
   const paymentsOnDate = selectedDate
-    ? subscriptions.filter((sub) =>
-        isSameDay(parseISO(sub.renewal_date), selectedDate)
-      )
+    ? subscriptions.filter((sub) => {
+        const renewalDate = parseISO(sub.renewal_date);
+        // Comparar apenas ano, mês e dia, ignorando horas
+        return renewalDate.getFullYear() === selectedDate.getFullYear() &&
+               renewalDate.getMonth() === selectedDate.getMonth() &&
+               renewalDate.getDate() === selectedDate.getDate();
+      })
     : [];
 
   // Destacar datas com pagamentos no calendário

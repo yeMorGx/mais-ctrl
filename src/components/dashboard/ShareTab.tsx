@@ -20,10 +20,7 @@ export const ShareTab = () => {
     totalValue: "",
     renewalDate: "",
     paymentMethod: "credit",
-    frequency: "monthly",
-    numberOfPartners: 1,
-    customValues: false,
-    partners: [{ name: "", value: "" }]
+    frequency: "monthly"
   });
 
   const handleRenewSubscription = (subscriptionId: string, subscriptionName: string) => {
@@ -106,37 +103,6 @@ export const ShareTab = () => {
     window.open(`https://wa.me/?text=${message}`, '_blank');
   };
 
-  const addPartner = () => {
-    const valuePerPartner = newSubscription.totalValue 
-      ? (parseFloat(newSubscription.totalValue) / (newSubscription.partners.length + 1)).toFixed(2)
-      : "";
-    
-    setNewSubscription({
-      ...newSubscription,
-      partners: [...newSubscription.partners, { name: "", value: valuePerPartner }]
-    });
-  };
-
-  const removePartner = (index: number) => {
-    const updatedPartners = newSubscription.partners.filter((_, i) => i !== index);
-    
-    // Recalcular valores igualmente se não estiver em modo customizado
-    if (!newSubscription.customValues && newSubscription.totalValue) {
-      const valuePerPartner = (parseFloat(newSubscription.totalValue) / updatedPartners.length).toFixed(2);
-      updatedPartners.forEach(p => p.value = valuePerPartner);
-    }
-    
-    setNewSubscription({ ...newSubscription, partners: updatedPartners });
-  };
-
-  const recalculateEqualValues = () => {
-    if (!newSubscription.totalValue || newSubscription.partners.length === 0) return;
-    
-    const valuePerPartner = (parseFloat(newSubscription.totalValue) / newSubscription.partners.length).toFixed(2);
-    const updatedPartners = newSubscription.partners.map(p => ({ ...p, value: valuePerPartner }));
-    
-    setNewSubscription({ ...newSubscription, partners: updatedPartners, customValues: false });
-  };
 
   // Carregar assinaturas compartilhadas do banco
   useEffect(() => {
@@ -188,16 +154,7 @@ export const ShareTab = () => {
     if (!newSubscription.name || !newSubscription.totalValue || !newSubscription.renewalDate) {
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha nome, valor total e data de renovação",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (newSubscription.partners.length === 0) {
-      toast({
-        title: "Adicione parceiros",
-        description: "Adicione pelo menos um slot para parceiro",
+        description: "Preencha todos os campos",
         variant: "destructive"
       });
       return;
@@ -228,23 +185,29 @@ export const ShareTab = () => {
       return;
     }
 
-    // Adicionar slots de parceiros (sem nome/email inicial)
-    const partners = newSubscription.partners.map(p => ({
-      shared_subscription_id: subscription.id,
-      name: p.name || 'Aguardando',
-      email: `pending-${Math.random().toString(36).substr(2, 9)}@temp.com`,
-      value: parseFloat(p.value),
-      status: 'pending'
-    }));
+    // Buscar informações do perfil do usuário
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', user.id)
+      .single();
 
-    const { error: partnersError } = await supabase
+    // Adicionar o criador como primeiro parceiro
+    const { error: partnerError } = await supabase
       .from('shared_subscription_partners')
-      .insert(partners);
+      .insert({
+        shared_subscription_id: subscription.id,
+        user_id: user.id,
+        name: profile?.full_name || 'Você',
+        email: profile?.email || user.email || '',
+        value: parseFloat(newSubscription.totalValue), // Inicialmente paga tudo
+        status: 'active'
+      });
 
-    if (partnersError) {
+    if (partnerError) {
       toast({
-        title: "Erro ao adicionar parceiros",
-        description: partnersError.message,
+        title: "Erro ao adicionar você como parceiro",
+        description: partnerError.message,
         variant: "destructive"
       });
       return;
@@ -256,10 +219,7 @@ export const ShareTab = () => {
       totalValue: "",
       renewalDate: "",
       paymentMethod: "credit",
-      frequency: "monthly",
-      numberOfPartners: 1,
-      customValues: false,
-      partners: [{ name: "", value: "" }]
+      frequency: "monthly"
     });
 
     // Recarregar lista
@@ -286,7 +246,7 @@ export const ShareTab = () => {
 
     toast({
       title: "Conta criada!",
-      description: "Assinatura compartilhada criada com sucesso"
+      description: "Compartilhe o link para dividir os custos. O valor será dividido automaticamente conforme pessoas entrarem."
     });
   };
 
@@ -342,7 +302,7 @@ export const ShareTab = () => {
                 <DialogHeader>
                   <DialogTitle>Criar Conta Compartilhada</DialogTitle>
                   <DialogDescription>
-                    Configure a assinatura e adicione parceiros para dividir os custos
+                    Crie a assinatura e compartilhe o link. O valor será dividido automaticamente entre todos que entrarem.
                   </DialogDescription>
                 </DialogHeader>
                 
@@ -367,17 +327,7 @@ export const ShareTab = () => {
                           step="0.01"
                           placeholder="0.00"
                           value={newSubscription.totalValue}
-                          onChange={(e) => {
-                            const newValue = e.target.value;
-                            setNewSubscription({ ...newSubscription, totalValue: newValue });
-                            
-                            // Auto recalcular se não estiver customizado
-                            if (!newSubscription.customValues && newValue) {
-                              const valuePerPartner = (parseFloat(newValue) / newSubscription.partners.length).toFixed(2);
-                              const updatedPartners = newSubscription.partners.map(p => ({ ...p, value: valuePerPartner }));
-                              setNewSubscription(prev => ({ ...prev, totalValue: newValue, partners: updatedPartners }));
-                            }
-                          }}
+                          onChange={(e) => setNewSubscription({ ...newSubscription, totalValue: e.target.value })}
                         />
                       </div>
 
@@ -423,103 +373,25 @@ export const ShareTab = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Users className="h-5 w-5 text-primary mt-0.5" />
                       <div className="space-y-1">
-                        <Label>Slots para Parceiros ({newSubscription.partners.length})</Label>
+                        <p className="text-sm font-medium">Como funciona?</p>
                         <p className="text-xs text-muted-foreground">
-                          Crie slots e compartilhe o link para que pessoas se juntem
+                          1. Você será adicionado automaticamente ao criar<br/>
+                          2. Compartilhe o link com quem quiser dividir<br/>
+                          3. O valor é dividido automaticamente entre todos
                         </p>
                       </div>
-                      <div className="flex gap-2">
-                        {newSubscription.customValues && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={recalculateEqualValues}
-                          >
-                            <RotateCcw className="h-4 w-4 mr-2" />
-                            Igualar Valores
-                          </Button>
-                        )}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={addPartner}
-                        >
-                          <UserPlus className="h-4 w-4 mr-2" />
-                          Adicionar Slot
-                        </Button>
-                      </div>
                     </div>
-
-                    {newSubscription.partners.map((partner, index) => (
-                      <Card key={index} className="p-4 bg-muted/50">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium text-sm">Slot {index + 1}</h4>
-                            {newSubscription.partners.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removePartner(index)}
-                              >
-                                <X className="h-4 w-4 text-destructive" />
-                              </Button>
-                            )}
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div className="space-y-2">
-                              <Label className="text-xs">Nome (Opcional)</Label>
-                              <Input
-                                placeholder="Deixe vazio para definir depois"
-                                value={partner.name}
-                                onChange={(e) => {
-                                  const updatedPartners = [...newSubscription.partners];
-                                  updatedPartners[index].name = e.target.value;
-                                  setNewSubscription({ ...newSubscription, partners: updatedPartners });
-                                }}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label className="text-xs flex items-center justify-between">
-                                <span>Valor a Pagar (R$)</span>
-                                {!newSubscription.customValues && (
-                                  <Badge variant="secondary" className="text-xs">Auto</Badge>
-                                )}
-                              </Label>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="0.00"
-                                value={partner.value}
-                                onChange={(e) => {
-                                  const updatedPartners = [...newSubscription.partners];
-                                  updatedPartners[index].value = e.target.value;
-                                  setNewSubscription({ 
-                                    ...newSubscription, 
-                                    partners: updatedPartners,
-                                    customValues: true 
-                                  });
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
                   </div>
 
                   <Button
                     className="w-full bg-gradient-primary"
                     onClick={handleCreateSubscription}
                   >
-                    Criar e Enviar Convites
+                    Criar Assinatura Compartilhada
                   </Button>
                 </div>
               </DialogContent>

@@ -445,6 +445,10 @@ export type Database = {
         Args: { _role: string; _user_id: string }
         Returns: boolean
       }
+      is_subscription_partner: {
+        Args: { _subscription_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       subscription_plan: "free" | "premium"

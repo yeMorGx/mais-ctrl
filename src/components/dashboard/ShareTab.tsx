@@ -21,7 +21,9 @@ export const ShareTab = () => {
     renewalDate: "",
     paymentMethod: "credit",
     frequency: "monthly",
-    partners: [{ name: "", email: "", value: "" }]
+    numberOfPartners: 1,
+    customValues: false,
+    partners: [{ name: "", value: "" }]
   });
 
   const handleRenewSubscription = (subscriptionId: string, subscriptionName: string) => {
@@ -105,15 +107,35 @@ export const ShareTab = () => {
   };
 
   const addPartner = () => {
+    const valuePerPartner = newSubscription.totalValue 
+      ? (parseFloat(newSubscription.totalValue) / (newSubscription.partners.length + 1)).toFixed(2)
+      : "";
+    
     setNewSubscription({
       ...newSubscription,
-      partners: [...newSubscription.partners, { name: "", email: "", value: "" }]
+      partners: [...newSubscription.partners, { name: "", value: valuePerPartner }]
     });
   };
 
   const removePartner = (index: number) => {
     const updatedPartners = newSubscription.partners.filter((_, i) => i !== index);
+    
+    // Recalcular valores igualmente se não estiver em modo customizado
+    if (!newSubscription.customValues && newSubscription.totalValue) {
+      const valuePerPartner = (parseFloat(newSubscription.totalValue) / updatedPartners.length).toFixed(2);
+      updatedPartners.forEach(p => p.value = valuePerPartner);
+    }
+    
     setNewSubscription({ ...newSubscription, partners: updatedPartners });
+  };
+
+  const recalculateEqualValues = () => {
+    if (!newSubscription.totalValue || newSubscription.partners.length === 0) return;
+    
+    const valuePerPartner = (parseFloat(newSubscription.totalValue) / newSubscription.partners.length).toFixed(2);
+    const updatedPartners = newSubscription.partners.map(p => ({ ...p, value: valuePerPartner }));
+    
+    setNewSubscription({ ...newSubscription, partners: updatedPartners, customValues: false });
   };
 
   // Carregar assinaturas compartilhadas do banco
@@ -121,12 +143,9 @@ export const ShareTab = () => {
     const loadSharedSubscriptions = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase
+      const { data: subs, error } = await supabase
         .from('shared_subscriptions')
-        .select(`
-          *,
-          shared_subscription_partners(*)
-        `)
+        .select('*')
         .eq('user_id', user.id);
 
       if (error) {
@@ -134,7 +153,30 @@ export const ShareTab = () => {
         return;
       }
 
-      setSharedSubscriptions(data || []);
+      if (!subs || subs.length === 0) {
+        setSharedSubscriptions([]);
+        return;
+      }
+
+      // Buscar parceiros separadamente
+      const { data: partners, error: partnersError } = await supabase
+        .from('shared_subscription_partners')
+        .select('*')
+        .in('shared_subscription_id', subs.map(s => s.id));
+
+      if (partnersError) {
+        console.error('Error loading partners:', partnersError);
+        setSharedSubscriptions(subs);
+        return;
+      }
+
+      // Combinar dados
+      const combined = subs.map(sub => ({
+        ...sub,
+        shared_subscription_partners: partners?.filter(p => p.shared_subscription_id === sub.id) || []
+      }));
+
+      setSharedSubscriptions(combined);
     };
 
     loadSharedSubscriptions();
@@ -152,11 +194,10 @@ export const ShareTab = () => {
       return;
     }
 
-    const validPartners = newSubscription.partners.filter(p => p.name && p.email && p.value);
-    if (validPartners.length === 0) {
+    if (newSubscription.partners.length === 0) {
       toast({
         title: "Adicione parceiros",
-        description: "Adicione pelo menos um parceiro válido",
+        description: "Adicione pelo menos um slot para parceiro",
         variant: "destructive"
       });
       return;
@@ -187,11 +228,11 @@ export const ShareTab = () => {
       return;
     }
 
-    // Adicionar parceiros
-    const partners = validPartners.map(p => ({
+    // Adicionar slots de parceiros (sem nome/email inicial)
+    const partners = newSubscription.partners.map(p => ({
       shared_subscription_id: subscription.id,
-      name: p.name,
-      email: p.email,
+      name: p.name || 'Aguardando',
+      email: `pending-${Math.random().toString(36).substr(2, 9)}@temp.com`,
       value: parseFloat(p.value),
       status: 'pending'
     }));
@@ -216,19 +257,32 @@ export const ShareTab = () => {
       renewalDate: "",
       paymentMethod: "credit",
       frequency: "monthly",
-      partners: [{ name: "", email: "", value: "" }]
+      numberOfPartners: 1,
+      customValues: false,
+      partners: [{ name: "", value: "" }]
     });
 
     // Recarregar lista
-    const { data } = await supabase
+    const { data: subs } = await supabase
       .from('shared_subscriptions')
-      .select(`
-        *,
-        shared_subscription_partners(*)
-      `)
+      .select('*')
       .eq('user_id', user.id);
 
-    setSharedSubscriptions(data || []);
+    if (subs && subs.length > 0) {
+      const { data: partners } = await supabase
+        .from('shared_subscription_partners')
+        .select('*')
+        .in('shared_subscription_id', subs.map(s => s.id));
+
+      const combined = subs.map(sub => ({
+        ...sub,
+        shared_subscription_partners: partners?.filter(p => p.shared_subscription_id === sub.id) || []
+      }));
+
+      setSharedSubscriptions(combined);
+    } else {
+      setSharedSubscriptions([]);
+    }
 
     toast({
       title: "Conta criada!",
@@ -313,7 +367,17 @@ export const ShareTab = () => {
                           step="0.01"
                           placeholder="0.00"
                           value={newSubscription.totalValue}
-                          onChange={(e) => setNewSubscription({ ...newSubscription, totalValue: e.target.value })}
+                          onChange={(e) => {
+                            const newValue = e.target.value;
+                            setNewSubscription({ ...newSubscription, totalValue: newValue });
+                            
+                            // Auto recalcular se não estiver customizado
+                            if (!newSubscription.customValues && newValue) {
+                              const valuePerPartner = (parseFloat(newValue) / newSubscription.partners.length).toFixed(2);
+                              const updatedPartners = newSubscription.partners.map(p => ({ ...p, value: valuePerPartner }));
+                              setNewSubscription(prev => ({ ...prev, totalValue: newValue, partners: updatedPartners }));
+                            }
+                          }}
                         />
                       </div>
 
@@ -361,40 +425,58 @@ export const ShareTab = () => {
 
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label>Parceiros</Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={addPartner}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Adicionar Parceiro
-                      </Button>
+                      <div className="space-y-1">
+                        <Label>Slots para Parceiros ({newSubscription.partners.length})</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Crie slots e compartilhe o link para que pessoas se juntem
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        {newSubscription.customValues && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={recalculateEqualValues}
+                          >
+                            <RotateCcw className="h-4 w-4 mr-2" />
+                            Igualar Valores
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addPartner}
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Adicionar Slot
+                        </Button>
+                      </div>
                     </div>
 
                     {newSubscription.partners.map((partner, index) => (
-                      <Card key={index} className="p-4">
+                      <Card key={index} className="p-4 bg-muted/50">
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <h4 className="font-medium text-sm">Parceiro {index + 1}</h4>
-                            {index > 0 && (
+                            <h4 className="font-medium text-sm">Slot {index + 1}</h4>
+                            {newSubscription.partners.length > 1 && (
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removePartner(index)}
                               >
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <X className="h-4 w-4 text-destructive" />
                               </Button>
                             )}
                           </div>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div className="space-y-2">
-                              <Label className="text-xs">Nome</Label>
+                              <Label className="text-xs">Nome (Opcional)</Label>
                               <Input
-                                placeholder="Nome completo"
+                                placeholder="Deixe vazio para definir depois"
                                 value={partner.name}
                                 onChange={(e) => {
                                   const updatedPartners = [...newSubscription.partners];
@@ -405,21 +487,12 @@ export const ShareTab = () => {
                             </div>
                             
                             <div className="space-y-2">
-                              <Label className="text-xs">E-mail</Label>
-                              <Input
-                                type="email"
-                                placeholder="email@exemplo.com"
-                                value={partner.email}
-                                onChange={(e) => {
-                                  const updatedPartners = [...newSubscription.partners];
-                                  updatedPartners[index].email = e.target.value;
-                                  setNewSubscription({ ...newSubscription, partners: updatedPartners });
-                                }}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label className="text-xs">Valor (R$)</Label>
+                              <Label className="text-xs flex items-center justify-between">
+                                <span>Valor a Pagar (R$)</span>
+                                {!newSubscription.customValues && (
+                                  <Badge variant="secondary" className="text-xs">Auto</Badge>
+                                )}
+                              </Label>
                               <Input
                                 type="number"
                                 step="0.01"
@@ -428,7 +501,11 @@ export const ShareTab = () => {
                                 onChange={(e) => {
                                   const updatedPartners = [...newSubscription.partners];
                                   updatedPartners[index].value = e.target.value;
-                                  setNewSubscription({ ...newSubscription, partners: updatedPartners });
+                                  setNewSubscription({ 
+                                    ...newSubscription, 
+                                    partners: updatedPartners,
+                                    customValues: true 
+                                  });
                                 }}
                               />
                             </div>

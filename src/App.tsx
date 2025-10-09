@@ -13,6 +13,7 @@ import AdminPanel from "./pages/AdminPanel";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ShareInvite from "./pages/ShareInvite";
+import Invite from "./pages/Invite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/share/invite/:subscriptionId" element={<ShareInvite />} />
+            <Route path="/invite" element={<Invite />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

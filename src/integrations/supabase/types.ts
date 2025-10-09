@@ -44,6 +44,53 @@ export type Database = {
         }
         Relationships: []
       }
+      invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          from_user_id: string
+          id: string
+          sent_at: string
+          shared_subscription_id: string
+          status: string
+          to_email: string | null
+          token: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          from_user_id: string
+          id?: string
+          sent_at?: string
+          shared_subscription_id: string
+          status?: string
+          to_email?: string | null
+          token?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          from_user_id?: string
+          id?: string
+          sent_at?: string
+          shared_subscription_id?: string
+          status?: string
+          to_email?: string | null
+          token?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_shared_subscription_id_fkey"
+            columns: ["shared_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "shared_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       password_reset_codes: {
         Row: {
           code: string

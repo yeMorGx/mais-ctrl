@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Sparkles, Link2, Copy, MessageCircle, Settings, X, RotateCcw } from "lucide-react";
+import { Users, Plus, Share2, CheckCircle, XCircle, Clock, UserPlus, CreditCard, Eye, Sparkles, Link2, Copy, MessageCircle, Settings, X, RotateCcw, Mail } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { EditSharedSubscriptionDialog } from "./EditSharedSubscriptionDialog";
+import { InvitesListDialog } from "./InvitesListDialog";
 
 export const ShareTab = () => {
   const { toast } = useToast();
@@ -18,6 +19,8 @@ export const ShareTab = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [invitesSubscription, setInvitesSubscription] = useState<any>(null);
+  const [isInvitesDialogOpen, setIsInvitesDialogOpen] = useState(false);
   const [newSubscription, setNewSubscription] = useState({
     name: "",
     totalValue: "",
@@ -82,21 +85,51 @@ export const ShareTab = () => {
     }
   };
 
-  const generateInviteLink = (subscriptionId: string) => {
-    return `${window.location.origin}/share/invite/${subscriptionId}`;
+  const generateInviteLink = async (subscriptionId: string) => {
+    if (!user) return "";
+
+    // Gerar token único
+    const token = crypto.randomUUID();
+    
+    // Criar registro de convite
+    const { error } = await supabase
+      .from('invites')
+      .insert({
+        shared_subscription_id: subscriptionId,
+        from_user_id: user.id,
+        status: 'pending',
+        token: token,
+        sent_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error('Error creating invite:', error);
+      toast({
+        title: "Erro ao gerar convite",
+        description: error.message,
+        variant: "destructive"
+      });
+      return "";
+    }
+
+    return `${window.location.origin}/invite?assinatura=${subscriptionId}&de=${user.id}&token=${token}`;
   };
 
-  const copyInviteLink = (subscriptionId: string) => {
-    const link = generateInviteLink(subscriptionId);
+  const copyInviteLink = async (subscriptionId: string) => {
+    const link = await generateInviteLink(subscriptionId);
+    if (!link) return;
+    
     navigator.clipboard.writeText(link);
     toast({
-      title: "Link copiado!",
-      description: "O link de convite foi copiado para a área de transferência"
+      title: "Link de convite copiado! 🫶",
+      description: "Agora é só mandar pro amigo"
     });
   };
 
-  const shareViaWhatsApp = (subscription: any) => {
-    const link = generateInviteLink(subscription.id);
+  const shareViaWhatsApp = async (subscription: any) => {
+    const link = await generateInviteLink(subscription.id);
+    if (!link) return;
+    
     const totalValue = subscription.total_value || subscription.totalValue || 0;
     const message = encodeURIComponent(
       `🎉 Você foi convidado para dividir a assinatura de *${subscription.name}*!\n\n` +
@@ -485,19 +518,8 @@ export const ShareTab = () => {
                     </Label>
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Input
-                      readOnly
-                      value={generateInviteLink(subscription.id)}
-                      className="text-xs bg-background"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => copyInviteLink(subscription.id)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Compartilhe este link para convidar pessoas
                   </div>
                   
                   <div className="flex gap-2">
@@ -611,12 +633,27 @@ export const ShareTab = () => {
               </Card>
 
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" className="flex-1">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Adicionar Parceiro
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    setEditingSubscription(subscription);
+                    setIsEditDialogOpen(true);
+                  }}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Gerenciar
                 </Button>
-                <Button variant="outline" className="flex-1">
-                  Ver Histórico
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    setInvitesSubscription(subscription);
+                    setIsInvitesDialogOpen(true);
+                  }}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Ver Convites
                 </Button>
               </div>
             </div>
@@ -742,6 +779,13 @@ export const ShareTab = () => {
         };
         loadSharedSubscriptions();
       }}
+    />
+    
+    <InvitesListDialog
+      open={isInvitesDialogOpen}
+      onOpenChange={setIsInvitesDialogOpen}
+      subscriptionId={invitesSubscription?.id || ""}
+      subscriptionName={invitesSubscription?.name || ""}
     />
     </>
   );

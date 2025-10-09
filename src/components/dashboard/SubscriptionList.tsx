@@ -30,12 +30,15 @@ interface SubscriptionListProps {
 export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: SubscriptionListProps) => {
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const handleDelete = async (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string, isShared?: boolean) => {
     const confirmed = window.confirm(`Tem certeza que deseja excluir "${name}"?`);
     if (!confirmed) return;
 
+    // Determinar a tabela correta baseado se é compartilhada ou não
+    const table = isShared ? "shared_subscriptions" : "subscriptions";
+
     const { error } = await supabase
-      .from("subscriptions")
+      .from(table)
       .delete()
       .eq("id", id);
 
@@ -94,7 +97,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
     return frequency === "monthly" ? "Mensal" : "Anual";
   };
 
-  const handleMarkAsPaid = async (subId: string, subName: string) => {
+  const handleMarkAsPaid = async (subId: string, subName: string, isShared?: boolean) => {
     // Calculate next month's renewal date
     const subscription = subscriptions.find(s => s.id === subId);
     if (!subscription) return;
@@ -108,8 +111,10 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
       nextRenewalDate.setFullYear(nextRenewalDate.getFullYear() + 1);
     }
 
+    const table = isShared ? "shared_subscriptions" : "subscriptions";
+
     const { error } = await supabase
-      .from("subscriptions")
+      .from(table)
       .update({ renewal_date: nextRenewalDate.toISOString().split('T')[0] })
       .eq("id", subId);
 
@@ -197,7 +202,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
                         variant="default"
                         size="sm"
                         className="bg-gradient-primary"
-                        onClick={() => handleMarkAsPaid(sub.id, sub.name)}
+                        onClick={() => handleMarkAsPaid(sub.id, sub.name, sub.is_shared)}
                       >
                         <CheckCircle2 className="h-4 w-4 mr-2" />
                         Pagar
@@ -219,7 +224,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      onClick={() => handleDelete(sub.id, sub.name)}
+                      onClick={() => handleDelete(sub.id, sub.name, sub.is_shared)}
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>

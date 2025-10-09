@@ -92,9 +92,28 @@ export default function Invite() {
     setAccepting(true);
 
     try {
+      console.log("[INVITE] Starting invite acceptance process", { subscriptionId, token, userId: user.id });
+
       // Get user email
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser?.email) throw new Error("Email não encontrado");
+
+      console.log("[INVITE] User authenticated", { email: authUser.email });
+
+      // Check if user is already a partner
+      const { data: existingPartner } = await supabase
+        .from("shared_subscription_partners")
+        .select("*")
+        .eq("shared_subscription_id", subscriptionId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existingPartner) {
+        console.log("[INVITE] User is already a partner");
+        toast.info("Você já está participando desta assinatura");
+        navigate("/dashboard");
+        return;
+      }
 
       // Update invite status
       const { error: inviteError } = await supabase
@@ -108,27 +127,57 @@ export default function Invite() {
         .eq("shared_subscription_id", subscriptionId)
         .eq("status", "pending");
 
-      if (inviteError) throw inviteError;
+      if (inviteError) {
+        console.error("[INVITE] Error updating invite:", inviteError);
+        throw inviteError;
+      }
+
+      console.log("[INVITE] Invite status updated successfully");
 
       // Get current subscription and partners
-      const { data: subData } = await supabase
+      const { data: subData, error: subError } = await supabase
         .from("shared_subscriptions")
-        .select("*, shared_subscription_partners(*)")
+        .select("*")
         .eq("id", subscriptionId)
         .single();
 
-      if (!subData) throw new Error("Assinatura não encontrada");
+      if (subError) {
+        console.error("[INVITE] Error fetching subscription:", subError);
+        throw subError;
+      }
 
-      const currentPartners = subData.shared_subscription_partners || [];
-      const totalPartners = currentPartners.length + 1; // +1 for the owner
-      const newValuePerPerson = parseFloat(String(subData.total_value)) / (totalPartners + 1); // +1 for new partner
+      const { data: currentPartners, error: partnersError } = await supabase
+        .from("shared_subscription_partners")
+        .select("*")
+        .eq("shared_subscription_id", subscriptionId);
+
+      if (partnersError) {
+        console.error("[INVITE] Error fetching partners:", partnersError);
+        throw partnersError;
+      }
+
+      console.log("[INVITE] Current data:", { 
+        totalValue: subData.total_value, 
+        currentPartnersCount: currentPartners?.length || 0 
+      });
+
+      const partnersCount = currentPartners?.length || 0;
+      const newValuePerPerson = parseFloat(String(subData.total_value)) / (partnersCount + 1);
+
+      console.log("[INVITE] Calculated new value per person:", newValuePerPerson);
 
       // Update existing partners values
-      for (const partner of currentPartners) {
-        await supabase
-          .from("shared_subscription_partners")
-          .update({ value: newValuePerPerson })
-          .eq("id", partner.id);
+      if (currentPartners && currentPartners.length > 0) {
+        for (const partner of currentPartners) {
+          const { error: updateError } = await supabase
+            .from("shared_subscription_partners")
+            .update({ value: newValuePerPerson })
+            .eq("id", partner.id);
+
+          if (updateError) {
+            console.error("[INVITE] Error updating partner value:", updateError);
+          }
+        }
       }
 
       // Get user profile
@@ -138,8 +187,15 @@ export default function Invite() {
         .eq("id", user.id)
         .single();
 
+      console.log("[INVITE] Adding new partner:", {
+        user_id: user.id,
+        name: profileData?.full_name || "Usuário",
+        email: authUser.email,
+        value: newValuePerPerson
+      });
+
       // Add new partner
-      const { error: partnerError } = await supabase
+      const { data: newPartner, error: partnerError } = await supabase
         .from("shared_subscription_partners")
         .insert({
           shared_subscription_id: subscriptionId,
@@ -148,15 +204,21 @@ export default function Invite() {
           email: authUser.email,
           value: newValuePerPerson,
           status: "active",
-        });
+        })
+        .select();
 
-      if (partnerError) throw partnerError;
+      if (partnerError) {
+        console.error("[INVITE] Error adding partner:", partnerError);
+        throw partnerError;
+      }
+
+      console.log("[INVITE] Partner added successfully:", newPartner);
 
       toast.success("Convite aceito com sucesso! 🎉");
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Error accepting invite:", error);
-      toast.error("Erro ao aceitar convite");
+      setTimeout(() => navigate("/dashboard"), 1500);
+    } catch (error: any) {
+      console.error("[INVITE] Error accepting invite:", error);
+      toast.error(error.message || "Erro ao aceitar convite");
     } finally {
       setAccepting(false);
     }

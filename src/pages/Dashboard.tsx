@@ -224,7 +224,7 @@ const Dashboard = () => {
                     Perfil
                   </Button>
                   
-                  {isPremium && (
+                  {(isPremium && (isAdmin || isOwner)) && (
                     <Button
                       variant={activeTab === "share" ? "default" : "ghost"}
                       className="justify-start"
@@ -339,7 +339,7 @@ const Dashboard = () => {
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Perfil</span>
             </TabsTrigger>
-            {isPremium && (
+            {(isPremium && (isAdmin || isOwner)) && (
               <TabsTrigger value="share" className="flex items-center gap-2">
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">+Share</span>
@@ -458,7 +458,7 @@ const Dashboard = () => {
           </TabsContent>
 
           {/* Share Tab - Premium Only */}
-          {isPremium && (
+          {(isPremium && (isAdmin || isOwner)) && (
             <TabsContent value="share">
               <ShareTab />
             </TabsContent>

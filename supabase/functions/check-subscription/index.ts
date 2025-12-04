@@ -95,13 +95,23 @@ serve(async (req) => {
       limit: 10,
     });
 
-    // Check for active or trialing subscriptions
+    // Check for active, trialing, or canceled (but still valid until period end) subscriptions
     const activeSubscription = subscriptions.data.find(
       (sub: any) => sub.status === 'active' || sub.status === 'trialing'
     );
+    
+    // Check for recently canceled subscriptions that might still have access
+    const canceledSubscription = subscriptions.data.find(
+      (sub: any) => sub.status === 'canceled' && 
+        sub.current_period_end && 
+        new Date(sub.current_period_end * 1000) > new Date()
+    );
 
-    if (!activeSubscription) {
-      logStep("No active or trialing subscription");
+    // Prioritize active over canceled
+    const subscription = activeSubscription || canceledSubscription;
+
+    if (!subscription) {
+      logStep("No active, trialing, or valid canceled subscription");
       
       await supabaseClient
         .from('user_subscriptions')
@@ -109,7 +119,9 @@ serve(async (req) => {
           plan: 'free',
           status: 'active',
           stripe_customer_id: customerId,
-          stripe_subscription_id: null
+          stripe_subscription_id: null,
+          current_period_start: null,
+          current_period_end: null
         })
         .eq('user_id', user.id);
       
@@ -121,31 +133,33 @@ serve(async (req) => {
       });
     }
 
-    const subscription = activeSubscription;
     const isTrialing = subscription.status === 'trialing';
+    const isCanceled = subscription.status === 'canceled' || subscription.cancel_at_period_end === true;
     
-    // Handle subscription dates - use trial_end for trialing subscriptions
+    // Handle subscription dates
     let subscriptionEnd: string;
     let periodStart: string;
     
     if (isTrialing && subscription.trial_end) {
       subscriptionEnd = new Date(subscription.trial_end * 1000).toISOString();
-      // Use created date as start for trial subscriptions
       periodStart = new Date(subscription.created * 1000).toISOString();
     } else {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       periodStart = new Date(subscription.current_period_start * 1000).toISOString();
     }
     
-    logStep("Processing subscription dates", { 
+    // Determine the status to save
+    const dbStatus = isCanceled ? 'canceled' : 'active';
+    
+    logStep("Processing subscription", { 
       id: subscription.id, 
       status: subscription.status,
+      cancel_at_period_end: subscription.cancel_at_period_end,
       isTrialing,
-      trial_end: subscription.trial_end,
-      current_period_start: subscription.current_period_start,
-      created: subscription.created,
-      calculated_end: subscriptionEnd,
-      calculated_start: periodStart
+      isCanceled,
+      dbStatus,
+      period_end: subscriptionEnd,
+      period_start: periodStart
     });
 
     // Update user subscription status
@@ -153,7 +167,7 @@ serve(async (req) => {
       .from('user_subscriptions')
       .update({
         plan: 'premium',
-        status: 'active',
+        status: dbStatus,
         stripe_customer_id: customerId,
         stripe_subscription_id: subscription.id,
         current_period_start: periodStart,
@@ -166,13 +180,15 @@ serve(async (req) => {
       throw new Error(`Failed to update subscription: ${updateError.message}`);
     }
     
-    logStep("Subscription updated successfully");
+    logStep("Subscription updated successfully", { plan: 'premium', status: dbStatus });
 
     return new Response(JSON.stringify({
       subscribed: true,
       plan: 'premium',
+      status: dbStatus,
       subscription_end: subscriptionEnd,
       is_trialing: isTrialing,
+      is_canceled: isCanceled,
       trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

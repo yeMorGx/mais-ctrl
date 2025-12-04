@@ -48,35 +48,47 @@ const Dashboard = () => {
     setIsCheckingSubscription(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data, error } = await supabase.functions.invoke('check-subscription', {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
-          }
+      if (!session) {
+        toast({
+          title: "Sessão expirada",
+          description: "Por favor, faça login novamente",
+          variant: "destructive"
         });
-        
-        if (error) {
+        navigate("/auth");
+        return;
+      }
+      
+      const { data, error } = await supabase.functions.invoke('check-subscription', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+      
+      if (error) {
+        // Se for erro de autenticação, não mostrar toast de erro
+        if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
           toast({
-            title: "Erro ao verificar assinatura",
-            description: error.message,
+            title: "Sessão expirada",
+            description: "Por favor, faça login novamente",
             variant: "destructive"
           });
-        } else {
-          // Refresh all queries
-          await queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
-          toast({
-            title: "Assinatura verificada",
-            description: data.plan === 'premium' ? "Você tem o plano Premium ativo!" : "Você está no plano Free",
-          });
+          return;
         }
+        toast({
+          title: "Erro ao verificar assinatura",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        // Refresh all queries
+        await queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
+        toast({
+          title: "Assinatura verificada",
+          description: data.plan === 'premium' ? "Você tem o plano Premium ativo!" : "Você está no plano Free",
+        });
       }
     } catch (error) {
       console.error('Failed to check subscription:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível verificar a assinatura",
-        variant: "destructive"
-      });
     } finally {
       setIsCheckingSubscription(false);
     }

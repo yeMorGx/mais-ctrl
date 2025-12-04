@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Calendar, XCircle, RotateCcw, ExternalLink, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Crown, Calendar, XCircle, RotateCcw, ExternalLink, Loader2, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSession } from "@/hooks/useSession";
@@ -68,19 +69,50 @@ export const PlanManagement = ({
   };
 
   const isCancelled = status === 'canceled' || status === 'cancelled';
-  const formattedEndDate = subscriptionEnd 
-    ? new Date(subscriptionEnd).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })
+  const subscriptionEndDate = subscriptionEnd ? new Date(subscriptionEnd) : null;
+  const isExpired = subscriptionEndDate ? subscriptionEndDate < new Date() : false;
+  const formattedEndDate = subscriptionEndDate 
+    ? subscriptionEndDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
+  
+  // Calculate days remaining
+  const daysRemaining = subscriptionEndDate 
+    ? Math.max(0, Math.ceil((subscriptionEndDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
+    : 0;
 
   return (
     <div className="space-y-6">
+      {/* Alerta de Cancelamento */}
+      {isCancelled && isPremium && !isExpired && (
+        <Alert variant="destructive" className="border-orange-500 bg-orange-500/10">
+          <AlertTriangle className="h-4 w-4 text-orange-500" />
+          <AlertDescription className="text-orange-600 dark:text-orange-400">
+            <strong>Assinatura cancelada</strong> - Você ainda tem acesso aos recursos premium até{' '}
+            <strong>{formattedEndDate}</strong>
+            {daysRemaining > 0 && (
+              <span> ({daysRemaining} {daysRemaining === 1 ? 'dia restante' : 'dias restantes'})</span>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Alerta de Expiração */}
+      {isExpired && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Sua assinatura expirou</strong> - Renove agora para recuperar o acesso aos recursos premium.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Plano Atual */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                {isPremium ? (
+                {isPremium && !isExpired ? (
                   <>
                     <Crown className="h-5 w-5 text-primary" />
                     +Premium
@@ -90,7 +122,7 @@ export const PlanManagement = ({
                 )}
               </CardTitle>
               <CardDescription>
-                {isPremium
+                {isPremium && !isExpired
                   ? isCancelled 
                     ? "Assinatura cancelada - acesso até o fim do período"
                     : "Todos os recursos liberados"
@@ -98,15 +130,15 @@ export const PlanManagement = ({
               </CardDescription>
             </div>
             <Badge
-              variant={isPremium ? (isCancelled ? "secondary" : "default") : "secondary"}
-              className={isPremium && !isCancelled ? "bg-gradient-primary" : ""}
+              variant={isPremium && !isExpired ? (isCancelled ? "destructive" : "default") : "secondary"}
+              className={isPremium && !isCancelled && !isExpired ? "bg-gradient-primary" : ""}
             >
-              {isPremium ? (isCancelled ? "Cancelado" : "Ativo") : "Free"}
+              {isExpired ? "Expirado" : isPremium ? (isCancelled ? "Cancelado" : "Ativo") : "Free"}
             </Badge>
           </div>
         </CardHeader>
         <CardContent>
-          {isPremium ? (
+          {isPremium && !isExpired ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                 <div>
@@ -116,7 +148,7 @@ export const PlanManagement = ({
                 <p className="text-2xl font-bold">R$ 149,90/ano</p>
               </div>
               {formattedEndDate && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className={`flex items-center gap-2 text-sm ${isCancelled ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-muted-foreground'}`}>
                   <Calendar className="h-4 w-4" />
                   <span>
                     {isCancelled 

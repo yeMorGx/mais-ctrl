@@ -3,49 +3,34 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const useSession = () => {
   /**
-   * Gets a fresh session, refreshing the token if needed
+   * Gets a fresh session, always attempting to validate/refresh with the server
    * Returns null if no valid session exists
    */
   const getFreshSession = useCallback(async () => {
     try {
-      // First, try to get the current session
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // Always try to refresh the session to ensure it's valid on the server
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
       
-      if (error) {
-        console.error("[useSession] Error getting session:", error);
-        return null;
-      }
-
-      if (!session) {
-        console.log("[useSession] No session found");
-        return null;
-      }
-
-      // Check if token is about to expire (within 60 seconds)
-      const expiresAt = session.expires_at;
-      const now = Math.floor(Date.now() / 1000);
-      const timeUntilExpiry = expiresAt ? expiresAt - now : 0;
-
-      if (timeUntilExpiry < 60) {
-        console.log("[useSession] Token expiring soon, refreshing...");
-        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error("[useSession] Error refreshing session:", refreshError);
         
-        if (refreshError) {
-          console.error("[useSession] Error refreshing session:", refreshError);
-          // Return the old session if refresh fails but session is still valid
-          if (timeUntilExpiry > 0) {
-            return session;
-          }
-          return null;
+        // If refresh fails, the session is invalid - sign out to clear stale data
+        if (refreshError.message?.includes('session_not_found') || 
+            refreshError.message?.includes('invalid') ||
+            refreshError.status === 403) {
+          console.log("[useSession] Session invalid, signing out...");
+          await supabase.auth.signOut();
         }
-
-        if (refreshData.session) {
-          console.log("[useSession] Session refreshed successfully");
-          return refreshData.session;
-        }
+        
+        return null;
       }
 
-      return session;
+      if (refreshData.session) {
+        console.log("[useSession] Session validated/refreshed successfully");
+        return refreshData.session;
+      }
+
+      return null;
     } catch (error) {
       console.error("[useSession] Unexpected error:", error);
       return null;
@@ -77,6 +62,10 @@ export const useSession = () => {
       });
 
       if (error) {
+        // If we get a 401, the session became invalid - clear it
+        if (error.message?.includes('401') || error.message?.includes('authenticated')) {
+          await supabase.auth.signOut();
+        }
         return { data: null, error };
       }
 

@@ -1,15 +1,56 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Crown, CreditCard, Calendar, XCircle, RotateCcw } from "lucide-react";
+import { Crown, Calendar, XCircle, RotateCcw, ExternalLink, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useSession } from "@/hooks/useSession";
+import { toast } from "sonner";
 
 interface PlanManagementProps {
   isPremium?: boolean;
+  subscriptionEnd?: string | null;
+  status?: string;
 }
 
-export const PlanManagement = ({ isPremium = false }: PlanManagementProps) => {
+export const PlanManagement = ({ isPremium = false, subscriptionEnd, status }: PlanManagementProps) => {
   const navigate = useNavigate();
+  const { invokeFunction } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleOpenCustomerPortal = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await invokeFunction('customer-portal');
+      
+      if (error) {
+        console.error('Portal error:', error);
+        if (error.message?.includes('401') || error.message?.includes('authenticated')) {
+          toast.error("Sessão expirada. Faça login novamente.");
+          navigate('/auth');
+          return;
+        }
+        toast.error("Erro ao abrir portal de gerenciamento");
+        return;
+      }
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        toast.error("Não foi possível obter o link do portal");
+      }
+    } catch (err) {
+      console.error('Portal error:', err);
+      toast.error("Erro ao conectar com o serviço de pagamento");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isCancelled = status === 'canceled' || status === 'cancelled';
+  const formattedEndDate = subscriptionEnd 
+    ? new Date(subscriptionEnd).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
 
   return (
     <div className="space-y-6">
@@ -30,15 +71,17 @@ export const PlanManagement = ({ isPremium = false }: PlanManagementProps) => {
               </CardTitle>
               <CardDescription>
                 {isPremium
-                  ? "Todos os recursos liberados"
+                  ? isCancelled 
+                    ? "Assinatura cancelada - acesso até o fim do período"
+                    : "Todos os recursos liberados"
                   : "Recursos limitados"}
               </CardDescription>
             </div>
             <Badge
-              variant={isPremium ? "default" : "secondary"}
-              className={isPremium ? "bg-gradient-primary" : ""}
+              variant={isPremium ? (isCancelled ? "secondary" : "default") : "secondary"}
+              className={isPremium && !isCancelled ? "bg-gradient-primary" : ""}
             >
-              {isPremium ? "Ativo" : "Free"}
+              {isPremium ? (isCancelled ? "Cancelado" : "Ativo") : "Free"}
             </Badge>
           </div>
         </CardHeader>
@@ -52,10 +95,17 @@ export const PlanManagement = ({ isPremium = false }: PlanManagementProps) => {
                 </div>
                 <p className="text-2xl font-bold">R$ 149,90/ano</p>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>Próxima renovação: 15 de Fevereiro de 2026</span>
-              </div>
+              {formattedEndDate && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    {isCancelled 
+                      ? `Acesso até: ${formattedEndDate}`
+                      : `Próxima renovação: ${formattedEndDate}`
+                    }
+                  </span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -79,27 +129,63 @@ export const PlanManagement = ({ isPremium = false }: PlanManagementProps) => {
         </CardContent>
       </Card>
 
-      {/* Histórico de Pagamentos - removido dados mock */}
-
       {/* Gerenciar Assinatura */}
       {isPremium && (
         <Card>
           <CardHeader>
             <CardTitle>Gerenciar Assinatura</CardTitle>
-            <CardDescription>Opções de gerenciamento do seu plano</CardDescription>
+            <CardDescription>
+              {isCancelled 
+                ? "Renove sua assinatura para continuar usando os recursos premium"
+                : "Opções de gerenciamento do seu plano"
+              }
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Renovar Agora
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <XCircle className="mr-2 h-4 w-4" />
-              Desativar Cobrança Recorrente
-            </Button>
-            <Button variant="destructive" className="w-full justify-start">
-              Cancelar Assinatura
-            </Button>
+            {isCancelled ? (
+              <Button 
+                className="w-full justify-start bg-gradient-primary"
+                onClick={handleOpenCustomerPortal}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                )}
+                Renovar Assinatura
+                <ExternalLink className="ml-auto h-4 w-4" />
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={handleOpenCustomerPortal}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <XCircle className="mr-2 h-4 w-4" />
+                  )}
+                  Desativar Cobrança Recorrente
+                  <ExternalLink className="ml-auto h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  className="w-full justify-start"
+                  onClick={handleOpenCustomerPortal}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  Cancelar Assinatura
+                  <ExternalLink className="ml-auto h-4 w-4" />
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       )}

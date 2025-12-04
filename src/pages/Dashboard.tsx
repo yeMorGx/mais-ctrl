@@ -131,7 +131,17 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
-  const isPremium = userSubscription?.plan === "premium" && userSubscription?.status === "active";
+  // Check if subscription has expired
+  const subscriptionEndDate = userSubscription?.current_period_end 
+    ? new Date(userSubscription.current_period_end) 
+    : null;
+  const isSubscriptionExpired = subscriptionEndDate ? subscriptionEndDate < new Date() : false;
+  
+  // Premium if plan is premium AND (status is active OR status is canceled but not expired yet)
+  const isPremium = userSubscription?.plan === "premium" && 
+    (userSubscription?.status === "active" || 
+     (userSubscription?.status === "canceled" && !isSubscriptionExpired));
+  
   const isOwner = user?.id === OWNER_ID;
   const isFreeUser = !isPremium;
   const hasReachedLimit = isFreeUser && subscriptions.length >= 5;

@@ -29,6 +29,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useAllSubscriptions } from "@/hooks/useAllSubscriptions";
+import { useSession } from "@/hooks/useSession";
 
 const Dashboard = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -41,37 +42,24 @@ const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { invokeFunction } = useSession();
   const OWNER_ID = "0aa7f072-7169-48f3-9389-170100fb2418";
 
-  // Manual subscription check function
+  // Manual subscription check function with automatic token refresh
   const handleCheckSubscription = async () => {
     setIsCheckingSubscription(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          title: "Sessão expirada",
-          description: "Por favor, faça login novamente",
-          variant: "destructive"
-        });
-        navigate("/auth");
-        return;
-      }
-      
-      const { data, error } = await supabase.functions.invoke('check-subscription', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`
-        }
-      });
+      const { data, error } = await invokeFunction<{ plan: string; subscribed: boolean }>('check-subscription');
       
       if (error) {
-        // Se for erro de autenticação, não mostrar toast de erro
-        if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+        // Se for erro de sessão, redirecionar
+        if (error.message?.includes('session') || error.message?.includes('401')) {
           toast({
             title: "Sessão expirada",
             description: "Por favor, faça login novamente",
             variant: "destructive"
           });
+          navigate("/auth");
           return;
         }
         toast({
@@ -79,7 +67,7 @@ const Dashboard = () => {
           description: error.message,
           variant: "destructive"
         });
-      } else {
+      } else if (data) {
         // Refresh all queries
         await queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
         toast({

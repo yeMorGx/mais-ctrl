@@ -23,33 +23,36 @@ export const PlanManagement = ({ isPremium = false, subscriptionEnd, status }: P
     try {
       const { data, error } = await invokeFunction('customer-portal');
       
-      // Check for errors in both error object and data.error
-      const errorMessage = error?.message || data?.error || '';
+      console.log('Customer portal response:', { data, error });
       
-      if (error || data?.error) {
-        console.error('Portal error:', errorMessage);
-        
-        if (errorMessage.includes('401') || errorMessage.includes('authenticated') || errorMessage.includes('session')) {
+      // Check for URL first (success case)
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        return;
+      }
+      
+      // Get error message from various possible sources
+      const errorMessage = data?.error || error?.message || '';
+      console.log('Error message:', errorMessage);
+      
+      if (errorMessage) {
+        if (errorMessage.includes('authenticated') || errorMessage.includes('session') || errorMessage.includes('401')) {
           toast.error("Sessão expirada. Faça login novamente.");
           navigate('/auth');
           return;
         }
         
-        if (errorMessage.includes('No Stripe customer') || errorMessage.includes('404')) {
-          toast.info("Você ainda não possui uma assinatura ativa. Assine o plano Premium primeiro.");
+        if (errorMessage.includes('No Stripe customer') || errorMessage.includes('not found')) {
+          toast.info("Você ainda não possui uma assinatura ativa no Stripe. Assine o plano Premium primeiro.");
           navigate('/pricing');
           return;
         }
         
-        toast.error("Erro ao abrir portal de gerenciamento");
+        toast.error(errorMessage);
         return;
       }
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      } else {
-        toast.error("Não foi possível obter o link do portal");
-      }
+      
+      toast.error("Erro ao abrir portal de gerenciamento");
     } catch (err) {
       console.error('Portal error:', err);
       toast.error("Erro ao conectar com o serviço de pagamento");

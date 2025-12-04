@@ -23,27 +23,30 @@ export const PlanManagement = ({ isPremium = false, subscriptionEnd, status }: P
     try {
       const { data, error } = await invokeFunction('customer-portal');
       
-      if (error) {
-        console.error('Portal error:', error);
-        if (error.message?.includes('401') || error.message?.includes('authenticated')) {
+      // Check for errors in both error object and data.error
+      const errorMessage = error?.message || data?.error || '';
+      
+      if (error || data?.error) {
+        console.error('Portal error:', errorMessage);
+        
+        if (errorMessage.includes('401') || errorMessage.includes('authenticated') || errorMessage.includes('session')) {
           toast.error("Sessão expirada. Faça login novamente.");
           navigate('/auth');
           return;
         }
-        if (error.message?.includes('404') || error.message?.includes('No Stripe customer')) {
+        
+        if (errorMessage.includes('No Stripe customer') || errorMessage.includes('404')) {
           toast.info("Você ainda não possui uma assinatura ativa. Assine o plano Premium primeiro.");
           navigate('/pricing');
           return;
         }
+        
         toast.error("Erro ao abrir portal de gerenciamento");
         return;
       }
 
       if (data?.url) {
         window.open(data.url, '_blank');
-      } else if (data?.error?.includes('No Stripe customer')) {
-        toast.info("Você ainda não possui uma assinatura ativa.");
-        navigate('/pricing');
       } else {
         toast.error("Não foi possível obter o link do portal");
       }

@@ -30,12 +30,20 @@ export const PlanManagement = ({ isPremium = false, subscriptionEnd, status }: P
           navigate('/auth');
           return;
         }
+        if (error.message?.includes('404') || error.message?.includes('No Stripe customer')) {
+          toast.info("Você ainda não possui uma assinatura ativa. Assine o plano Premium primeiro.");
+          navigate('/pricing');
+          return;
+        }
         toast.error("Erro ao abrir portal de gerenciamento");
         return;
       }
 
       if (data?.url) {
         window.open(data.url, '_blank');
+      } else if (data?.error?.includes('No Stripe customer')) {
+        toast.info("Você ainda não possui uma assinatura ativa.");
+        navigate('/pricing');
       } else {
         toast.error("Não foi possível obter o link do portal");
       }

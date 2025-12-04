@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Eye, EyeOff, Check, X, Phone } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Check, X, Phone, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/Logo";
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ParticlesBackground } from "@/components/ParticlesBackground";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -280,8 +281,9 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6 animate-fade-in">
+    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 relative overflow-hidden">
+      <ParticlesBackground />
+      <div className="w-full max-w-md space-y-6 animate-fade-in relative z-10">
         <div className="text-center">
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
             <ArrowLeft className="w-4 h-4" />
@@ -352,7 +354,12 @@ const Auth = () => {
                         variant="gradient"
                         disabled={isLoading}
                       >
-                        {isLoading ? "Entrando..." : "Entrar"}
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Entrando...
+                          </>
+                        ) : "Entrar"}
                       </Button>
                       {loginError && (
                         <Button
@@ -516,7 +523,12 @@ const Auth = () => {
                     variant="gradient"
                     disabled={isLoading || !isPasswordStrong || signUpPassword !== confirmPassword}
                   >
-                    {isLoading ? "Criando conta..." : "Criar conta"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Criando conta...
+                      </>
+                    ) : "Criar conta"}
                   </Button>
                   
                   <div className="relative my-6">

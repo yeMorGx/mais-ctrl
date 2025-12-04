@@ -92,11 +92,15 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
       // Remove premium theme on logout
       document.body.classList.remove('premium-theme');
+      
+      const { error } = await supabase.auth.signOut();
+      
+      // Ignorar erros de sessão não encontrada (já está deslogado)
+      if (error && !error.message.includes('session_not_found') && !error.message.includes('Session not found')) {
+        throw error;
+      }
 
       toast({
         title: "Logout realizado",
@@ -105,11 +109,17 @@ export const useAuth = () => {
 
       navigate("/");
     } catch (error: any) {
-      toast({
-        title: "Erro ao sair",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Só mostrar erro se não for relacionado a sessão
+      if (!error.message?.includes('session') && !error.message?.includes('Session')) {
+        toast({
+          title: "Erro ao sair",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        // Se for erro de sessão, apenas redirecionar
+        navigate("/");
+      }
     }
   };
 

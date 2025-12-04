@@ -484,14 +484,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_reset_codes: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      has_role: {
-        Args: { _role: string; _user_id: string }
-        Returns: boolean
-      }
+      cleanup_expired_reset_codes: { Args: never; Returns: undefined }
+      has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
       is_subscription_partner: {
         Args: { _subscription_id: string; _user_id: string }
         Returns: boolean

@@ -281,31 +281,31 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-6 animate-fade-in">
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
+          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
             <ArrowLeft className="w-4 h-4" />
             Voltar para o início
           </Link>
           
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-3">
             <Logo size="lg" />
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Gerencie suas assinaturas com inteligência
           </p>
         </div>
 
-        <Card className="border-border shadow-elegant">
-          <CardHeader>
-            <CardTitle>Bem-vindo</CardTitle>
-            <CardDescription>Entre na sua conta ou crie uma nova</CardDescription>
+        <Card className="border-border shadow-elegant backdrop-blur-sm animate-scale-in">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl">Bem-vindo</CardTitle>
+            <CardDescription className="text-sm">Entre na sua conta ou crie uma nova</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Criar conta</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="signin" className="transition-all duration-200">Entrar</TabsTrigger>
+                <TabsTrigger value="signup" className="transition-all duration-200">Criar conta</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin">

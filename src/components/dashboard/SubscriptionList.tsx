@@ -34,13 +34,36 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
     const confirmed = window.confirm(`Tem certeza que deseja excluir "${name}"?`);
     if (!confirmed) return;
 
-    // Determinar a tabela correta baseado se é compartilhada ou não
-    const table = isShared ? "shared_subscriptions" : "subscriptions";
+    // Extrair o UUID real removendo prefixos
+    let realId = id;
+    let isSharedSub = isShared;
+    
+    if (id.startsWith("shared-")) {
+      realId = id.replace("shared-", "");
+      isSharedSub = true;
+    } else if (id.startsWith("partner-")) {
+      toast({
+        title: "Não é possível excluir",
+        description: "Você é parceiro desta assinatura. Apenas o dono pode excluí-la.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    const { error } = await supabase
-      .from(table)
-      .delete()
-      .eq("id", id);
+    let error;
+    if (isSharedSub) {
+      const result = await supabase
+        .from("shared_subscriptions")
+        .delete()
+        .eq("id", realId);
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from("subscriptions")
+        .delete()
+        .eq("id", realId);
+      error = result.error;
+    }
 
     if (error) {
       toast({
@@ -98,9 +121,24 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
   };
 
   const handleMarkAsPaid = async (subId: string, subName: string, isShared?: boolean) => {
-    // Calculate next month's renewal date
     const subscription = subscriptions.find(s => s.id === subId);
     if (!subscription) return;
+
+    // Extrair o UUID real removendo prefixos
+    let realId = subId;
+    let isSharedSub = isShared;
+    
+    if (subId.startsWith("shared-")) {
+      realId = subId.replace("shared-", "");
+      isSharedSub = true;
+    } else if (subId.startsWith("partner-")) {
+      toast({
+        title: "Não é possível marcar como paga",
+        description: "Apenas o dono pode marcar a assinatura como paga.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const currentRenewalDate = new Date(subscription.renewal_date);
     const nextRenewalDate = new Date(currentRenewalDate);
@@ -111,12 +149,20 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
       nextRenewalDate.setFullYear(nextRenewalDate.getFullYear() + 1);
     }
 
-    const table = isShared ? "shared_subscriptions" : "subscriptions";
-
-    const { error } = await supabase
-      .from(table)
-      .update({ renewal_date: nextRenewalDate.toISOString().split('T')[0] })
-      .eq("id", subId);
+    let error;
+    if (isSharedSub) {
+      const result = await supabase
+        .from("shared_subscriptions")
+        .update({ renewal_date: nextRenewalDate.toISOString().split('T')[0] })
+        .eq("id", realId);
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from("subscriptions")
+        .update({ renewal_date: nextRenewalDate.toISOString().split('T')[0] })
+        .eq("id", realId);
+      error = result.error;
+    }
 
     if (error) {
       toast({

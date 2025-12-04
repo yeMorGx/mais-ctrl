@@ -488,7 +488,11 @@ const Dashboard = () => {
                 {isCheckingSubscription ? "Verificando..." : "Verificar Status"}
               </Button>
             </div>
-            <PlanManagement isPremium={isPremium} />
+            <PlanManagement 
+              isPremium={userSubscription?.plan === "premium"} 
+              subscriptionEnd={userSubscription?.current_period_end}
+              status={userSubscription?.status}
+            />
           </TabsContent>
 
           {/* Team Management Tab - Owner Only */}

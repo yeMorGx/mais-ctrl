@@ -492,6 +492,7 @@ const Dashboard = () => {
               isPremium={userSubscription?.plan === "premium"} 
               subscriptionEnd={userSubscription?.current_period_end}
               status={userSubscription?.status}
+              hasStripeSubscription={!!userSubscription?.stripe_subscription_id || !!userSubscription?.stripe_customer_id}
             />
           </TabsContent>
 

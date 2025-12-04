@@ -11,9 +11,15 @@ interface PlanManagementProps {
   isPremium?: boolean;
   subscriptionEnd?: string | null;
   status?: string;
+  hasStripeSubscription?: boolean;
 }
 
-export const PlanManagement = ({ isPremium = false, subscriptionEnd, status }: PlanManagementProps) => {
+export const PlanManagement = ({ 
+  isPremium = false, 
+  subscriptionEnd, 
+  status,
+  hasStripeSubscription = false 
+}: PlanManagementProps) => {
   const navigate = useNavigate();
   const { invokeFunction } = useSession();
   const [isLoading, setIsLoading] = useState(false);
@@ -143,8 +149,8 @@ export const PlanManagement = ({ isPremium = false, subscriptionEnd, status }: P
         </CardContent>
       </Card>
 
-      {/* Gerenciar Assinatura */}
-      {isPremium && (
+      {/* Gerenciar Assinatura - só mostra se tem assinatura real no Stripe */}
+      {isPremium && hasStripeSubscription && (
         <Card>
           <CardHeader>
             <CardTitle>Gerenciar Assinatura</CardTitle>

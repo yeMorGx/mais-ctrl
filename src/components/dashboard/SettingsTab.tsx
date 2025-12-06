@@ -219,6 +219,28 @@ Em caso de dúvidas, entre em contato com nosso suporte.
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
+      // Get profile for notification
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, email')
+        .eq('id', user.id)
+        .single();
+
+      // Send account deletion notification before deleting data
+      if (profile?.email) {
+        try {
+          await supabase.functions.invoke('send-notification', {
+            body: {
+              type: 'account_deleted',
+              email: profile.email,
+              name: profile.full_name || 'Cliente',
+            }
+          });
+        } catch (notifError) {
+          console.error('Failed to send deletion notification:', notifError);
+        }
+      }
+
       // Delete user data in order (respecting foreign keys)
       await supabase.from('shared_subscription_partners').delete().eq('user_id', user.id);
       await supabase.from('invites').delete().eq('from_user_id', user.id);

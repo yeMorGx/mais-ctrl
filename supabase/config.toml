@@ -14,3 +14,15 @@ verify_jwt = true
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false
+
+[functions.send-reset-code]
+verify_jwt = false
+
+[functions.verify-reset-code]
+verify_jwt = false
+
+[functions.send-support-email]
+verify_jwt = false

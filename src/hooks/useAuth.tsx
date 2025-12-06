@@ -47,6 +47,19 @@ export const useAuth = () => {
 
       if (error) throw error;
 
+      // Send welcome notification
+      try {
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            type: 'welcome',
+            email: email,
+            name: fullName,
+          }
+        });
+      } catch (notifError) {
+        console.error('Failed to send welcome notification:', notifError);
+      }
+
       toast({
         title: "Conta criada com sucesso!",
         description: "Você já pode começar a usar o +Ctrl",

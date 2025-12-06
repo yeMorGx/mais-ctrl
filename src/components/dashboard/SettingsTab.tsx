@@ -51,6 +51,34 @@ export const SettingsTab = () => {
     }
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Não informado";
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
+  const translateFrequency = (freq: string) => {
+    const map: Record<string, string> = {
+      'monthly': 'Mensal',
+      'yearly': 'Anual',
+      'weekly': 'Semanal',
+      'quarterly': 'Trimestral'
+    };
+    return map[freq] || freq;
+  };
+
   const handleExportData = async () => {
     setIsExporting(true);
     try {
@@ -65,20 +93,103 @@ export const SettingsTab = () => {
         supabase.from('shared_subscription_partners').select('*').eq('user_id', user.id),
       ]);
 
-      const exportData = {
-        exportedAt: new Date().toISOString(),
-        profile: profileRes.data,
-        subscriptions: subscriptionsRes.data || [],
-        sharedSubscriptions: sharedSubsRes.data || [],
-        partnerships: partnersRes.data || [],
-      };
+      const profile = profileRes.data;
+      const subscriptions = subscriptionsRes.data || [];
+      const sharedSubs = sharedSubsRes.data || [];
+      const partnerships = partnersRes.data || [];
 
-      // Create and download JSON file
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      // Build readable text content
+      let content = `╔════════════════════════════════════════════════════════════╗
+║                    MEUS DADOS - EXPORTAÇÃO                   ║
+╚════════════════════════════════════════════════════════════╝
+
+📅 Data da Exportação: ${formatDate(new Date().toISOString())}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 PERFIL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Nome: ${profile?.full_name || "Não informado"}
+   E-mail: ${profile?.email || "Não informado"}
+   Conta criada em: ${formatDate(profile?.created_at)}
+   Última atualização: ${formatDate(profile?.updated_at)}
+
+`;
+
+      if (subscriptions.length > 0) {
+        content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 MINHAS ASSINATURAS (${subscriptions.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+        subscriptions.forEach((sub, index) => {
+          content += `
+   ${index + 1}. ${sub.name}
+      ├─ Valor: ${formatCurrency(sub.value)}
+      ├─ Frequência: ${translateFrequency(sub.frequency)}
+      ├─ Método de pagamento: ${sub.payment_method}
+      ├─ Data de renovação: ${new Date(sub.renewal_date).toLocaleDateString('pt-BR')}
+      └─ Status: ${sub.is_active ? '✅ Ativa' : '❌ Inativa'}
+`;
+        });
+      } else {
+        content += `
+📋 MINHAS ASSINATURAS
+   Nenhuma assinatura cadastrada.
+`;
+      }
+
+      if (sharedSubs.length > 0) {
+        content += `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤝 ASSINATURAS COMPARTILHADAS QUE GERENCIO (${sharedSubs.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+        sharedSubs.forEach((sub, index) => {
+          content += `
+   ${index + 1}. ${sub.name}
+      ├─ Valor total: ${formatCurrency(sub.total_value)}
+      ├─ Frequência: ${translateFrequency(sub.frequency)}
+      ├─ Método de pagamento: ${sub.payment_method}
+      ├─ Data de renovação: ${new Date(sub.renewal_date).toLocaleDateString('pt-BR')}
+      └─ Status: ${sub.is_active ? '✅ Ativa' : '❌ Inativa'}
+`;
+        });
+      }
+
+      if (partnerships.length > 0) {
+        content += `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👥 ASSINATURAS QUE PARTICIPO (${partnerships.length})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+        partnerships.forEach((p, index) => {
+          content += `
+   ${index + 1}. Parceria
+      ├─ Minha parte: ${formatCurrency(p.value)}
+      ├─ Status: ${p.status === 'accepted' ? '✅ Aceito' : p.status === 'pending' ? '⏳ Pendente' : p.status}
+      └─ Desde: ${formatDate(p.created_at)}
+`;
+        });
+      }
+
+      content += `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Este arquivo foi gerado automaticamente.
+Em caso de dúvidas, entre em contato com nosso suporte.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+
+      // Create and download TXT file
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `meus-dados-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `meus-dados-${new Date().toISOString().split('T')[0]}.txt`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

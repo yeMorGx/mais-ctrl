@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Globe, Bell, Download, Trash2, Crown, Clock, Sun, Loader2 } from "lucide-react";
+import { Globe, Bell, Download, Trash2, Crown, Clock, Sun, Loader2, Phone, MessageCircle, Mail, Save } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -21,17 +21,36 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+
+interface NotificationPreferences {
+  email_enabled: boolean;
+  sms_enabled: boolean;
+  whatsapp_enabled: boolean;
+  phone_number: string;
+  reminder_days: number[];
+  reminder_time: string;
+}
 
 export const SettingsTab = () => {
+  const { user } = useAuth();
   const [premiumTheme, setPremiumTheme] = useState(false);
-  const [paymentReminderDays, setPaymentReminderDays] = useState<string[]>(["7", "3"]);
-  const [reminderTime, setReminderTime] = useState("morning");
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSavingPrefs, setIsSavingPrefs] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({
+    email_enabled: true,
+    sms_enabled: false,
+    whatsapp_enabled: false,
+    phone_number: "",
+    reminder_days: [7, 3, 2, 1],
+    reminder_time: "morning",
+  });
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('premium-theme') === 'true';
@@ -39,7 +58,95 @@ export const SettingsTab = () => {
     if (savedTheme) {
       document.documentElement.classList.add('premium-theme');
     }
-  }, []);
+    
+    // Load notification preferences from database
+    if (user?.id) {
+      loadNotificationPreferences();
+    }
+  }, [user?.id]);
+
+  const loadNotificationPreferences = async () => {
+    if (!user?.id) return;
+    
+    const { data, error } = await supabase
+      .from('user_notification_preferences')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (data) {
+      setNotifPrefs({
+        email_enabled: data.email_enabled,
+        sms_enabled: data.sms_enabled,
+        whatsapp_enabled: data.whatsapp_enabled,
+        phone_number: data.phone_number || "",
+        reminder_days: data.reminder_days || [7, 3, 2, 1],
+        reminder_time: data.reminder_time || "morning",
+      });
+    }
+  };
+
+  const saveNotificationPreferences = async () => {
+    if (!user?.id) return;
+    
+    setIsSavingPrefs(true);
+    try {
+      const { data: existing } = await supabase
+        .from('user_notification_preferences')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from('user_notification_preferences')
+          .update({
+            email_enabled: notifPrefs.email_enabled,
+            sms_enabled: notifPrefs.sms_enabled,
+            whatsapp_enabled: notifPrefs.whatsapp_enabled,
+            phone_number: notifPrefs.phone_number || null,
+            reminder_days: notifPrefs.reminder_days,
+            reminder_time: notifPrefs.reminder_time,
+          })
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('user_notification_preferences')
+          .insert({
+            user_id: user.id,
+            email_enabled: notifPrefs.email_enabled,
+            sms_enabled: notifPrefs.sms_enabled,
+            whatsapp_enabled: notifPrefs.whatsapp_enabled,
+            phone_number: notifPrefs.phone_number || null,
+            reminder_days: notifPrefs.reminder_days,
+            reminder_time: notifPrefs.reminder_time,
+          });
+      }
+
+      toast({
+        title: "Preferências salvas",
+        description: "Suas preferências de notificação foram atualizadas.",
+      });
+    } catch (error) {
+      console.error("Error saving preferences:", error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar suas preferências.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingPrefs(false);
+    }
+  };
+
+  const toggleReminderDay = (day: number) => {
+    setNotifPrefs(prev => ({
+      ...prev,
+      reminder_days: prev.reminder_days.includes(day)
+        ? prev.reminder_days.filter(d => d !== day)
+        : [...prev.reminder_days, day].sort((a, b) => b - a)
+    }));
+  };
 
   const togglePremiumTheme = (checked: boolean) => {
     setPremiumTheme(checked);
@@ -333,71 +440,98 @@ Em caso de dúvidas, entre em contato com nosso suporte.
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <Label>Avisar com antecedência de:</Label>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center space-x-2">
+        <CardContent className="space-y-6">
+          {/* Canais de notificação */}
+          <div className="space-y-4">
+            <Label className="text-base font-medium">Canais de Notificação</Label>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Mail className="h-5 w-5 text-muted-foreground" />
+                  <div className="space-y-0.5">
+                    <Label>E-mail</Label>
+                    <p className="text-sm text-muted-foreground">Receber lembretes por e-mail</p>
+                  </div>
+                </div>
                 <Switch 
-                  checked={paymentReminderDays.includes("7")}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setPaymentReminderDays([...paymentReminderDays, "7"]);
-                    } else {
-                      setPaymentReminderDays(paymentReminderDays.filter(d => d !== "7"));
-                    }
-                  }}
+                  checked={notifPrefs.email_enabled}
+                  onCheckedChange={(checked) => setNotifPrefs(prev => ({ ...prev, email_enabled: checked }))}
                 />
-                <Label className="text-sm font-normal">7 dias</Label>
               </div>
-              <div className="flex items-center space-x-2">
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Phone className="h-5 w-5 text-muted-foreground" />
+                  <div className="space-y-0.5">
+                    <Label>SMS</Label>
+                    <p className="text-sm text-muted-foreground">Receber lembretes por SMS</p>
+                  </div>
+                </div>
                 <Switch 
-                  checked={paymentReminderDays.includes("3")}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setPaymentReminderDays([...paymentReminderDays, "3"]);
-                    } else {
-                      setPaymentReminderDays(paymentReminderDays.filter(d => d !== "3"));
-                    }
-                  }}
+                  checked={notifPrefs.sms_enabled}
+                  onCheckedChange={(checked) => setNotifPrefs(prev => ({ ...prev, sms_enabled: checked }))}
                 />
-                <Label className="text-sm font-normal">3 dias</Label>
               </div>
-              <div className="flex items-center space-x-2">
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                  <div className="space-y-0.5">
+                    <Label>WhatsApp</Label>
+                    <p className="text-sm text-muted-foreground">Receber lembretes por WhatsApp</p>
+                  </div>
+                </div>
                 <Switch 
-                  checked={paymentReminderDays.includes("2")}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setPaymentReminderDays([...paymentReminderDays, "2"]);
-                    } else {
-                      setPaymentReminderDays(paymentReminderDays.filter(d => d !== "2"));
-                    }
-                  }}
+                  checked={notifPrefs.whatsapp_enabled}
+                  onCheckedChange={(checked) => setNotifPrefs(prev => ({ ...prev, whatsapp_enabled: checked }))}
                 />
-                <Label className="text-sm font-normal">2 dias</Label>
               </div>
-              <div className="flex items-center space-x-2">
-                <Switch 
-                  checked={paymentReminderDays.includes("1")}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setPaymentReminderDays([...paymentReminderDays, "1"]);
-                    } else {
-                      setPaymentReminderDays(paymentReminderDays.filter(d => d !== "1"));
-                    }
-                  }}
-                />
-                <Label className="text-sm font-normal">1 dia</Label>
-              </div>
+
+              {(notifPrefs.sms_enabled || notifPrefs.whatsapp_enabled) && (
+                <div className="pt-2">
+                  <Label htmlFor="phone-number" className="text-sm">Número de telefone</Label>
+                  <Input
+                    id="phone-number"
+                    type="tel"
+                    placeholder="+55 11 99999-9999"
+                    value={notifPrefs.phone_number}
+                    onChange={(e) => setNotifPrefs(prev => ({ ...prev, phone_number: e.target.value }))}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Inclua o código do país (ex: +55 para Brasil)
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Dias de antecedência */}
+          <div className="space-y-3">
+            <Label className="text-base font-medium">Avisar com antecedência de:</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[7, 3, 2, 1].map((day) => (
+                <div key={day} className="flex items-center space-x-2">
+                  <Switch 
+                    checked={notifPrefs.reminder_days.includes(day)}
+                    onCheckedChange={() => toggleReminderDay(day)}
+                  />
+                  <Label className="text-sm font-normal">{day} {day === 1 ? 'dia' : 'dias'}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Horário */}
           <div className="space-y-2">
             <Label htmlFor="reminder-time" className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
               Horário dos avisos
             </Label>
-            <Select value={reminderTime} onValueChange={setReminderTime}>
+            <Select 
+              value={notifPrefs.reminder_time} 
+              onValueChange={(value) => setNotifPrefs(prev => ({ ...prev, reminder_time: value }))}
+            >
               <SelectTrigger id="reminder-time">
                 <SelectValue />
               </SelectTrigger>
@@ -423,33 +557,19 @@ Em caso de dúvidas, entre em contato com nosso suporte.
               </SelectContent>
             </Select>
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Outras Notificações</CardTitle>
-          <CardDescription>Configure outras notificações</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Notificações Push</Label>
-              <p className="text-sm text-muted-foreground">
-                Receber notificações no navegador
-              </p>
-            </div>
-            <Switch />
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Notificações por E-mail</Label>
-              <p className="text-sm text-muted-foreground">
-                Receber lembretes por e-mail
-              </p>
-            </div>
-            <Switch defaultChecked />
-          </div>
+          <Button 
+            onClick={saveNotificationPreferences} 
+            disabled={isSavingPrefs}
+            className="w-full"
+          >
+            {isSavingPrefs ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            {isSavingPrefs ? "Salvando..." : "Salvar Preferências"}
+          </Button>
         </CardContent>
       </Card>
 

@@ -20,6 +20,92 @@ const formatDate = (date: string) => {
   });
 };
 
+// Send SMS via Twilio
+const sendSMS = async (to: string, message: string) => {
+  const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+  const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+  const fromNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
+
+  if (!accountSid || !authToken || !fromNumber) {
+    logStep("Twilio credentials not configured, skipping SMS");
+    return false;
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": "Basic " + btoa(`${accountSid}:${authToken}`),
+        },
+        body: new URLSearchParams({
+          To: to,
+          From: fromNumber,
+          Body: message,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      logStep("SMS send failed", { error });
+      return false;
+    }
+
+    logStep("SMS sent successfully", { to });
+    return true;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("SMS error", { error: errorMessage });
+    return false;
+  }
+};
+
+// Send WhatsApp via Twilio
+const sendWhatsApp = async (to: string, message: string) => {
+  const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+  const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+  const fromNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
+
+  if (!accountSid || !authToken || !fromNumber) {
+    logStep("Twilio credentials not configured, skipping WhatsApp");
+    return false;
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": "Basic " + btoa(`${accountSid}:${authToken}`),
+        },
+        body: new URLSearchParams({
+          To: `whatsapp:${to}`,
+          From: `whatsapp:${fromNumber}`,
+          Body: message,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      logStep("WhatsApp send failed", { error });
+      return false;
+    }
+
+    logStep("WhatsApp sent successfully", { to });
+    return true;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("WhatsApp error", { error: errorMessage });
+    return false;
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -45,252 +131,251 @@ serve(async (req) => {
     const resend = new Resend(resendKey);
 
     const today = new Date();
-    const reminderDays = [7, 3, 2, 1]; // Dias antes do vencimento para enviar lembrete
+    const defaultReminderDays = [7, 3, 2, 1];
     
     let totalNotifications = 0;
 
-    // 1. Verificar assinaturas do plano premium expirando (user_subscriptions)
-    logStep("Checking premium subscriptions expiring");
-    
-    for (const days of reminderDays) {
-      const targetDate = new Date(today);
-      targetDate.setDate(targetDate.getDate() + days);
-      const targetDateStr = targetDate.toISOString().split('T')[0];
+    // Get all users with their notification preferences
+    const { data: allProfiles } = await supabase
+      .from('profiles')
+      .select('id, email, full_name');
 
-      // Buscar assinaturas premium que expiram na data alvo
-      const { data: expiringPremium, error: premiumError } = await supabase
-        .from('user_subscriptions')
-        .select(`
-          user_id,
-          current_period_end,
-          plan,
-          status
-        `)
-        .eq('plan', 'premium')
-        .eq('status', 'active')
-        .gte('current_period_end', `${targetDateStr}T00:00:00`)
-        .lt('current_period_end', `${targetDateStr}T23:59:59`);
+    const userProfiles = new Map(allProfiles?.map(p => [p.id, p]) || []);
 
-      if (premiumError) {
-        logStep("Error fetching premium subscriptions", { error: premiumError });
-        continue;
-      }
+    // Get all notification preferences
+    const { data: allPrefs } = await supabase
+      .from('user_notification_preferences')
+      .select('*');
 
-      logStep(`Found ${expiringPremium?.length || 0} premium subscriptions expiring in ${days} days`);
+    const userPrefs = new Map(allPrefs?.map(p => [p.user_id, p]) || []);
 
-      for (const sub of expiringPremium || []) {
-        // Buscar perfil do usuário
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('email, full_name')
-          .eq('id', sub.user_id)
-          .single();
+    // Helper to get user preferences or defaults
+    const getUserPrefs = (userId: string) => {
+      const prefs = userPrefs.get(userId);
+      return {
+        email_enabled: prefs?.email_enabled ?? true,
+        sms_enabled: prefs?.sms_enabled ?? false,
+        whatsapp_enabled: prefs?.whatsapp_enabled ?? false,
+        phone_number: prefs?.phone_number || null,
+        reminder_days: prefs?.reminder_days || defaultReminderDays,
+        reminder_time: prefs?.reminder_time || 'morning',
+      };
+    };
 
-        if (profile?.email) {
-          try {
-            await resend.emails.send({
-              from: 'SubsOrganizer <onboarding@resend.dev>',
-              to: [profile.email],
-              subject: `⚠️ Sua assinatura Premium expira em ${days} dia(s) - SubsOrganizer`,
-              html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                  <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
-                  </div>
-                  <h2>Olá ${profile.full_name || 'Cliente'}! 👋</h2>
-                  <div style="background: #FEF3C7; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; font-size: 18px;"><strong>⚠️ Atenção!</strong></p>
-                    <p style="margin: 10px 0 0 0;">Sua assinatura <strong>+Premium</strong> expira em <strong>${days} dia(s)</strong>.</p>
-                    <p style="margin: 5px 0 0 0;">Data: ${formatDate(sub.current_period_end)}</p>
-                  </div>
-                  <p>Renove agora para continuar aproveitando todos os recursos premium!</p>
-                  <br>
-                  <p><strong>Equipe SubsOrganizer</strong></p>
-                </div>
-              `,
-            });
-            totalNotifications++;
-            logStep("Premium expiring notification sent", { email: profile.email, days });
-          } catch (emailError) {
-            logStep("Error sending premium notification", { error: emailError, email: profile.email });
-          }
-        }
-      }
-    }
+    // Helper to send notifications based on user preferences
+    const sendNotifications = async (
+      userId: string, 
+      subject: string, 
+      emailHtml: string, 
+      smsMessage: string
+    ) => {
+      const profile = userProfiles.get(userId);
+      if (!profile?.email) return 0;
 
-    // 2. Verificar assinaturas do dashboard expirando (subscriptions + shared_subscriptions)
-    logStep("Checking dashboard subscriptions expiring");
+      const prefs = getUserPrefs(userId);
+      let sent = 0;
 
-    for (const days of reminderDays) {
-      const targetDate = new Date(today);
-      targetDate.setDate(targetDate.getDate() + days);
-      const targetDateStr = targetDate.toISOString().split('T')[0];
-
-      // Buscar assinaturas pessoais
-      const { data: expiringPersonal, error: personalError } = await supabase
-        .from('subscriptions')
-        .select(`
-          id,
-          user_id,
-          name,
-          renewal_date,
-          is_active
-        `)
-        .eq('is_active', true)
-        .eq('renewal_date', targetDateStr);
-
-      if (personalError) {
-        logStep("Error fetching personal subscriptions", { error: personalError });
-        continue;
-      }
-
-      logStep(`Found ${expiringPersonal?.length || 0} personal subscriptions expiring in ${days} days`);
-
-      for (const sub of expiringPersonal || []) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('email, full_name')
-          .eq('id', sub.user_id)
-          .single();
-
-        if (profile?.email) {
-          try {
-            await resend.emails.send({
-              from: 'SubsOrganizer <onboarding@resend.dev>',
-              to: [profile.email],
-              subject: `🔔 Lembrete: ${sub.name} vence em ${days} dia(s)`,
-              html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                  <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
-                  </div>
-                  <h2>Olá ${profile.full_name || 'Cliente'}! 👋</h2>
-                  <div style="background: #DBEAFE; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; font-size: 16px;"><strong>🔔 Lembrete de Pagamento</strong></p>
-                    <p style="margin: 10px 0 0 0;">Sua assinatura <strong>${sub.name}</strong> vence em <strong>${days} dia(s)</strong>.</p>
-                    <p style="margin: 5px 0 0 0;">Data de renovação: <strong>${formatDate(sub.renewal_date)}</strong></p>
-                  </div>
-                  <p>Acesse seu painel para mais detalhes.</p>
-                  <br>
-                  <p><strong>Equipe SubsOrganizer</strong></p>
-                </div>
-              `,
-            });
-            totalNotifications++;
-            logStep("Personal subscription reminder sent", { email: profile.email, subscription: sub.name, days });
-          } catch (emailError) {
-            logStep("Error sending personal reminder", { error: emailError, email: profile.email });
-          }
-        }
-      }
-
-      // Buscar assinaturas compartilhadas (apenas para o dono)
-      const { data: expiringShared, error: sharedError } = await supabase
-        .from('shared_subscriptions')
-        .select(`
-          id,
-          user_id,
-          name,
-          renewal_date,
-          is_active
-        `)
-        .eq('is_active', true)
-        .eq('renewal_date', targetDateStr);
-
-      if (sharedError) {
-        logStep("Error fetching shared subscriptions", { error: sharedError });
-        continue;
-      }
-
-      logStep(`Found ${expiringShared?.length || 0} shared subscriptions expiring in ${days} days`);
-
-      for (const sub of expiringShared || []) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('email, full_name')
-          .eq('id', sub.user_id)
-          .single();
-
-        if (profile?.email) {
-          try {
-            await resend.emails.send({
-              from: 'SubsOrganizer <onboarding@resend.dev>',
-              to: [profile.email],
-              subject: `🔔 Lembrete: ${sub.name} (compartilhada) vence em ${days} dia(s)`,
-              html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                  <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
-                  </div>
-                  <h2>Olá ${profile.full_name || 'Cliente'}! 👋</h2>
-                  <div style="background: #E0E7FF; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; font-size: 16px;"><strong>🔔 Lembrete de Pagamento - Assinatura Compartilhada</strong></p>
-                    <p style="margin: 10px 0 0 0;">Sua assinatura <strong>${sub.name}</strong> vence em <strong>${days} dia(s)</strong>.</p>
-                    <p style="margin: 5px 0 0 0;">Data de renovação: <strong>${formatDate(sub.renewal_date)}</strong></p>
-                  </div>
-                  <p>Como você é o responsável por esta assinatura compartilhada, lembre-se de efetuar o pagamento.</p>
-                  <br>
-                  <p><strong>Equipe SubsOrganizer</strong></p>
-                </div>
-              `,
-            });
-            totalNotifications++;
-            logStep("Shared subscription reminder sent", { email: profile.email, subscription: sub.name, days });
-          } catch (emailError) {
-            logStep("Error sending shared reminder", { error: emailError, email: profile.email });
-          }
-        }
-      }
-    }
-
-    // 3. Verificar assinaturas vencidas (overdue) - apenas 1 notificação
-    logStep("Checking overdue subscriptions");
-    
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-    // Assinaturas pessoais vencidas ontem
-    const { data: overduePersonal } = await supabase
-      .from('subscriptions')
-      .select('id, user_id, name, renewal_date')
-      .eq('is_active', true)
-      .eq('renewal_date', yesterdayStr);
-
-    for (const sub of overduePersonal || []) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('email, full_name')
-        .eq('id', sub.user_id)
-        .single();
-
-      if (profile?.email) {
+      // Send email if enabled
+      if (prefs.email_enabled) {
         try {
           await resend.emails.send({
             from: 'SubsOrganizer <onboarding@resend.dev>',
             to: [profile.email],
-            subject: `❗ Assinatura ${sub.name} venceu ontem!`,
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                  <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
-                </div>
-                <h2>Olá ${profile.full_name || 'Cliente'}! 👋</h2>
-                <div style="background: #FEE2E2; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                  <p style="margin: 0; font-size: 16px;"><strong>❗ Pagamento Atrasado</strong></p>
-                  <p style="margin: 10px 0 0 0;">Sua assinatura <strong>${sub.name}</strong> venceu ontem (${formatDate(sub.renewal_date)}).</p>
-                </div>
-                <p>Acesse seu painel para regularizar o pagamento.</p>
-                <br>
-                <p><strong>Equipe SubsOrganizer</strong></p>
-              </div>
-            `,
+            subject,
+            html: emailHtml,
           });
-          totalNotifications++;
-          logStep("Overdue notification sent", { email: profile.email, subscription: sub.name });
-        } catch (emailError) {
-          logStep("Error sending overdue notification", { error: emailError, email: profile.email });
+          sent++;
+          logStep("Email sent", { email: profile.email });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logStep("Email failed", { email: profile.email, error: errorMessage });
         }
+      }
+
+      // Send SMS if enabled and phone number exists
+      if (prefs.sms_enabled && prefs.phone_number) {
+        if (await sendSMS(prefs.phone_number, smsMessage)) {
+          sent++;
+        }
+      }
+
+      // Send WhatsApp if enabled and phone number exists
+      if (prefs.whatsapp_enabled && prefs.phone_number) {
+        if (await sendWhatsApp(prefs.phone_number, smsMessage)) {
+          sent++;
+        }
+      }
+
+      return sent;
+    };
+
+    // 1. Check premium subscriptions expiring (user_subscriptions)
+    logStep("Checking premium subscriptions expiring");
+    
+    // Get all active premium subscriptions
+    const { data: premiumSubs } = await supabase
+      .from('user_subscriptions')
+      .select('user_id, current_period_end, plan, status')
+      .eq('plan', 'premium')
+      .eq('status', 'active')
+      .not('current_period_end', 'is', null);
+
+    for (const sub of premiumSubs || []) {
+      const prefs = getUserPrefs(sub.user_id);
+      const endDate = new Date(sub.current_period_end);
+      const daysUntilExpiry = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (prefs.reminder_days.includes(daysUntilExpiry)) {
+        const profile = userProfiles.get(sub.user_id);
+        const name = profile?.full_name || 'Cliente';
+
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+            </div>
+            <h2>Olá ${name}! 👋</h2>
+            <div style="background: #FEF3C7; border-radius: 8px; padding: 15px; margin: 20px 0;">
+              <p style="margin: 0; font-size: 18px;"><strong>⚠️ Atenção!</strong></p>
+              <p style="margin: 10px 0 0 0;">Sua assinatura <strong>+Premium</strong> expira em <strong>${daysUntilExpiry} dia(s)</strong>.</p>
+              <p style="margin: 5px 0 0 0;">Data: ${formatDate(sub.current_period_end)}</p>
+            </div>
+            <p>Renove agora para continuar aproveitando todos os recursos premium!</p>
+            <br>
+            <p><strong>Equipe SubsOrganizer</strong></p>
+          </div>
+        `;
+
+        const smsMessage = `SubsOrganizer: Sua assinatura Premium expira em ${daysUntilExpiry} dia(s) (${formatDate(sub.current_period_end)}). Renove agora!`;
+
+        totalNotifications += await sendNotifications(
+          sub.user_id,
+          `⚠️ Sua assinatura Premium expira em ${daysUntilExpiry} dia(s)`,
+          emailHtml,
+          smsMessage
+        );
+      }
+    }
+
+    // 2. Check dashboard subscriptions expiring
+    logStep("Checking dashboard subscriptions expiring");
+
+    // Get all active personal subscriptions
+    const { data: personalSubs } = await supabase
+      .from('subscriptions')
+      .select('id, user_id, name, renewal_date')
+      .eq('is_active', true);
+
+    for (const sub of personalSubs || []) {
+      const prefs = getUserPrefs(sub.user_id);
+      const renewalDate = new Date(sub.renewal_date);
+      const daysUntilRenewal = Math.ceil((renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (prefs.reminder_days.includes(daysUntilRenewal)) {
+        const profile = userProfiles.get(sub.user_id);
+        const name = profile?.full_name || 'Cliente';
+
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+            </div>
+            <h2>Olá ${name}! 👋</h2>
+            <div style="background: #DBEAFE; border-radius: 8px; padding: 15px; margin: 20px 0;">
+              <p style="margin: 0; font-size: 16px;"><strong>🔔 Lembrete de Pagamento</strong></p>
+              <p style="margin: 10px 0 0 0;">Sua assinatura <strong>${sub.name}</strong> vence em <strong>${daysUntilRenewal} dia(s)</strong>.</p>
+              <p style="margin: 5px 0 0 0;">Data de renovação: <strong>${formatDate(sub.renewal_date)}</strong></p>
+            </div>
+            <p>Acesse seu painel para mais detalhes.</p>
+            <br>
+            <p><strong>Equipe SubsOrganizer</strong></p>
+          </div>
+        `;
+
+        const smsMessage = `SubsOrganizer: ${sub.name} vence em ${daysUntilRenewal} dia(s) (${formatDate(sub.renewal_date)}).`;
+
+        totalNotifications += await sendNotifications(
+          sub.user_id,
+          `🔔 Lembrete: ${sub.name} vence em ${daysUntilRenewal} dia(s)`,
+          emailHtml,
+          smsMessage
+        );
+      }
+
+      // Check for overdue (yesterday)
+      if (daysUntilRenewal === -1) {
+        const profile = userProfiles.get(sub.user_id);
+        const name = profile?.full_name || 'Cliente';
+
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+            </div>
+            <h2>Olá ${name}! 👋</h2>
+            <div style="background: #FEE2E2; border-radius: 8px; padding: 15px; margin: 20px 0;">
+              <p style="margin: 0; font-size: 16px;"><strong>❗ Pagamento Atrasado</strong></p>
+              <p style="margin: 10px 0 0 0;">Sua assinatura <strong>${sub.name}</strong> venceu ontem (${formatDate(sub.renewal_date)}).</p>
+            </div>
+            <p>Acesse seu painel para regularizar o pagamento.</p>
+            <br>
+            <p><strong>Equipe SubsOrganizer</strong></p>
+          </div>
+        `;
+
+        const smsMessage = `SubsOrganizer: ATENÇÃO! ${sub.name} venceu ontem. Regularize o pagamento.`;
+
+        totalNotifications += await sendNotifications(
+          sub.user_id,
+          `❗ Assinatura ${sub.name} venceu ontem!`,
+          emailHtml,
+          smsMessage
+        );
+      }
+    }
+
+    // 3. Check shared subscriptions expiring
+    logStep("Checking shared subscriptions expiring");
+
+    const { data: sharedSubs } = await supabase
+      .from('shared_subscriptions')
+      .select('id, user_id, name, renewal_date')
+      .eq('is_active', true);
+
+    for (const sub of sharedSubs || []) {
+      const prefs = getUserPrefs(sub.user_id);
+      const renewalDate = new Date(sub.renewal_date);
+      const daysUntilRenewal = Math.ceil((renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (prefs.reminder_days.includes(daysUntilRenewal)) {
+        const profile = userProfiles.get(sub.user_id);
+        const name = profile?.full_name || 'Cliente';
+
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+            </div>
+            <h2>Olá ${name}! 👋</h2>
+            <div style="background: #E0E7FF; border-radius: 8px; padding: 15px; margin: 20px 0;">
+              <p style="margin: 0; font-size: 16px;"><strong>🔔 Lembrete - Assinatura Compartilhada</strong></p>
+              <p style="margin: 10px 0 0 0;">Sua assinatura <strong>${sub.name}</strong> vence em <strong>${daysUntilRenewal} dia(s)</strong>.</p>
+              <p style="margin: 5px 0 0 0;">Data de renovação: <strong>${formatDate(sub.renewal_date)}</strong></p>
+            </div>
+            <p>Como você é o responsável por esta assinatura compartilhada, lembre-se de efetuar o pagamento.</p>
+            <br>
+            <p><strong>Equipe SubsOrganizer</strong></p>
+          </div>
+        `;
+
+        const smsMessage = `SubsOrganizer: ${sub.name} (compartilhada) vence em ${daysUntilRenewal} dia(s).`;
+
+        totalNotifications += await sendNotifications(
+          sub.user_id,
+          `🔔 Lembrete: ${sub.name} (compartilhada) vence em ${daysUntilRenewal} dia(s)`,
+          emailHtml,
+          smsMessage
+        );
       }
     }
 

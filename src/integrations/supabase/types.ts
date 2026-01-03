@@ -416,6 +416,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_enabled: boolean
+          id: string
+          phone_number: string | null
+          reminder_days: number[]
+          reminder_time: string
+          sms_enabled: boolean
+          updated_at: string | null
+          user_id: string
+          whatsapp_enabled: boolean
+        }
+        Insert: {
+          created_at?: string | null
+          email_enabled?: boolean
+          id?: string
+          phone_number?: string | null
+          reminder_days?: number[]
+          reminder_time?: string
+          sms_enabled?: boolean
+          updated_at?: string | null
+          user_id: string
+          whatsapp_enabled?: boolean
+        }
+        Update: {
+          created_at?: string | null
+          email_enabled?: boolean
+          id?: string
+          phone_number?: string | null
+          reminder_days?: number[]
+          reminder_time?: string
+          sms_enabled?: boolean
+          updated_at?: string | null
+          user_id?: string
+          whatsapp_enabled?: boolean
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null

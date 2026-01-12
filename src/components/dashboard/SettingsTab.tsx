@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Globe, Bell, Download, Trash2, Crown, Clock, Sun, Loader2, Phone, MessageCircle, Mail, Save } from "lucide-react";
+import { Globe, Bell, Download, Trash2, Crown, Clock, Sun, Loader2, Phone, MessageCircle, Mail, Save, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { PhoneInput } from "@/components/ui/phone-input";
 
 interface NotificationPreferences {
   email_enabled: boolean;
@@ -30,6 +31,7 @@ interface NotificationPreferences {
   phone_number: string;
   reminder_days: number[];
   reminder_time: string;
+  phone_verified: boolean;
 }
 
 export const SettingsTab = () => {
@@ -38,6 +40,8 @@ export const SettingsTab = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testResults, setTestResults] = useState<{ channel: string; success: boolean; error?: string }[]>([]);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -50,6 +54,7 @@ export const SettingsTab = () => {
     phone_number: "",
     reminder_days: [7, 3, 2, 1],
     reminder_time: "morning",
+    phone_verified: false,
   });
 
   useEffect(() => {
@@ -82,6 +87,7 @@ export const SettingsTab = () => {
         phone_number: data.phone_number || "",
         reminder_days: data.reminder_days || [7, 3, 2, 1],
         reminder_time: data.reminder_time || "morning",
+        phone_verified: false, // Will be verified by test
       });
     }
   };
@@ -139,6 +145,81 @@ export const SettingsTab = () => {
     }
   };
 
+  const sendTestNotification = async () => {
+    if (!user?.email) return;
+    
+    // Validate phone number if SMS or WhatsApp is enabled
+    if ((notifPrefs.sms_enabled || notifPrefs.whatsapp_enabled) && !notifPrefs.phone_number) {
+      toast({
+        title: "Número necessário",
+        description: "Informe seu número de telefone para testar SMS/WhatsApp.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSendingTest(true);
+    setTestResults([]);
+    
+    try {
+      // Get user profile for name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+      
+      const { data, error } = await supabase.functions.invoke('send-test-notification', {
+        body: {
+          channels: {
+            email: notifPrefs.email_enabled,
+            sms: notifPrefs.sms_enabled,
+            whatsapp: notifPrefs.whatsapp_enabled,
+          },
+          email: user.email,
+          phone_number: notifPrefs.phone_number,
+          name: profile?.full_name || 'Cliente',
+        }
+      });
+
+      if (error) throw error;
+
+      setTestResults(data.results || []);
+      
+      const successCount = data.results?.filter((r: any) => r.success).length || 0;
+      const totalCount = data.results?.length || 0;
+      
+      if (successCount === totalCount && totalCount > 0) {
+        toast({
+          title: "Teste enviado!",
+          description: `Todas as ${totalCount} notificações foram enviadas com sucesso.`,
+        });
+        setNotifPrefs(prev => ({ ...prev, phone_verified: true }));
+      } else if (successCount > 0) {
+        toast({
+          title: "Teste parcial",
+          description: `${successCount} de ${totalCount} notificações enviadas.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Falha no teste",
+          description: "Nenhuma notificação foi enviada. Verifique as configurações.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("Error sending test notification:", error);
+      toast({
+        title: "Erro no teste",
+        description: error.message || "Não foi possível enviar as notificações de teste.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
   const toggleReminderDay = (day: number) => {
     setNotifPrefs(prev => ({
       ...prev,
@@ -181,6 +262,7 @@ export const SettingsTab = () => {
       'monthly': 'Mensal',
       'yearly': 'Anual',
       'weekly': 'Semanal',
+      'daily': 'Diária',
       'quarterly': 'Trimestral'
     };
     return map[freq] || freq;
@@ -369,6 +451,7 @@ Em caso de dúvidas, entre em contato com nosso suporte.
       await supabase.from('user_subscriptions').delete().eq('user_id', user.id);
       await supabase.from('user_2fa').delete().eq('user_id', user.id);
       await supabase.from('user_roles').delete().eq('user_id', user.id);
+      await supabase.from('user_notification_preferences').delete().eq('user_id', user.id);
       await supabase.from('profiles').delete().eq('id', user.id);
 
       // Sign out and redirect
@@ -391,6 +474,24 @@ Em caso de dúvidas, entre em contato com nosso suporte.
       setIsDeleting(false);
       setDeleteDialogOpen(false);
       setDeleteConfirmation("");
+    }
+  };
+
+  const getChannelIcon = (channel: string) => {
+    switch (channel) {
+      case 'email': return <Mail className="h-4 w-4" />;
+      case 'sms': return <Phone className="h-4 w-4" />;
+      case 'whatsapp': return <MessageCircle className="h-4 w-4" />;
+      default: return null;
+    }
+  };
+
+  const getChannelName = (channel: string) => {
+    switch (channel) {
+      case 'email': return 'E-mail';
+      case 'sms': return 'SMS';
+      case 'whatsapp': return 'WhatsApp';
+      default: return channel;
     }
   };
 
@@ -488,18 +589,15 @@ Em caso de dúvidas, entre em contato com nosso suporte.
               </div>
 
               {(notifPrefs.sms_enabled || notifPrefs.whatsapp_enabled) && (
-                <div className="pt-2">
-                  <Label htmlFor="phone-number" className="text-sm">Número de telefone</Label>
-                  <Input
-                    id="phone-number"
-                    type="tel"
-                    placeholder="+55 11 99999-9999"
+                <div className="pt-2 space-y-3">
+                  <Label className="text-sm font-medium">Número de telefone</Label>
+                  <PhoneInput
                     value={notifPrefs.phone_number}
-                    onChange={(e) => setNotifPrefs(prev => ({ ...prev, phone_number: e.target.value }))}
-                    className="mt-1"
+                    onChange={(value) => setNotifPrefs(prev => ({ ...prev, phone_number: value, phone_verified: false }))}
+                    isVerified={notifPrefs.phone_verified}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Inclua o código do país (ex: +55 para Brasil)
+                  <p className="text-xs text-muted-foreground">
+                    Selecione o código do país e digite seu número
                   </p>
                 </div>
               )}
@@ -558,18 +656,60 @@ Em caso de dúvidas, entre em contato com nosso suporte.
             </Select>
           </div>
 
-          <Button 
-            onClick={saveNotificationPreferences} 
-            disabled={isSavingPrefs}
-            className="w-full"
-          >
-            {isSavingPrefs ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            {isSavingPrefs ? "Salvando..." : "Salvar Preferências"}
-          </Button>
+          {/* Resultado do teste */}
+          {testResults.length > 0 && (
+            <div className="space-y-2 p-4 rounded-lg bg-muted/50">
+              <Label className="text-sm font-medium">Resultado do teste:</Label>
+              <div className="space-y-2">
+                {testResults.map((result, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    {getChannelIcon(result.channel)}
+                    <span>{getChannelName(result.channel)}:</span>
+                    {result.success ? (
+                      <span className="flex items-center gap-1 text-green-600">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Enviado
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        Falhou: {result.error || 'Erro desconhecido'}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <Button 
+              onClick={saveNotificationPreferences} 
+              disabled={isSavingPrefs}
+              className="flex-1"
+            >
+              {isSavingPrefs ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              {isSavingPrefs ? "Salvando..." : "Salvar Preferências"}
+            </Button>
+            
+            <Button 
+              onClick={sendTestNotification} 
+              disabled={isSendingTest || (!notifPrefs.email_enabled && !notifPrefs.sms_enabled && !notifPrefs.whatsapp_enabled)}
+              variant="outline"
+              className="flex-1"
+            >
+              {isSendingTest ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 h-4 w-4" />
+              )}
+              {isSendingTest ? "Enviando..." : "Enviar Teste"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

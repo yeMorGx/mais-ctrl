@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { CalendarDays } from "lucide-react";
 
 interface AddSubscriptionDialogProps {
   open: boolean;
@@ -15,10 +16,64 @@ interface AddSubscriptionDialogProps {
   onSuccess: () => void;
 }
 
+// Helper function to get day label based on frequency
+const getRenewalLabel = (frequency: string, date: string): string => {
+  if (!date || !frequency) return "";
+  
+  const renewalDate = new Date(date + 'T00:00:00');
+  const day = renewalDate.getDate();
+  const dayOfWeek = renewalDate.toLocaleDateString('pt-BR', { weekday: 'long' });
+  
+  switch (frequency) {
+    case "daily":
+      return "Todo dia";
+    case "weekly":
+      return `Toda ${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}`;
+    case "monthly":
+      return `Todo dia ${day}`;
+    case "quarterly":
+      return `Todo dia ${day} (a cada 3 meses)`;
+    case "annual":
+      const month = renewalDate.toLocaleDateString('pt-BR', { month: 'long' });
+      return `Todo dia ${day} de ${month}`;
+    default:
+      return "";
+  }
+};
+
+// Component for renewal date with frequency-aware label
+const RenewalDateField = ({ frequency, value, onChange }: { frequency: string; value: string; onChange: (value: string) => void }) => {
+  const label = useMemo(() => getRenewalLabel(frequency, value), [frequency, value]);
+  
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="renewal-date" className="flex items-center gap-2">
+        <CalendarDays className="h-4 w-4" />
+        Data de renovação
+      </Label>
+      <Input 
+        id="renewal-date"
+        name="renewal-date"
+        type="date"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required 
+      />
+      {label && frequency && (
+        <div className="flex items-center gap-2 text-sm text-primary font-medium bg-primary/10 rounded-md px-3 py-2">
+          <CalendarDays className="h-4 w-4" />
+          {label}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubscriptionDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [frequency, setFrequency] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [renewalDate, setRenewalDate] = useState<string>("");
   const { user } = useAuth();
 
   // Fetch user subscription plan
@@ -76,7 +131,6 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
       const formData = new FormData(e.currentTarget);
       const name = formData.get("name") as string;
       const value = parseFloat(formData.get("value") as string);
-      const renewalDate = formData.get("renewal-date") as string;
 
       const { error } = await supabase
         .from("subscriptions")
@@ -102,6 +156,7 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
       // Reset form
       setFrequency("");
       setPaymentMethod("");
+      setRenewalDate("");
       (e.target as HTMLFormElement).reset();
     } catch (error: any) {
       toast({
@@ -156,7 +211,10 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="daily">Diária</SelectItem>
+                  <SelectItem value="weekly">Semanal</SelectItem>
                   <SelectItem value="monthly">Mensal</SelectItem>
+                  <SelectItem value="quarterly">Trimestral</SelectItem>
                   <SelectItem value="annual">Anual</SelectItem>
                 </SelectContent>
               </Select>
@@ -178,15 +236,7 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="renewal-date">Data de renovação</Label>
-            <Input 
-              id="renewal-date"
-              name="renewal-date"
-              type="date"
-              required 
-            />
-          </div>
+          <RenewalDateField frequency={frequency} value={renewalDate} onChange={setRenewalDate} />
 
           <div className="flex gap-3 pt-4">
             <Button 

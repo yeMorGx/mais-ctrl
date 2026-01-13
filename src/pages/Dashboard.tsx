@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Lock, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe } from "lucide-react";
+import { Plus, Lock, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, CheckSquare, Wallet } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -20,6 +20,8 @@ import { TeamManagement } from "@/components/dashboard/TeamManagement";
 import { PlanManagement } from "@/components/dashboard/PlanManagement";
 import { LiveChatTab } from "@/components/dashboard/LiveChatTab";
 import { SiteManagement } from "@/components/dashboard/SiteManagement";
+import { TodoList } from "@/components/dashboard/TodoList";
+import { CardInstallments } from "@/components/dashboard/CardInstallments";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
 import { SuccessAnimation } from "@/components/SuccessAnimation";
@@ -266,6 +268,24 @@ const Dashboard = () => {
                     </>
                   )}
 
+                  <Button
+                    variant={activeTab === "todos" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("todos"); setMobileMenuOpen(false); }}
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Tarefas
+                  </Button>
+
+                  <Button
+                    variant={activeTab === "installments" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("installments"); setMobileMenuOpen(false); }}
+                  >
+                    <Wallet className="h-4 w-4 mr-2" />
+                    Parcelas
+                  </Button>
+
                   {isLiveChatAgent && (
                     <Button
                       variant={activeTab === "live-chat" ? "default" : "ghost"}
@@ -319,13 +339,21 @@ const Dashboard = () => {
 
           {/* Desktop Tabs */}
           <TabsList className={`hidden lg:grid w-full ${
-            isOwner ? 'grid-cols-12' : 
-            isPremium ? 'grid-cols-10' : 
-            'grid-cols-8'
+            isOwner ? 'grid-cols-14' : 
+            isPremium ? 'grid-cols-12' : 
+            'grid-cols-10'
           } mb-8`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
+            </TabsTrigger>
+            <TabsTrigger value="todos" className="flex items-center gap-2">
+              <CheckSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Tarefas</span>
+            </TabsTrigger>
+            <TabsTrigger value="installments" className="flex items-center gap-2">
+              <Wallet className="h-4 w-4" />
+              <span className="hidden sm:inline">Parcelas</span>
             </TabsTrigger>
             {isPremium && (
               <TabsTrigger value="analysis" className="flex items-center gap-2">
@@ -424,6 +452,16 @@ const Dashboard = () => {
             
             {/* Financial Tips */}
             <FinancialTips />
+          </TabsContent>
+
+          {/* Todo List Tab */}
+          <TabsContent value="todos">
+            <TodoList />
+          </TabsContent>
+
+          {/* Card Installments Tab */}
+          <TabsContent value="installments">
+            <CardInstallments />
           </TabsContent>
 
           {/* Financial Analysis Tab - Premium Only */}

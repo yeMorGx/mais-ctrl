@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      card_installments: {
+        Row: {
+          alert_enabled: boolean
+          card_name: string | null
+          category: string | null
+          created_at: string
+          current_installment: number
+          due_day: number
+          id: string
+          installment_value: number
+          is_active: boolean
+          name: string
+          start_date: string
+          total_installments: number
+          total_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_enabled?: boolean
+          card_name?: string | null
+          category?: string | null
+          created_at?: string
+          current_installment?: number
+          due_day: number
+          id?: string
+          installment_value: number
+          is_active?: boolean
+          name: string
+          start_date: string
+          total_installments: number
+          total_value: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_enabled?: boolean
+          card_name?: string | null
+          category?: string | null
+          created_at?: string
+          current_installment?: number
+          due_day?: number
+          id?: string
+          installment_value?: number
+          is_active?: boolean
+          name?: string
+          start_date?: string
+          total_installments?: number
+          total_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_sessions: {
         Row: {
           closed_at: string | null
@@ -385,6 +439,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tasks: {
+        Row: {
+          category: string | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string
+          reminder_date: string | null
+          reminder_enabled: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          reminder_date?: string | null
+          reminder_enabled?: boolean
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          reminder_date?: string | null
+          reminder_enabled?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_2fa: {
         Row: {

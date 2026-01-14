@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Lock, LayoutDashboard, TrendingUp, Calendar, Bell, Edit, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, CheckSquare, Wallet } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
 import { AddSubscriptionDialog } from "@/components/dashboard/AddSubscriptionDialog";
-import { StatsCards } from "@/components/dashboard/StatsCards";
 import { FinancialAnalysis } from "@/components/dashboard/FinancialAnalysis";
 import { UpcomingPayments } from "@/components/dashboard/UpcomingPayments";
 import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
@@ -15,13 +13,11 @@ import { ShareTab } from "@/components/dashboard/ShareTab";
 import { SettingsTab } from "@/components/dashboard/SettingsTab";
 import { HelpTab } from "@/components/dashboard/HelpTab";
 import { SupportAdminTab } from "@/components/dashboard/SupportAdminTab";
-import { FinancialTips } from "@/components/dashboard/FinancialTips";
 import { TeamManagement } from "@/components/dashboard/TeamManagement";
 import { PlanManagement } from "@/components/dashboard/PlanManagement";
 import { LiveChatTab } from "@/components/dashboard/LiveChatTab";
 import { SiteManagement } from "@/components/dashboard/SiteManagement";
-import { TodoList } from "@/components/dashboard/TodoList";
-import { CardInstallments } from "@/components/dashboard/CardInstallments";
+import { UnifiedDashboard } from "@/components/dashboard/UnifiedDashboard";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
 import { SuccessAnimation } from "@/components/SuccessAnimation";
@@ -219,15 +215,6 @@ const Dashboard = () => {
                   </Button>
                   
                   <Button
-                    variant={activeTab === "subscriptions" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => { setActiveTab("subscriptions"); setMobileMenuOpen(false); }}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Assinaturas
-                  </Button>
-                  
-                  <Button
                     variant={activeTab === "profile" ? "default" : "ghost"}
                     className="justify-start"
                     onClick={() => { setActiveTab("profile"); setMobileMenuOpen(false); }}
@@ -267,24 +254,6 @@ const Dashboard = () => {
                       </Button>
                     </>
                   )}
-
-                  <Button
-                    variant={activeTab === "todos" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => { setActiveTab("todos"); setMobileMenuOpen(false); }}
-                  >
-                    <CheckSquare className="h-4 w-4 mr-2" />
-                    Tarefas
-                  </Button>
-
-                  <Button
-                    variant={activeTab === "installments" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => { setActiveTab("installments"); setMobileMenuOpen(false); }}
-                  >
-                    <Wallet className="h-4 w-4 mr-2" />
-                    Parcelas
-                  </Button>
 
                   {isLiveChatAgent && (
                     <Button
@@ -339,21 +308,13 @@ const Dashboard = () => {
 
           {/* Desktop Tabs */}
           <TabsList className={`hidden lg:grid w-full ${
-            isOwner ? 'grid-cols-14' : 
-            isPremium ? 'grid-cols-12' : 
-            'grid-cols-10'
+            isOwner ? 'grid-cols-10' : 
+            isPremium ? 'grid-cols-9' : 
+            'grid-cols-7'
           } mb-8`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger value="todos" className="flex items-center gap-2">
-              <CheckSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Tarefas</span>
-            </TabsTrigger>
-            <TabsTrigger value="installments" className="flex items-center gap-2">
-              <Wallet className="h-4 w-4" />
-              <span className="hidden sm:inline">Parcelas</span>
             </TabsTrigger>
             {isPremium && (
               <TabsTrigger value="analysis" className="flex items-center gap-2">
@@ -368,10 +329,6 @@ const Dashboard = () => {
             <TabsTrigger value="alerts" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
               <span className="hidden sm:inline">Alertas</span>
-            </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-              <Edit className="h-4 w-4" />
-              <span className="hidden sm:inline">Assinaturas</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
@@ -409,59 +366,16 @@ const Dashboard = () => {
             )}
           </TabsList>
 
-          {/* Overview Tab */}
+          {/* Overview Tab - Unified Dashboard */}
           <TabsContent value="overview" className="space-y-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="hidden lg:block">
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard</h1>
-                <p className="text-muted-foreground">
-                  Visão geral das suas assinaturas
-                </p>
-              </div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      className={hasReachedLimit ? "bg-destructive hover:bg-destructive/90 ml-auto" : "bg-gradient-primary ml-auto"}
-                      size="lg"
-                      onClick={() => hasReachedLimit ? navigate("/pricing") : setIsAddDialogOpen(true)}
-                    >
-                      {hasReachedLimit ? (
-                        <Lock className="w-5 h-5 mr-2" />
-                      ) : (
-                        <Plus className="w-5 h-5 mr-2" />
-                      )}
-                      <span className="hidden sm:inline">{hasReachedLimit ? "Limite atingido" : "Nova assinatura"}</span>
-                      <span className="sm:hidden">Nova</span>
-                    </Button>
-                  </TooltipTrigger>
-                  {hasReachedLimit && (
-                    <TooltipContent>
-                      <p>Desbloqueie</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <StatsCards 
-              subscriptions={subscriptions} 
-              onCardClick={(tab) => setActiveTab(tab)}
+            <UnifiedDashboard 
+              subscriptions={subscriptions}
+              onAddSubscription={() => setIsAddDialogOpen(true)}
+              onRefetch={refetch}
               isPremium={isPremium}
+              hasReachedLimit={hasReachedLimit}
+              onTabChange={setActiveTab}
             />
-            <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} />
-            
-            {/* Financial Tips */}
-            <FinancialTips />
-          </TabsContent>
-
-          {/* Todo List Tab */}
-          <TabsContent value="todos">
-            <TodoList />
-          </TabsContent>
-
-          {/* Card Installments Tab */}
-          <TabsContent value="installments">
-            <CardInstallments />
           </TabsContent>
 
           {/* Financial Analysis Tab - Premium Only */}

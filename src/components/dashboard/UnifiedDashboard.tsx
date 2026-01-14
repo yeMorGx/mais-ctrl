@@ -1,15 +1,20 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Lock, CreditCard, CheckSquare, Wallet } from "lucide-react";
+import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubscriptionList } from "./SubscriptionList";
 import { TodoList } from "./TodoList";
 import { CardInstallments } from "./CardInstallments";
-import { StatsCards } from "./StatsCards";
+import { FinancialOverview } from "./FinancialOverview";
+import { UnifiedSearch, SearchFilters } from "./UnifiedSearch";
 import { FinancialTips } from "./FinancialTips";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { isToday, isThisWeek, isThisMonth, parseISO } from "date-fns";
 
 interface UnifiedDashboardProps {
   subscriptions: any[];
@@ -29,7 +34,126 @@ export const UnifiedDashboard = ({
   onTabChange,
 }: UnifiedDashboardProps) => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState("subscriptions");
+  const { user } = useAuth();
+  const [activeSection, setActiveSection] = useState("overview");
+  const [filters, setFilters] = useState<SearchFilters>({
+    query: '',
+    types: ['subscriptions', 'tasks', 'installments'],
+    status: 'all',
+    sortBy: 'name',
+    sortOrder: 'asc',
+    dateRange: 'all',
+  });
+
+  // Fetch tasks for unified search
+  const { data: tasks = [] } = useQuery({
+    queryKey: ["tasks", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user?.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch installments for unified search
+  const { data: installments = [] } = useQuery({
+    queryKey: ["card_installments", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("card_installments")
+        .select("*")
+        .eq("user_id", user?.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Apply filters to all data
+  const filteredData = useMemo(() => {
+    const query = filters.query.toLowerCase();
+    
+    // Filter subscriptions
+    let filteredSubs = filters.types.includes('subscriptions') 
+      ? subscriptions.filter(sub => {
+          if (query && !sub.name.toLowerCase().includes(query)) return false;
+          if (filters.dateRange !== 'all') {
+            const date = parseISO(sub.renewal_date);
+            if (filters.dateRange === 'today' && !isToday(date)) return false;
+            if (filters.dateRange === 'week' && !isThisWeek(date)) return false;
+            if (filters.dateRange === 'month' && !isThisMonth(date)) return false;
+          }
+          return true;
+        })
+      : [];
+
+    // Filter tasks
+    let filteredTasks = filters.types.includes('tasks')
+      ? tasks.filter((task: any) => {
+          if (query && !task.title.toLowerCase().includes(query)) return false;
+          if (filters.dateRange !== 'all' && task.due_date) {
+            const date = parseISO(task.due_date);
+            if (filters.dateRange === 'today' && !isToday(date)) return false;
+            if (filters.dateRange === 'week' && !isThisWeek(date)) return false;
+            if (filters.dateRange === 'month' && !isThisMonth(date)) return false;
+          }
+          return true;
+        })
+      : [];
+
+    // Filter installments
+    let filteredInstallments = filters.types.includes('installments')
+      ? installments.filter((inst: any) => {
+          if (query && !inst.name.toLowerCase().includes(query)) return false;
+          return true;
+        })
+      : [];
+
+    // Sort
+    const sortFn = (a: any, b: any) => {
+      let aVal: any, bVal: any;
+      switch (filters.sortBy) {
+        case 'name':
+          aVal = a.name || a.title || '';
+          bVal = b.name || b.title || '';
+          break;
+        case 'value':
+          aVal = a.value || a.installment_value || 0;
+          bVal = b.value || b.installment_value || 0;
+          break;
+        case 'date':
+          aVal = a.renewal_date || a.due_date || a.start_date || '';
+          bVal = b.renewal_date || b.due_date || b.start_date || '';
+          break;
+        default:
+          aVal = a.name || a.title || '';
+          bVal = b.name || b.title || '';
+      }
+      
+      if (typeof aVal === 'string') {
+        const cmp = aVal.localeCompare(bVal);
+        return filters.sortOrder === 'asc' ? cmp : -cmp;
+      }
+      return filters.sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+    };
+
+    filteredSubs = filteredSubs.sort(sortFn);
+    filteredTasks = filteredTasks.sort(sortFn);
+    filteredInstallments = filteredInstallments.sort(sortFn);
+
+    return {
+      subscriptions: filteredSubs,
+      tasks: filteredTasks,
+      installments: filteredInstallments,
+      totalCount: filteredSubs.length + filteredTasks.length + filteredInstallments.length,
+    };
+  }, [subscriptions, tasks, installments, filters]);
+
+  const hasActiveSearch = filters.query !== '' || filters.types.length < 3 || filters.dateRange !== 'all';
 
   return (
     <div className="space-y-6">
@@ -38,67 +162,141 @@ export const UnifiedDashboard = ({
         <div className="hidden lg:block">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard</h1>
           <p className="text-muted-foreground">
-            Gerencie suas assinaturas, tarefas e parcelas
+            Controle total das suas finanças
           </p>
         </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                className={hasReachedLimit ? "bg-destructive hover:bg-destructive/90 ml-auto" : "bg-gradient-primary ml-auto"}
-                size="lg"
-                onClick={() => hasReachedLimit ? navigate("/pricing") : onAddSubscription()}
-              >
-                {hasReachedLimit ? (
-                  <Lock className="w-5 h-5 mr-2" />
-                ) : (
-                  <Plus className="w-5 h-5 mr-2" />
-                )}
-                <span className="hidden sm:inline">{hasReachedLimit ? "Limite atingido" : "Nova assinatura"}</span>
-                <span className="sm:hidden">Nova</span>
-              </Button>
-            </TooltipTrigger>
-            {hasReachedLimit && (
-              <TooltipContent>
-                <p>Desbloqueie</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex gap-2 ml-auto">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className={hasReachedLimit ? "bg-destructive hover:bg-destructive/90" : "bg-gradient-primary"}
+                  size="lg"
+                  onClick={() => hasReachedLimit ? navigate("/pricing") : onAddSubscription()}
+                >
+                  {hasReachedLimit ? (
+                    <Lock className="w-5 h-5 mr-2" />
+                  ) : (
+                    <Plus className="w-5 h-5 mr-2" />
+                  )}
+                  <span className="hidden sm:inline">{hasReachedLimit ? "Limite atingido" : "Nova assinatura"}</span>
+                  <span className="sm:hidden">Nova</span>
+                </Button>
+              </TooltipTrigger>
+              {hasReachedLimit && (
+                <TooltipContent>
+                  <p>Desbloqueie</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <StatsCards 
-        subscriptions={subscriptions} 
-        onCardClick={onTabChange}
-        isPremium={isPremium}
-      />
+      {/* Unified Search */}
+      <Card>
+        <CardContent className="pt-4">
+          <UnifiedSearch 
+            filters={filters} 
+            onFiltersChange={setFilters}
+            resultCount={hasActiveSearch ? filteredData.totalCount : undefined}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Financial Overview / Charts */}
+      <FinancialOverview subscriptions={subscriptions} />
 
       {/* Section Tabs */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Central de Controle</CardTitle>
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-primary" />
+            Central de Controle
+            {hasActiveSearch && (
+              <span className="text-sm font-normal text-muted-foreground ml-2">
+                ({filteredData.totalCount} resultados)
+              </span>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Resumo</span>
+              </TabsTrigger>
               <TabsTrigger value="subscriptions" className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
                 <span className="hidden sm:inline">Assinaturas</span>
                 <span className="sm:hidden">Assin.</span>
+                {hasActiveSearch && filters.types.includes('subscriptions') && (
+                  <span className="text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+                    {filteredData.subscriptions.length}
+                  </span>
+                )}
               </TabsTrigger>
               <TabsTrigger value="tasks" className="flex items-center gap-2">
                 <CheckSquare className="h-4 w-4" />
                 <span>Tarefas</span>
+                {hasActiveSearch && filters.types.includes('tasks') && (
+                  <span className="text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+                    {filteredData.tasks.length}
+                  </span>
+                )}
               </TabsTrigger>
               <TabsTrigger value="installments" className="flex items-center gap-2">
                 <Wallet className="h-4 w-4" />
                 <span>Parcelas</span>
+                {hasActiveSearch && filters.types.includes('installments') && (
+                  <span className="text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+                    {filteredData.installments.length}
+                  </span>
+                )}
               </TabsTrigger>
             </TabsList>
 
+            <TabsContent value="overview" className="mt-0">
+              <div className="space-y-4">
+                {/* Quick Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <QuickSummaryCard
+                    title="Assinaturas"
+                    icon={<CreditCard className="h-5 w-5" />}
+                    count={subscriptions.length}
+                    items={subscriptions.slice(0, 3).map(s => s.name)}
+                    onClick={() => setActiveSection('subscriptions')}
+                    gradient="from-blue-500/10 to-blue-600/10"
+                    iconColor="text-blue-500"
+                  />
+                  <QuickSummaryCard
+                    title="Tarefas Pendentes"
+                    icon={<CheckSquare className="h-5 w-5" />}
+                    count={tasks.filter((t: any) => !t.completed).length}
+                    items={tasks.filter((t: any) => !t.completed).slice(0, 3).map((t: any) => t.title)}
+                    onClick={() => setActiveSection('tasks')}
+                    gradient="from-amber-500/10 to-amber-600/10"
+                    iconColor="text-amber-500"
+                  />
+                  <QuickSummaryCard
+                    title="Parcelas Ativas"
+                    icon={<Wallet className="h-5 w-5" />}
+                    count={installments.filter((i: any) => i.is_active).length}
+                    items={installments.filter((i: any) => i.is_active).slice(0, 3).map((i: any) => i.name)}
+                    onClick={() => setActiveSection('installments')}
+                    gradient="from-emerald-500/10 to-emerald-600/10"
+                    iconColor="text-emerald-500"
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
             <TabsContent value="subscriptions" className="mt-0">
-              <SubscriptionList subscriptions={subscriptions} onUpdate={onRefetch} />
+              <SubscriptionList 
+                subscriptions={hasActiveSearch ? filteredData.subscriptions : subscriptions} 
+                onUpdate={onRefetch} 
+              />
             </TabsContent>
 
             <TabsContent value="tasks" className="mt-0">
@@ -117,3 +315,53 @@ export const UnifiedDashboard = ({
     </div>
   );
 };
+
+function QuickSummaryCard({
+  title,
+  icon,
+  count,
+  items,
+  onClick,
+  gradient,
+  iconColor,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  count: number;
+  items: string[];
+  onClick: () => void;
+  gradient: string;
+  iconColor: string;
+}) {
+  return (
+    <Card 
+      className={`cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-br ${gradient}`}
+      onClick={onClick}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className={`${iconColor}`}>{icon}</div>
+          <div>
+            <p className="font-semibold">{title}</p>
+            <p className="text-2xl font-bold">{count}</p>
+          </div>
+        </div>
+        {items.length > 0 && (
+          <div className="space-y-1">
+            {items.map((item, idx) => (
+              <p key={idx} className="text-sm text-muted-foreground truncate">
+                • {item}
+              </p>
+            ))}
+            {count > 3 && (
+              <p className="text-xs text-primary">+{count - 3} mais...</p>
+            )}
+          </div>
+        )}
+        {items.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhum item</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

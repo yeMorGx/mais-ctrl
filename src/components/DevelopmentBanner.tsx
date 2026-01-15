@@ -16,7 +16,7 @@ export const DevelopmentBanner = () => {
           <strong>Site em desenvolvimento constante.</strong>{" "}
           Encontrou um bug?{" "}
           <Link 
-            to="/support" 
+            to="/dashboard?tab=help" 
             className="underline underline-offset-2 hover:no-underline font-semibold inline-flex items-center gap-1"
           >
             Entre em contato

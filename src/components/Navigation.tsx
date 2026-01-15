@@ -23,6 +23,7 @@ export const Navigation = () => {
     { label: t("nav.home"), href: "#hero" },
     { label: t("nav.features"), href: "#features" },
     { label: t("nav.pricing"), href: "#pricing" },
+    { label: "Novidades", href: "/changelog", isRoute: true },
   ];
 
   return (
@@ -35,13 +36,23 @@ export const Navigation = () => {
           {/* Desktop Navigation - Centered */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => scrollToSection(link.href.substring(1))}
-                className="text-foreground/80 hover:text-foreground transition-colors font-medium"
-              >
-                {link.label}
-              </button>
+              link.isRoute ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-foreground/80 hover:text-foreground transition-colors font-medium"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <button
+                  key={link.href}
+                  onClick={() => scrollToSection(link.href.substring(1))}
+                  className="text-foreground/80 hover:text-foreground transition-colors font-medium"
+                >
+                  {link.label}
+                </button>
+              )
             ))}
           </div>
 
@@ -72,13 +83,24 @@ export const Navigation = () => {
           <div className="md:hidden py-4 animate-fade-in">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => scrollToSection(link.href.substring(1))}
-                  className="text-left px-4 py-2 text-foreground/80 hover:text-foreground hover:bg-accent rounded-lg transition-colors font-medium"
-                >
-                  {link.label}
-                </button>
+                link.isRoute ? (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="text-left px-4 py-2 text-foreground/80 hover:text-foreground hover:bg-accent rounded-lg transition-colors font-medium"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <button
+                    key={link.href}
+                    onClick={() => scrollToSection(link.href.substring(1))}
+                    className="text-left px-4 py-2 text-foreground/80 hover:text-foreground hover:bg-accent rounded-lg transition-colors font-medium"
+                  >
+                    {link.label}
+                  </button>
+                )
               ))}
               <div className="flex flex-col gap-2 px-4 pt-4 border-t border-border">
                 <LanguageSwitcher />

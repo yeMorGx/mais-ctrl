@@ -49,7 +49,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send email to admin
     const emailResponse = await resend.emails.send({
       from: "Suporte <onboarding@resend.dev>",
-      to: ["gabrielmcgoes@gmail.com"], // Replace with admin email
+      to: ["maisctrlsuporte@gmail.com"],
       replyTo: email,
       subject: `[Suporte] ${subject}`,
       html: `

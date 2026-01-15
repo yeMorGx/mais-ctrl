@@ -68,6 +68,39 @@ export type Database = {
         }
         Relationships: []
       }
+      changelog: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          is_published: boolean | null
+          published_at: string
+          title: string
+          type: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          is_published?: boolean | null
+          published_at?: string
+          title: string
+          type?: string
+          version: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          is_published?: boolean | null
+          published_at?: string
+          title?: string
+          type?: string
+          version?: string
+        }
+        Relationships: []
+      }
       chat_sessions: {
         Row: {
           closed_at: string | null
@@ -515,6 +548,36 @@ export type Database = {
           secret?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          emoji: string
+          feature: string | null
+          id: string
+          page: string
+          user_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          emoji: string
+          feature?: string | null
+          id?: string
+          page: string
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          emoji?: string
+          feature?: string | null
+          id?: string
+          page?: string
+          user_id?: string | null
         }
         Relationships: []
       }

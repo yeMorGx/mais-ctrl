@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { DevelopmentBanner } from "@/components/DevelopmentBanner";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +16,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import ShareInvite from "./pages/ShareInvite";
 import Invite from "./pages/Invite";
+import Changelog from "./pages/Changelog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,10 +25,11 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <TooltipProvider>
-        <DevelopmentBanner />
-        <Toaster />
-        <Sonner />
         <BrowserRouter>
+          <DevelopmentBanner />
+          <Toaster />
+          <Sonner />
+          <FeedbackWidget />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -38,6 +41,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/share/invite/:subscriptionId" element={<ShareInvite />} />
             <Route path="/invite" element={<Invite />} />
+            <Route path="/changelog" element={<Changelog />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

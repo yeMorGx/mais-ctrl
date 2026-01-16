@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Search, Filter, RefreshCw, Smile, Frown, Meh, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { MessageSquare, Search, RefreshCw, Smile, Frown, Meh, ThumbsUp, ThumbsDown, Globe } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -18,6 +20,7 @@ interface Feedback {
   feature: string | null;
   comment: string | null;
   created_at: string;
+  show_on_landing: boolean;
 }
 
 const emojiLabels: Record<string, { label: string; icon: React.ElementType; color: string }> = {
@@ -29,6 +32,8 @@ const emojiLabels: Record<string, { label: string; icon: React.ElementType; colo
 };
 
 export const AdminFeedbacks = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [emojiFilter, setEmojiFilter] = useState<string>("all");
   const [pageFilter, setPageFilter] = useState<string>("all");
@@ -43,6 +48,31 @@ export const AdminFeedbacks = () => {
 
       if (error) throw error;
       return data as Feedback[];
+    },
+  });
+
+  const toggleLandingMutation = useMutation({
+    mutationFn: async ({ id, show }: { id: string; show: boolean }) => {
+      const { error } = await supabase
+        .from("user_feedback")
+        .update({ show_on_landing: show })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-feedbacks"] });
+      toast({
+        title: "Feedback atualizado!",
+        description: "A visibilidade na landing page foi alterada.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao atualizar",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -71,6 +101,7 @@ export const AdminFeedbacks = () => {
   const totalFeedbacks = feedbacks.length;
   const positiveCount = (emojiStats["😍"] || 0) + (emojiStats["😊"] || 0);
   const negativeCount = (emojiStats["😕"] || 0) + (emojiStats["😢"] || 0);
+  const landingCount = feedbacks.filter(f => f.show_on_landing).length;
   const satisfactionRate = totalFeedbacks > 0 
     ? Math.round((positiveCount / totalFeedbacks) * 100) 
     : 0;
@@ -91,10 +122,10 @@ export const AdminFeedbacks = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Feedbacks</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -103,7 +134,7 @@ export const AdminFeedbacks = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Feedbacks Positivos</CardTitle>
+            <CardTitle className="text-sm font-medium">Positivos</CardTitle>
             <ThumbsUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -112,7 +143,7 @@ export const AdminFeedbacks = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Feedbacks Negativos</CardTitle>
+            <CardTitle className="text-sm font-medium">Negativos</CardTitle>
             <ThumbsDown className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
@@ -121,11 +152,20 @@ export const AdminFeedbacks = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Satisfação</CardTitle>
+            <CardTitle className="text-sm font-medium">Satisfação</CardTitle>
             <Smile className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{satisfactionRate}%</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Na Landing</CardTitle>
+            <Globe className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-500">{landingCount}</div>
           </CardContent>
         </Card>
       </div>
@@ -183,7 +223,7 @@ export const AdminFeedbacks = () => {
             Feedbacks ({filteredFeedbacks.length})
           </CardTitle>
           <CardDescription>
-            Lista de todos os feedbacks recebidos
+            Ative o switch para exibir o feedback na landing page
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -221,6 +261,12 @@ export const AdminFeedbacks = () => {
                           <EmojiIcon className="h-3 w-3" />
                           {emojiInfo.label}
                         </span>
+                        {feedback.show_on_landing && (
+                          <Badge className="bg-blue-500 gap-1">
+                            <Globe className="h-3 w-3" />
+                            Landing Page
+                          </Badge>
+                        )}
                       </div>
                       {feedback.comment && (
                         <p className="text-sm text-foreground mt-2">{feedback.comment}</p>
@@ -231,6 +277,15 @@ export const AdminFeedbacks = () => {
                           <span className="ml-2">• Usuário autenticado</span>
                         )}
                       </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Landing</span>
+                      <Switch
+                        checked={feedback.show_on_landing}
+                        onCheckedChange={(checked) => 
+                          toggleLandingMutation.mutate({ id: feedback.id, show: checked })
+                        }
+                      />
                     </div>
                   </div>
                 );

@@ -14,6 +14,8 @@ import { AdminReports } from "@/components/admin/AdminReports";
 import { AdminSettings } from "@/components/admin/AdminSettings";
 import { AdminRoles } from "@/components/admin/AdminRoles";
 import { AdminFeedbacks } from "@/components/admin/AdminFeedbacks";
+import { AdminChangelog } from "@/components/admin/AdminChangelog";
+import { AdminSiteSettings } from "@/components/admin/AdminSiteSettings";
 import { Logo } from "@/components/Logo";
 
 const AdminPanel = () => {
@@ -73,6 +75,10 @@ const AdminPanel = () => {
         return <AdminPayments />;
       case "feedbacks":
         return <AdminFeedbacks />;
+      case "changelog":
+        return <AdminChangelog />;
+      case "site":
+        return <AdminSiteSettings />;
       case "reports":
         return <AdminReports />;
       case "settings":

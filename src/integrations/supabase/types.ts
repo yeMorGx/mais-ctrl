@@ -70,6 +70,7 @@ export type Database = {
       }
       changelog: {
         Row: {
+          attachment_url: string | null
           created_at: string
           description: string
           id: string
@@ -80,6 +81,7 @@ export type Database = {
           version: string
         }
         Insert: {
+          attachment_url?: string | null
           created_at?: string
           description: string
           id?: string
@@ -90,6 +92,7 @@ export type Database = {
           version: string
         }
         Update: {
+          attachment_url?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -100,6 +103,35 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      changelog_reads: {
+        Row: {
+          changelog_id: string
+          id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          changelog_id: string
+          id?: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          changelog_id?: string
+          id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "changelog_reads_changelog_id_fkey"
+            columns: ["changelog_id"]
+            isOneToOne: false
+            referencedRelation: "changelog"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_sessions: {
         Row: {
@@ -212,6 +244,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          phone_number: string | null
           updated_at: string | null
         }
         Insert: {
@@ -220,6 +253,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          phone_number?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -228,6 +262,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          phone_number?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -318,6 +353,30 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           billing_interval: string
@@ -372,6 +431,7 @@ export type Database = {
           name: string
           payment_method: string
           renewal_date: string
+          trial_end_date: string | null
           updated_at: string | null
           user_id: string
           value: number
@@ -384,6 +444,7 @@ export type Database = {
           name: string
           payment_method: string
           renewal_date: string
+          trial_end_date?: string | null
           updated_at?: string | null
           user_id: string
           value: number
@@ -396,6 +457,7 @@ export type Database = {
           name?: string
           payment_method?: string
           renewal_date?: string
+          trial_end_date?: string | null
           updated_at?: string | null
           user_id?: string
           value?: number
@@ -559,6 +621,7 @@ export type Database = {
           feature: string | null
           id: string
           page: string
+          show_on_landing: boolean | null
           user_id: string | null
         }
         Insert: {
@@ -568,6 +631,7 @@ export type Database = {
           feature?: string | null
           id?: string
           page: string
+          show_on_landing?: boolean | null
           user_id?: string | null
         }
         Update: {
@@ -577,6 +641,7 @@ export type Database = {
           feature?: string | null
           id?: string
           page?: string
+          show_on_landing?: boolean | null
           user_id?: string | null
         }
         Relationships: []

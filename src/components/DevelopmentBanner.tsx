@@ -1,12 +1,34 @@
 import { AlertTriangle, X, MessageCircle } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 export const DevelopmentBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
+  const location = useLocation();
 
-  if (!isVisible) return null;
+  // Fetch site settings to check if banner should be shown
+  const { data: bannerSetting } = useQuery({
+    queryKey: ['site-settings', 'development_banner'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'development_banner')
+        .single();
+      
+      if (error) return { enabled: true }; // Default to showing banner
+      return data?.value as { enabled: boolean };
+    }
+  });
+
+  // Don't show on landing page (/) or if setting is disabled
+  const isLandingPage = location.pathname === '/';
+  const isEnabled = bannerSetting?.enabled !== false;
+
+  if (!isVisible || isLandingPage || !isEnabled) return null;
 
   return (
     <div className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 text-white px-4 py-2.5 relative z-50">

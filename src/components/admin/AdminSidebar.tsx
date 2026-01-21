@@ -63,14 +63,19 @@ export const AdminSidebar = ({ activeSection, onSectionChange, isOwner }: AdminS
       id: "feedbacks",
     },
     {
+      title: "Changelog",
+      icon: FileText,
+      id: "changelog",
+    },
+    {
       title: "Relatórios",
       icon: BarChart3,
       id: "reports",
     },
     {
-      title: "Configurações",
+      title: "Configurações do Site",
       icon: Settings,
-      id: "settings",
+      id: "site-settings",
     },
   ];
 

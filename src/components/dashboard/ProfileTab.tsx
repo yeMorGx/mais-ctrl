@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Upload, Loader2, Mail, DollarSign, Building2, Crown, Clock, Shield, Key, Lock, CheckCircle2, XCircle } from "lucide-react";
+import { User, Upload, Loader2, Mail, DollarSign, Building2, Crown, Clock, Shield, Key, Lock, CheckCircle2, XCircle, Phone } from "lucide-react";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +45,9 @@ export const ProfileTab = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  
+  // Phone state
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const { data: profile, refetch } = useQuery({
     queryKey: ["profile", user?.id],
@@ -475,7 +479,22 @@ export const ProfileTab = () => {
                 </div>
               </div>
             </div>
-
+            
+            {/* Phone Number Field */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                Telefone (SMS/WhatsApp)
+              </Label>
+              <PhoneInput
+                value={profile?.phone_number || phoneNumber}
+                onChange={(value) => setPhoneNumber(value)}
+                disabled={!isEditing}
+              />
+              <p className="text-xs text-muted-foreground">
+                Usado para notificações via SMS e WhatsApp
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="income">Renda Mensal</Label>

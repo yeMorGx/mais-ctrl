@@ -96,22 +96,6 @@ export const Navigation = () => {
             </div>
           </div>
         )}
-              <div className="flex flex-col gap-2 px-4 pt-4 border-t border-border">
-                <LanguageSwitcher />
-                <Link to="/auth" onClick={() => setIsOpen(false)}>
-                  <Button variant="ghost" className="w-full">
-                    {t("nav.login")}
-                  </Button>
-                </Link>
-                <Link to="/auth" onClick={() => setIsOpen(false)}>
-                  <Button variant="gradient" className="w-full">
-                    {t("nav.signup")}
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );

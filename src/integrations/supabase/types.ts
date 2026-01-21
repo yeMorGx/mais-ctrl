@@ -163,6 +163,69 @@ export type Database = {
         }
         Relationships: []
       }
+      debts: {
+        Row: {
+          alert_enabled: boolean
+          created_at: string
+          current_installment: number | null
+          debt_date: string
+          debt_name: string
+          description: string | null
+          id: string
+          installment_value: number | null
+          is_installment: boolean
+          is_paid: boolean
+          paid_at: string | null
+          payment_date: string
+          person_name: string
+          total_installments: number | null
+          total_value: number
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_enabled?: boolean
+          created_at?: string
+          current_installment?: number | null
+          debt_date: string
+          debt_name: string
+          description?: string | null
+          id?: string
+          installment_value?: number | null
+          is_installment?: boolean
+          is_paid?: boolean
+          paid_at?: string | null
+          payment_date: string
+          person_name: string
+          total_installments?: number | null
+          total_value: number
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_enabled?: boolean
+          created_at?: string
+          current_installment?: number | null
+          debt_date?: string
+          debt_name?: string
+          description?: string | null
+          id?: string
+          installment_value?: number | null
+          is_installment?: boolean
+          is_paid?: boolean
+          paid_at?: string | null
+          payment_date?: string
+          person_name?: string
+          total_installments?: number | null
+          total_value?: number
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invites: {
         Row: {
           accepted_at: string | null

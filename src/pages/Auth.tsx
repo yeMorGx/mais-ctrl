@@ -667,9 +667,31 @@ const Auth = () => {
                     Mínimo de 8 caracteres
                   </p>
                 </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-reset-password">Confirmar Nova Senha</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm-reset-password"
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={confirmResetPassword}
+                      onChange={(e) => setConfirmResetPassword(e.target.value)}
+                      minLength={8}
+                      className="pr-10"
+                    />
+                  </div>
+                  {confirmResetPassword && newPassword !== confirmResetPassword && (
+                    <p className="text-xs text-destructive">As senhas não coincidem</p>
+                  )}
+                  {confirmResetPassword && newPassword === confirmResetPassword && (
+                    <p className="text-xs text-green-600">Senhas coincidem ✓</p>
+                  )}
+                </div>
+                
                 <Button
                   onClick={handleResetPassword}
-                  disabled={isLoading || newPassword.length < 8}
+                  disabled={isLoading || newPassword.length < 8 || newPassword !== confirmResetPassword}
                   className="w-full"
                   variant="gradient"
                 >

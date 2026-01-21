@@ -77,7 +77,7 @@ const AdminPanel = () => {
         return <AdminFeedbacks />;
       case "changelog":
         return <AdminChangelog />;
-      case "site":
+      case "site-settings":
         return <AdminSiteSettings />;
       case "reports":
         return <AdminReports />;

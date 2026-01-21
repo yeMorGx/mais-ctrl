@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays } from "lucide-react";
-
+import { CalendarDays, Gift } from "lucide-react";
 interface AddSubscriptionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -74,6 +74,8 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
   const [frequency, setFrequency] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [renewalDate, setRenewalDate] = useState<string>("");
+  const [hasTrialPeriod, setHasTrialPeriod] = useState(false);
+  const [trialEndDate, setTrialEndDate] = useState<string>("");
   const { user } = useAuth();
 
   // Fetch user subscription plan
@@ -141,6 +143,7 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
           frequency,
           payment_method: paymentMethod,
           renewal_date: renewalDate,
+          trial_end_date: hasTrialPeriod && trialEndDate ? new Date(trialEndDate).toISOString() : null,
         });
 
       if (error) throw error;
@@ -157,6 +160,8 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
       setFrequency("");
       setPaymentMethod("");
       setRenewalDate("");
+      setHasTrialPeriod(false);
+      setTrialEndDate("");
       (e.target as HTMLFormElement).reset();
     } catch (error: any) {
       toast({
@@ -237,6 +242,37 @@ export const AddSubscriptionDialog = ({ open, onOpenChange, onSuccess }: AddSubs
           </div>
 
           <RenewalDateField frequency={frequency} value={renewalDate} onChange={setRenewalDate} />
+
+          {/* Trial Period Section */}
+          <div className="space-y-3 p-4 rounded-lg border border-dashed border-primary/30 bg-primary/5">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="trial-period" className="flex items-center gap-2 cursor-pointer">
+                <Gift className="h-4 w-4 text-primary" />
+                Período de teste grátis
+              </Label>
+              <Switch
+                id="trial-period"
+                checked={hasTrialPeriod}
+                onCheckedChange={setHasTrialPeriod}
+              />
+            </div>
+            {hasTrialPeriod && (
+              <div className="space-y-2 animate-fade-in">
+                <Label htmlFor="trial-end-date">Data de término do teste</Label>
+                <Input
+                  id="trial-end-date"
+                  type="date"
+                  value={trialEndDate}
+                  onChange={(e) => setTrialEndDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  required={hasTrialPeriod}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Você será notificado quando o período de teste estiver acabando
+                </p>
+              </div>
+            )}
+          </div>
 
           <div className="flex gap-3 pt-4">
             <Button 

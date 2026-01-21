@@ -7,6 +7,89 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const getEmailTemplate = (code: string) => `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redefinir Senha - +Ctrl</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0f0f23; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0f0f23;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%); border-radius: 16px; border: 1px solid rgba(139, 92, 246, 0.2); overflow: hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);">
+              <div style="display: inline-block;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%); border-radius: 14px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+                  <span style="color: white; font-size: 32px; font-weight: 700;">+</span>
+                </div>
+                <span style="font-size: 28px; font-weight: 700; color: #8B5CF6;">Ctrl</span>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 30px 40px 40px;">
+              <h2 style="color: #ffffff; font-size: 24px; font-weight: 600; margin-bottom: 20px; text-align: center;">
+                🔐 Redefinição de Senha
+              </h2>
+              
+              <p style="color: #D1D5DB; font-size: 16px; text-align: center; margin-bottom: 30px;">
+                Você solicitou a redefinição da sua senha. Use o código abaixo para continuar:
+              </p>
+              
+              <!-- Code Box -->
+              <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 30px; text-align: center; margin: 30px 0;">
+                <p style="color: #9CA3AF; font-size: 14px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 2px;">
+                  Seu código de verificação
+                </p>
+                <p style="font-size: 48px; font-weight: 700; letter-spacing: 12px; margin: 0; background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                  ${code}
+                </p>
+              </div>
+              
+              <!-- Warning -->
+              <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 16px; margin: 20px 0;">
+                <p style="margin: 0; color: #FBBF24; font-size: 14px; text-align: center;">
+                  ⏱️ Este código expira em <strong>10 minutos</strong>
+                </p>
+              </div>
+              
+              <!-- Security Notice -->
+              <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 16px; margin: 20px 0;">
+                <p style="margin: 0; color: #FCA5A5; font-size: 13px; text-align: center;">
+                  🔒 Se você não solicitou essa redefinição, ignore este email. Sua conta permanece segura.
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 25px 40px; background-color: rgba(0, 0, 0, 0.2); border-top: 1px solid rgba(139, 92, 246, 0.1);">
+              <p style="color: #9CA3AF; font-size: 13px; text-align: center; margin: 0 0 10px 0;">
+                Feito com 💜 pela equipe +Ctrl
+              </p>
+              <p style="color: #6B7280; font-size: 12px; text-align: center; margin: 0;">
+                © ${new Date().getFullYear()} +Ctrl. Todos os direitos reservados.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -63,21 +146,10 @@ serve(async (req) => {
     // Send email with Resend
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
     const { error: emailError } = await resend.emails.send({
-      from: "Ctrl+ <onboarding@resend.dev>",
+      from: "+Ctrl Segurança <onboarding@resend.dev>",
       to: [email],
-      subject: "Código de Verificação - Redefinição de Senha",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #333; text-align: center;">Redefinição de Senha</h1>
-          <p style="color: #666; font-size: 16px;">Você solicitou a redefinição de sua senha.</p>
-          <p style="color: #666; font-size: 16px;">Use o código abaixo para continuar:</p>
-          <div style="background-color: #f5f5f5; padding: 20px; text-align: center; border-radius: 8px; margin: 30px 0;">
-            <p style="font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 0; color: #333;">${code}</p>
-          </div>
-          <p style="color: #999; font-size: 14px;">Este código expira em 10 minutos.</p>
-          <p style="color: #999; font-size: 14px;">Se você não solicitou esta redefinição, ignore este email.</p>
-        </div>
-      `,
+      subject: "🔐 Código de Verificação - Redefinição de Senha",
+      html: getEmailTemplate(code),
     });
 
     if (emailError) {

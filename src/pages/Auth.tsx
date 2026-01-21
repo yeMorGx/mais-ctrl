@@ -117,66 +117,62 @@ const Auth = () => {
 
     setIsLoading(true);
     try {
-      // Verify TOTP code against stored secret
-      const { data: twoFAData } = await supabase
-        .from('user_2fa')
-        .select('secret')
-        .eq('user_id', pendingUserId)
-        .single();
+      // First, temporarily sign in to get a valid session for the edge function
+      if (!pendingEmail || !pendingPassword) {
+        toast.error("Erro: credenciais pendentes não encontradas");
+        return;
+      }
 
-      if (!twoFAData?.secret) {
+      // Sign in temporarily to call the edge function
+      const { data: tempSession, error: tempError } = await supabase.auth.signInWithPassword({
+        email: pendingEmail,
+        password: pendingPassword,
+      });
+
+      if (tempError) {
+        toast.error("Erro ao verificar: " + tempError.message);
+        return;
+      }
+
+      // Call the TOTP edge function to verify the code
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('totp', {
+        body: { 
+          action: 'verify-login', 
+          code: twoFactorCode,
+          userId: pendingUserId 
+        }
+      });
+
+      if (verifyError) {
+        // Sign out since verification failed
+        await supabase.auth.signOut();
         toast.error("Erro ao verificar 2FA");
         return;
       }
 
-      // For now, accept backup codes or skip TOTP verification
-      // In production, use a TOTP library to verify the code
-      const { data: backupData } = await supabase
-        .from('user_2fa')
-        .select('backup_codes')
-        .eq('user_id', pendingUserId)
-        .single();
-
-      const isBackupCode = backupData?.backup_codes?.includes(twoFactorCode.toUpperCase());
-      
-      // Simple validation - in production use proper TOTP
-      if (isBackupCode || twoFactorCode.length === 6) {
-        // Re-login the user
-        if (pendingEmail && pendingPassword) {
-          const { error } = await supabase.auth.signInWithPassword({
-            email: pendingEmail,
-            password: pendingPassword,
-          });
-
-          if (error) {
-            toast.error("Erro ao fazer login: " + error.message);
-            return;
-          }
-
-          // If backup code was used, remove it
-          if (isBackupCode && backupData?.backup_codes) {
-            const updatedCodes = backupData.backup_codes.filter(
-              (code: string) => code !== twoFactorCode.toUpperCase()
-            );
-            await supabase
-              .from('user_2fa')
-              .update({ backup_codes: updatedCodes })
-              .eq('user_id', pendingUserId);
-          }
-
-          toast.success("2FA verificado com sucesso!");
-          setShow2FADialog(false);
-          setTwoFactorCode("");
-          setPendingUserId(null);
-          setPendingEmail(null);
-          setPendingPassword(null);
-          navigate("/dashboard");
-        }
-      } else {
-        toast.error("Código inválido");
+      if (!verifyData?.valid) {
+        // Sign out since code is invalid
+        await supabase.auth.signOut();
+        toast.error("Código inválido. Tente novamente.");
+        return;
       }
-    } catch (error: any) {
-      toast.error("Erro ao verificar 2FA: " + error.message);
+
+      // Code is valid, user is already signed in
+      if (verifyData.usedBackupCode) {
+        toast.success("Login realizado com código de backup!");
+      } else {
+        toast.success("2FA verificado com sucesso!");
+      }
+      
+      setShow2FADialog(false);
+      setTwoFactorCode("");
+      setPendingUserId(null);
+      setPendingEmail(null);
+      setPendingPassword(null);
+      navigate("/dashboard");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      toast.error("Erro ao verificar 2FA: " + errorMessage);
     } finally {
       setIsLoading(false);
     }

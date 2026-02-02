@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliates: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          pix_key: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          pix_key?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          pix_key?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       card_installments: {
         Row: {
           alert_enabled: boolean
@@ -163,6 +193,66 @@ export type Database = {
         }
         Relationships: []
       }
+      commissions: {
+        Row: {
+          affiliate_id: string
+          amount_cents: number
+          available_at: string
+          created_at: string
+          currency: string
+          id: string
+          period_end: string | null
+          period_start: string | null
+          referral_id: string
+          status: string
+          stripe_invoice_id: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          amount_cents: number
+          available_at: string
+          created_at?: string
+          currency?: string
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          referral_id: string
+          status?: string
+          stripe_invoice_id: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          amount_cents?: number
+          available_at?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          referral_id?: string
+          status?: string
+          stripe_invoice_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debts: {
         Row: {
           alert_enabled: boolean
@@ -300,6 +390,50 @@ export type Database = {
         }
         Relationships: []
       }
+      payout_requests: {
+        Row: {
+          affiliate_id: string
+          amount_cents: number
+          created_at: string
+          id: string
+          notes: string | null
+          paid_at: string | null
+          pix_key: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          amount_cents: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          pix_key: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          pix_key?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_requests_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -329,6 +463,50 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      referrals: {
+        Row: {
+          affiliate_id: string
+          approved_at: string | null
+          created_at: string
+          first_seen_at: string
+          id: string
+          referred_user_id: string
+          signup_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          approved_at?: string | null
+          created_at?: string
+          first_seen_at?: string
+          id?: string
+          referred_user_id: string
+          signup_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          approved_at?: string | null
+          created_at?: string
+          first_seen_at?: string
+          id?: string
+          referred_user_id?: string
+          signup_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shared_subscription_partners: {
         Row: {
@@ -817,11 +995,17 @@ export type Database = {
     }
     Functions: {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
+      generate_affiliate_code: { Args: never; Returns: string }
+      get_affiliate_stats: {
+        Args: { affiliate_user_id: string }
+        Returns: Json
+      }
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
       is_subscription_partner: {
         Args: { _subscription_id: string; _user_id: string }
         Returns: boolean
       }
+      release_pending_commissions: { Args: never; Returns: number }
     }
     Enums: {
       subscription_plan: "free" | "premium"

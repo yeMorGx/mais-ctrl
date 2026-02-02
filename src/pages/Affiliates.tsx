@@ -55,7 +55,7 @@ const Affiliates = () => {
               <span className="font-medium">Sem investimento. Sem estoque. Sem promessa milagrosa.</span>
             </div>
             
-            <Link to="/auth">
+            <Link to="/affiliate">
               <Button size="xl" variant="gradient" className="mt-4">
                 Quero ser afiliado
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -386,7 +386,7 @@ const Affiliates = () => {
             Ganhe dinheiro ajudando pessoas a terem controle financeiro.
           </p>
           
-          <Link to="/auth">
+          <Link to="/affiliate">
             <Button size="xl" variant="gradient" className="shadow-glow">
               Quero ser afiliado agora
               <ArrowRight className="w-5 h-5 ml-2" />

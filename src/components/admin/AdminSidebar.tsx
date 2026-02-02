@@ -7,7 +7,8 @@ import {
   Shield,
   BarChart3,
   FileText,
-  MessageSquare
+  MessageSquare,
+  UserPlus
 } from "lucide-react";
 import {
   Sidebar,
@@ -56,6 +57,11 @@ export const AdminSidebar = ({ activeSection, onSectionChange, isOwner }: AdminS
       title: "Pagamentos",
       icon: DollarSign,
       id: "payments",
+    },
+    {
+      title: "Afiliados",
+      icon: UserPlus,
+      id: "affiliates",
     },
     {
       title: "Feedbacks",

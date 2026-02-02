@@ -17,6 +17,7 @@ import Privacy from "./pages/Privacy";
 import ShareInvite from "./pages/ShareInvite";
 import Invite from "./pages/Invite";
 import Changelog from "./pages/Changelog";
+import Affiliates from "./pages/Affiliates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/share/invite/:subscriptionId" element={<ShareInvite />} />
             <Route path="/invite" element={<Invite />} />
             <Route path="/changelog" element={<Changelog />} />
+            <Route path="/affiliates" element={<Affiliates />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
-import { LogOut, User, Settings, Crown, Users, Globe, MessageSquare, Activity, HelpCircle, Share2, Shield } from "lucide-react";
+import { LogOut, User, Settings, Crown, Users, Globe, MessageSquare, Activity, HelpCircle, Share2, Shield, Wallet } from "lucide-react";
+import { useAffiliate } from "@/hooks/useAffiliate";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const DashboardHeader = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { affiliate } = useAffiliate();
   const OWNER_ID = "0aa7f072-7169-48f3-9389-170100fb2418";
   const isOwner = user?.id === OWNER_ID;
 
@@ -224,6 +226,16 @@ export const DashboardHeader = () => {
                       <Share2 className="h-4 w-4 mr-2" />
                       +Share
                     </DropdownMenuItem>
+                    
+                    {affiliate && (
+                      <DropdownMenuItem 
+                        onClick={() => navigate("/affiliate")}
+                        className="cursor-pointer"
+                      >
+                        <Wallet className="h-4 w-4 mr-2 text-primary" />
+                        Painel Afiliado
+                      </DropdownMenuItem>
+                    )}
                     
                     <DropdownMenuItem 
                       onClick={() => navigate("/dashboard?tab=settings")}

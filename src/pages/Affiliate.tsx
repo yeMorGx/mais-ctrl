@@ -83,7 +83,7 @@ const Affiliate = () => {
 
   const handleCopyLink = () => {
     if (!affiliate) return;
-    const link = `${window.location.origin}/?ref=${affiliate.code}`;
+    const link = `https://maisctrl.com/?ref=${affiliate.code}`;
     navigator.clipboard.writeText(link);
     toast({
       title: "Link copiado!",
@@ -220,7 +220,7 @@ const Affiliate = () => {
   }
 
   // Affiliate dashboard
-  const affiliateLink = `${window.location.origin}/?ref=${affiliate.code}`;
+  const affiliateLink = `https://maisctrl.com/?ref=${affiliate.code}`;
   const availableBalance = stats?.available_commissions_cents || 0;
   const canRequestPayout = availableBalance >= 5000; // R$ 50 minimum
 

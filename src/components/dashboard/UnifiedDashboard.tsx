@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign } from "lucide-react";
+import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign, Users, ArrowRight } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { DebtoList } from "./DebtoList";
 import { FinancialOverview } from "./FinancialOverview";
 import { UnifiedSearch, SearchFilters } from "./UnifiedSearch";
 import { FinancialTips } from "./FinancialTips";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -369,6 +369,31 @@ export const UnifiedDashboard = ({
 
       {/* Financial Tips */}
       <FinancialTips />
+
+      {/* Affiliate Program Banner */}
+      <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/20">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Ganhe 20% indicando o +Ctrl</h3>
+                <p className="text-sm text-muted-foreground">
+                  Comissão recorrente enquanto seus indicados usarem a plataforma
+                </p>
+              </div>
+            </div>
+            <Link to="/affiliate">
+              <Button variant="outline" className="border-primary/50 hover:bg-primary/10 group">
+                Quero ser afiliado
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

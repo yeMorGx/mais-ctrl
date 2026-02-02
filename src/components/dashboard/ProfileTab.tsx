@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Upload, Loader2, Mail, DollarSign, Building2, Crown, Clock, Shield, Key, Lock, CheckCircle2, XCircle, Phone, Copy, Smartphone } from "lucide-react";
+import { User, Upload, Loader2, Mail, DollarSign, Building2, Crown, Clock, Shield, Key, Phone } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,8 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { Switch } from "@/components/ui/switch";
 
 export const ProfileTab = () => {
   const { user } = useAuth();
@@ -28,22 +26,9 @@ export const ProfileTab = () => {
   const [uploading, setUploading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // 2FA States
-  const [show2FADialog, setShow2FADialog] = useState(false);
-  const [showDisable2FADialog, setShowDisable2FADialog] = useState(false);
-  const [twoFAStep, setTwoFAStep] = useState<'setup' | 'qrcode' | 'verify'>('setup');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [isEnabling2FA, setIsEnabling2FA] = useState(false);
-  const [isDisabling2FA, setIsDisabling2FA] = useState(false);
-  const [backupCodes, setBackupCodes] = useState<string[]>([]);
-  const [showBackupCodes, setShowBackupCodes] = useState(false);
-  const [totpSecret, setTotpSecret] = useState('');
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
 
   // Change Password States
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -59,23 +44,6 @@ export const ProfileTab = () => {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
-
-  // Fetch user 2FA status
-  const { data: user2FA, refetch: refetch2FA } = useQuery({
-    queryKey: ["user2FA", user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data, error } = await supabase
-        .from("user_2fa")
-        .select("*")
-        .eq("user_id", user.id)
         .maybeSingle();
       
       if (error) throw error;
@@ -103,7 +71,6 @@ export const ProfileTab = () => {
   });
 
   const isPremium = userSubscription?.plan === "premium" && userSubscription?.status === "active";
-  const is2FAEnabled = user2FA?.is_enabled || false;
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -203,110 +170,6 @@ export const ProfileTab = () => {
     }
   };
 
-  const handleStart2FASetup = async () => {
-    if (!user) return;
-    
-    setIsEnabling2FA(true);
-    try {
-      // Call the TOTP edge function to setup 2FA
-      const { data, error } = await supabase.functions.invoke('totp', {
-        body: { action: 'setup' }
-      });
-
-      if (error) throw error;
-
-      setTotpSecret(data.secret);
-      setQrCodeUrl(data.qrCodeUrl);
-      setTwoFAStep('qrcode');
-    } catch (error) {
-      console.error('Error setting up 2FA:', error);
-      toast({
-        title: "Erro ao configurar 2FA",
-        description: "Tente novamente mais tarde.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsEnabling2FA(false);
-    }
-  };
-
-  const handleVerify2FASetup = async () => {
-    if (!user || verificationCode.length !== 6) return;
-    
-    setIsEnabling2FA(true);
-    try {
-      // Verify the TOTP code
-      const { data, error } = await supabase.functions.invoke('totp', {
-        body: { action: 'verify-setup', code: verificationCode }
-      });
-
-      if (error) throw error;
-
-      if (!data.valid) {
-        toast({
-          title: "Código inválido",
-          description: "Verifique o código no seu aplicativo e tente novamente.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setBackupCodes(data.backupCodes);
-      setShowBackupCodes(true);
-      setShow2FADialog(false);
-      setTwoFAStep('setup');
-      setVerificationCode('');
-      setTotpSecret('');
-      setQrCodeUrl('');
-      refetch2FA();
-
-      toast({
-        title: "2FA ativado com sucesso!",
-        description: "Guarde seus códigos de backup em um lugar seguro.",
-      });
-    } catch (error) {
-      console.error('Error verifying 2FA:', error);
-      toast({
-        title: "Erro ao verificar código",
-        description: "Tente novamente.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsEnabling2FA(false);
-    }
-  };
-
-  const handleDisable2FA = async () => {
-    if (!user) return;
-    
-    setIsDisabling2FA(true);
-    try {
-      const { error } = await supabase.functions.invoke('totp', {
-        body: { action: 'disable' }
-      });
-
-      if (error) throw error;
-
-      setShowDisable2FADialog(false);
-      setVerificationCode('');
-      refetch2FA();
-
-      toast({
-        title: "2FA desativado",
-        description: "Sua conta agora usa apenas senha para login.",
-      });
-    } catch (error) {
-      console.error('Error disabling 2FA:', error);
-      toast({
-        title: "Erro ao desativar 2FA",
-        description: "Tente novamente mais tarde.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsDisabling2FA(false);
-    }
-  };
-
   const handleChangePassword = async () => {
     if (!user) return;
     
@@ -354,7 +217,6 @@ export const ProfileTab = () => {
       }
 
       setShowPasswordDialog(false);
-      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
 
@@ -373,14 +235,6 @@ export const ProfileTab = () => {
     } finally {
       setIsChangingPassword(false);
     }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copiado!",
-      description: "Texto copiado para a área de transferência.",
-    });
   };
 
   return (
@@ -597,319 +451,8 @@ export const ProfileTab = () => {
               Alterar
             </Button>
           </div>
-
-          {/* 2FA Toggle */}
-          <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full ${is2FAEnabled ? 'bg-green-500/10' : 'bg-muted'}`}>
-                <Lock className={`h-5 w-5 ${is2FAEnabled ? 'text-green-500' : 'text-muted-foreground'}`} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium">Autenticação em Duas Etapas (2FA)</p>
-                  {is2FAEnabled ? (
-                    <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      Ativo
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary">
-                      <XCircle className="h-3 w-3 mr-1" />
-                      Inativo
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {is2FAEnabled 
-                    ? "Compatível com Google Authenticator e Microsoft Authenticator"
-                    : "Adicione uma camada extra de segurança à sua conta"
-                  }
-                </p>
-              </div>
-            </div>
-            <Switch
-              checked={is2FAEnabled}
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  setShow2FADialog(true);
-                  setTwoFAStep('setup');
-                } else {
-                  setShowDisable2FADialog(true);
-                }
-              }}
-            />
-          </div>
-
-          {/* Backup Codes Info */}
-          {is2FAEnabled && user2FA?.backup_codes && (
-            <div className="p-4 rounded-lg border bg-muted/50">
-              <div className="flex items-center gap-2 mb-2">
-                <Key className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm font-medium">Códigos de Backup</p>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">
-                Você tem {user2FA.backup_codes.length} códigos de backup disponíveis.
-                Use-os caso perca acesso ao seu aplicativo de autenticação.
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                  setBackupCodes(user2FA.backup_codes || []);
-                  setShowBackupCodes(true);
-                }}
-              >
-                Ver Códigos
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
-
-      {/* Enable 2FA Dialog */}
-      <Dialog open={show2FADialog} onOpenChange={(open) => {
-        setShow2FADialog(open);
-        if (!open) {
-          setTwoFAStep('setup');
-          setVerificationCode('');
-          setTotpSecret('');
-          setQrCodeUrl('');
-        }
-      }}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Smartphone className="h-5 w-5" />
-              {twoFAStep === 'setup' && 'Ativar Autenticação 2FA'}
-              {twoFAStep === 'qrcode' && 'Escaneie o QR Code'}
-              {twoFAStep === 'verify' && 'Verificar Código'}
-            </DialogTitle>
-            <DialogDescription>
-              {twoFAStep === 'setup' && 'Use Google Authenticator, Microsoft Authenticator ou outro app compatível.'}
-              {twoFAStep === 'qrcode' && 'Escaneie o código com seu aplicativo de autenticação.'}
-              {twoFAStep === 'verify' && 'Digite o código de 6 dígitos do seu aplicativo.'}
-            </DialogDescription>
-          </DialogHeader>
-
-          {twoFAStep === 'setup' && (
-            <div className="space-y-4 py-4">
-              <div className="p-4 rounded-lg bg-muted/50 border">
-                <h4 className="font-medium mb-2">Como funciona:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>1. Instale Google Authenticator ou Microsoft Authenticator</li>
-                  <li>2. Escaneie o QR Code que será exibido</li>
-                  <li>3. Digite o código gerado para confirmar</li>
-                  <li>4. Guarde os códigos de backup</li>
-                </ul>
-              </div>
-
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <Shield className="h-5 w-5 text-amber-500 flex-shrink-0" />
-                <p className="text-sm text-amber-700 dark:text-amber-400">
-                  Após ativar, você precisará do código do app para fazer login.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {twoFAStep === 'qrcode' && (
-            <div className="space-y-4 py-4">
-              <div className="flex justify-center">
-                <div className="p-4 bg-white rounded-lg">
-                  <img 
-                    src={qrCodeUrl} 
-                    alt="QR Code para 2FA" 
-                    className="w-48 h-48"
-                  />
-                </div>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-2">
-                  Não consegue escanear? Use o código manual:
-                </p>
-                <div className="flex items-center justify-center gap-2">
-                  <code className="px-3 py-2 bg-muted rounded font-mono text-sm">
-                    {totpSecret}
-                  </code>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => copyToClipboard(totpSecret)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <Button 
-                className="w-full" 
-                onClick={() => setTwoFAStep('verify')}
-              >
-                Próximo
-              </Button>
-            </div>
-          )}
-
-          {twoFAStep === 'verify' && (
-            <div className="space-y-4 py-4">
-              <div className="flex justify-center">
-                <InputOTP
-                  maxLength={6}
-                  value={verificationCode}
-                  onChange={(value) => setVerificationCode(value)}
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-
-              <p className="text-sm text-center text-muted-foreground">
-                Digite o código de 6 dígitos exibido no seu aplicativo
-              </p>
-            </div>
-          )}
-
-          <DialogFooter>
-            {twoFAStep === 'setup' && (
-              <>
-                <Button variant="outline" onClick={() => setShow2FADialog(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleStart2FASetup} disabled={isEnabling2FA}>
-                  {isEnabling2FA ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Carregando...
-                    </>
-                  ) : (
-                    "Continuar"
-                  )}
-                </Button>
-              </>
-            )}
-            {twoFAStep === 'qrcode' && (
-              <Button variant="outline" onClick={() => setTwoFAStep('setup')}>
-                Voltar
-              </Button>
-            )}
-            {twoFAStep === 'verify' && (
-              <>
-                <Button variant="outline" onClick={() => setTwoFAStep('qrcode')}>
-                  Voltar
-                </Button>
-                <Button 
-                  onClick={handleVerify2FASetup} 
-                  disabled={isEnabling2FA || verificationCode.length !== 6}
-                >
-                  {isEnabling2FA ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Verificando...
-                    </>
-                  ) : (
-                    "Ativar 2FA"
-                  )}
-                </Button>
-              </>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Disable 2FA Dialog */}
-      <Dialog open={showDisable2FADialog} onOpenChange={setShowDisable2FADialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-destructive">
-              <XCircle className="h-5 w-5" />
-              Desativar 2FA
-            </DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja desativar a autenticação em duas etapas? Sua conta ficará menos segura.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
-            <p className="text-sm text-destructive">
-              ⚠️ Ao desativar o 2FA, sua conta ficará protegida apenas pela senha. Qualquer pessoa com acesso à sua senha poderá fazer login.
-            </p>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDisable2FADialog(false)}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={handleDisable2FA} disabled={isDisabling2FA}>
-              {isDisabling2FA ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Desativando...
-                </>
-              ) : (
-                "Desativar 2FA"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Backup Codes Dialog */}
-      <Dialog open={showBackupCodes} onOpenChange={setShowBackupCodes}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Key className="h-5 w-5" />
-              Códigos de Backup
-            </DialogTitle>
-            <DialogDescription>
-              Guarde estes códigos em um lugar seguro. Cada código pode ser usado apenas uma vez.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-2 gap-3 py-4">
-            {backupCodes.map((code, index) => (
-              <div 
-                key={index}
-                className="p-3 rounded-lg bg-muted font-mono text-center text-lg tracking-wider"
-              >
-                {code}
-              </div>
-            ))}
-          </div>
-
-          <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-            <p className="text-sm text-amber-700 dark:text-amber-400 text-center">
-              ⚠️ Estes códigos não serão exibidos novamente. Copie-os agora!
-            </p>
-          </div>
-
-          <DialogFooter>
-            <Button 
-              variant="outline"
-              onClick={() => {
-                navigator.clipboard.writeText(backupCodes.join('\n'));
-                toast({
-                  title: "Códigos copiados!",
-                  description: "Os códigos foram copiados para a área de transferência.",
-                });
-              }}
-            >
-              <Copy className="mr-2 h-4 w-4" />
-              Copiar Todos
-            </Button>
-            <Button onClick={() => setShowBackupCodes(false)}>
-              Entendi
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Change Password Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>

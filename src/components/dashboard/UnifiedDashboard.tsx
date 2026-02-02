@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3 } from "lucide-react";
+import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubscriptionList } from "./SubscriptionList";
 import { TodoList } from "./TodoList";
 import { CardInstallments } from "./CardInstallments";
+import { DebtoList } from "./DebtoList";
 import { FinancialOverview } from "./FinancialOverview";
 import { UnifiedSearch, SearchFilters } from "./UnifiedSearch";
 import { FinancialTips } from "./FinancialTips";
@@ -38,7 +39,7 @@ export const UnifiedDashboard = ({
   const [activeSection, setActiveSection] = useState("overview");
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
-    types: ['subscriptions', 'tasks', 'installments'],
+    types: ['subscriptions', 'tasks', 'installments', 'debts'],
     status: 'all',
     sortBy: 'name',
     sortOrder: 'asc',
@@ -65,6 +66,20 @@ export const UnifiedDashboard = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("card_installments")
+        .select("*")
+        .eq("user_id", user?.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch debts for unified search
+  const { data: debts = [] } = useQuery({
+    queryKey: ["debts", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("debts")
         .select("*")
         .eq("user_id", user?.id);
       if (error) throw error;
@@ -145,15 +160,35 @@ export const UnifiedDashboard = ({
     filteredTasks = filteredTasks.sort(sortFn);
     filteredInstallments = filteredInstallments.sort(sortFn);
 
+    // Filter debts
+    let filteredDebts = filters.types.includes('debts')
+      ? debts.filter((debt: any) => {
+          if (query && !debt.debt_name.toLowerCase().includes(query) && !debt.person_name.toLowerCase().includes(query)) return false;
+          if (filters.dateRange !== 'all' && debt.payment_date) {
+            const date = parseISO(debt.payment_date);
+            if (filters.dateRange === 'today' && !isToday(date)) return false;
+            if (filters.dateRange === 'week' && !isThisWeek(date)) return false;
+            if (filters.dateRange === 'month' && !isThisMonth(date)) return false;
+          }
+          return true;
+        })
+      : [];
+
+    filteredSubs = filteredSubs.sort(sortFn);
+    filteredTasks = filteredTasks.sort(sortFn);
+    filteredInstallments = filteredInstallments.sort(sortFn);
+    filteredDebts = filteredDebts.sort(sortFn);
+
     return {
       subscriptions: filteredSubs,
       tasks: filteredTasks,
       installments: filteredInstallments,
-      totalCount: filteredSubs.length + filteredTasks.length + filteredInstallments.length,
+      debts: filteredDebts,
+      totalCount: filteredSubs.length + filteredTasks.length + filteredInstallments.length + filteredDebts.length,
     };
-  }, [subscriptions, tasks, installments, filters]);
+  }, [subscriptions, tasks, installments, debts, filters]);
 
-  const hasActiveSearch = filters.query !== '' || filters.types.length < 3 || filters.dateRange !== 'all';
+  const hasActiveSearch = filters.query !== '' || filters.types.length < 4 || filters.dateRange !== 'all';
 
   return (
     <div className="space-y-6">
@@ -222,7 +257,7 @@ export const UnifiedDashboard = ({
         </CardHeader>
         <CardContent>
           <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsList className="grid w-full grid-cols-5 mb-6">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Resumo</span>
@@ -239,7 +274,7 @@ export const UnifiedDashboard = ({
               </TabsTrigger>
               <TabsTrigger value="tasks" className="flex items-center gap-2">
                 <CheckSquare className="h-4 w-4" />
-                <span>Tarefas</span>
+                <span className="hidden sm:inline">Tarefas</span>
                 {hasActiveSearch && filters.types.includes('tasks') && (
                   <span className="text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
                     {filteredData.tasks.length}
@@ -248,10 +283,19 @@ export const UnifiedDashboard = ({
               </TabsTrigger>
               <TabsTrigger value="installments" className="flex items-center gap-2">
                 <Wallet className="h-4 w-4" />
-                <span>Parcelas</span>
+                <span className="hidden sm:inline">Parcelas</span>
                 {hasActiveSearch && filters.types.includes('installments') && (
                   <span className="text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
                     {filteredData.installments.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="debts" className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                <span className="hidden sm:inline">Debto</span>
+                {hasActiveSearch && filters.types.includes('debts') && (
+                  <span className="text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+                    {filteredData.debts.length}
                   </span>
                 )}
               </TabsTrigger>
@@ -260,7 +304,7 @@ export const UnifiedDashboard = ({
             <TabsContent value="overview" className="mt-0">
               <div className="space-y-4">
                 {/* Quick Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <QuickSummaryCard
                     title="Assinaturas"
                     icon={<CreditCard className="h-5 w-5" />}
@@ -288,6 +332,15 @@ export const UnifiedDashboard = ({
                     gradient="from-emerald-500/10 to-emerald-600/10"
                     iconColor="text-emerald-500"
                   />
+                  <QuickSummaryCard
+                    title="Debto"
+                    icon={<DollarSign className="h-5 w-5" />}
+                    count={debts.filter((d: any) => !d.is_paid).length}
+                    items={debts.filter((d: any) => !d.is_paid).slice(0, 3).map((d: any) => d.debt_name)}
+                    onClick={() => setActiveSection('debts')}
+                    gradient="from-purple-500/10 to-purple-600/10"
+                    iconColor="text-purple-500"
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -305,6 +358,10 @@ export const UnifiedDashboard = ({
 
             <TabsContent value="installments" className="mt-0">
               <CardInstallments />
+            </TabsContent>
+
+            <TabsContent value="debts" className="mt-0">
+              <DebtoList />
             </TabsContent>
           </Tabs>
         </CardContent>

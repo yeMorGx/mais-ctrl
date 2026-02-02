@@ -30,11 +30,6 @@ const Auth = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmResetPassword, setConfirmResetPassword] = useState("");
   const [loginError, setLoginError] = useState(false);
-  const [show2FADialog, setShow2FADialog] = useState(false);
-  const [twoFactorCode, setTwoFactorCode] = useState("");
-  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
-  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const [pendingPassword, setPendingPassword] = useState<string | null>(null);
   const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneOTP, setPhoneOTP] = useState("");
@@ -83,100 +78,13 @@ const Auth = () => {
 
     const result = await signIn(email, password);
     
-    if (!result.error && result.data?.user) {
-      // Check if user has 2FA enabled - use maybeSingle to handle no rows
-      const { data: twoFAData } = await supabase
-        .from('user_2fa')
-        .select('is_enabled')
-        .eq('user_id', result.data.user.id)
-        .maybeSingle();
-
-      // Only require 2FA if explicitly enabled
-      if (twoFAData?.is_enabled === true) {
-        // Store credentials temporarily for re-login after 2FA
-        setPendingUserId(result.data.user.id);
-        setPendingEmail(email);
-        setPendingPassword(password);
-        setShow2FADialog(true);
-        // Sign out while waiting for 2FA
-        await supabase.auth.signOut();
-      }
-      // If no 2FA, user is already logged in and redirected by signIn
-    } else if (result.error) {
+    if (result.error) {
       setLoginError(true);
     }
     
     setIsLoading(false);
   };
 
-  const handleVerify2FA = async () => {
-    if (twoFactorCode.length !== 6 || !pendingUserId) {
-      toast.error("Por favor, insira o código de 6 dígitos");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // First, temporarily sign in to get a valid session for the edge function
-      if (!pendingEmail || !pendingPassword) {
-        toast.error("Erro: credenciais pendentes não encontradas");
-        return;
-      }
-
-      // Sign in temporarily to call the edge function
-      const { data: tempSession, error: tempError } = await supabase.auth.signInWithPassword({
-        email: pendingEmail,
-        password: pendingPassword,
-      });
-
-      if (tempError) {
-        toast.error("Erro ao verificar: " + tempError.message);
-        return;
-      }
-
-      // Call the TOTP edge function to verify the code
-      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('totp', {
-        body: { 
-          action: 'verify-login', 
-          code: twoFactorCode,
-          userId: pendingUserId 
-        }
-      });
-
-      if (verifyError) {
-        // Sign out since verification failed
-        await supabase.auth.signOut();
-        toast.error("Erro ao verificar 2FA");
-        return;
-      }
-
-      if (!verifyData?.valid) {
-        // Sign out since code is invalid
-        await supabase.auth.signOut();
-        toast.error("Código inválido. Tente novamente.");
-        return;
-      }
-
-      // Code is valid, user is already signed in
-      if (verifyData.usedBackupCode) {
-        toast.success("Login realizado com código de backup!");
-      } else {
-        toast.success("2FA verificado com sucesso!");
-      }
-      
-      setShow2FADialog(false);
-      setTwoFactorCode("");
-      setPendingUserId(null);
-      setPendingEmail(null);
-      setPendingPassword(null);
-      navigate("/dashboard");
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
-      toast.error("Erro ao verificar 2FA: " + errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handlePhoneSignIn = async () => {
     if (!phoneNumber) {
@@ -766,41 +674,6 @@ const Auth = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 2FA Verification Dialog */}
-      <Dialog open={show2FADialog} onOpenChange={setShow2FADialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Verificação em Duas Etapas</DialogTitle>
-            <DialogDescription>
-              Digite o código de 6 dígitos do seu aplicativo autenticador
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <InputOTP 
-              maxLength={6} 
-              value={twoFactorCode}
-              onChange={setTwoFactorCode}
-            >
-              <InputOTPGroup className="gap-2">
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-            <Button 
-              onClick={handleVerify2FA}
-              className="w-full" 
-              variant="gradient"
-              disabled={twoFactorCode.length !== 6}
-            >
-              Verificar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

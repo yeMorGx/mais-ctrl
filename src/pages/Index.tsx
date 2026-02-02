@@ -486,8 +486,21 @@ const Index = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2025 +Ctrl. Todos os direitos reservados.</p>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-muted-foreground">© 2025 +Ctrl. Todos os direitos reservados.</p>
+            <div className="flex items-center gap-6 text-sm">
+              <Link to="/affiliates" className="text-muted-foreground hover:text-primary transition-colors">
+                Programa de Afiliados
+              </Link>
+              <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">
+                Termos de Uso
+              </Link>
+              <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
+                Privacidade
+              </Link>
+            </div>
+          </div>
         </div>
       </motion.footer>
       </div>

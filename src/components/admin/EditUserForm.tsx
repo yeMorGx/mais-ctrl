@@ -40,15 +40,21 @@ export const EditUserForm = ({ user, onSuccess, isOwner }: EditUserFormProps) =>
 
       if (profileError) throw profileError;
 
-      // Update email in auth.users if changed
+      // Update email in auth.users if changed (via edge function)
       if (formData.email !== user.email) {
-        const { error: emailError } = await supabase.auth.admin.updateUserById(
-          user.id,
-          { email: formData.email }
+        const { data: emailData, error: emailError } = await supabase.functions.invoke(
+          "admin-user-management",
+          {
+            body: {
+              action: "updateUserEmail",
+              userId: user.id,
+              email: formData.email,
+            },
+          }
         );
 
-        if (emailError) {
-          console.error("Erro ao atualizar email:", emailError);
+        if (emailError || emailData?.error) {
+          console.error("Erro ao atualizar email:", emailError || emailData?.error);
           toast({
             title: "Atenção",
             description: "O perfil foi atualizado mas o email pode precisar de confirmação.",
@@ -56,18 +62,24 @@ export const EditUserForm = ({ user, onSuccess, isOwner }: EditUserFormProps) =>
         }
       }
 
-      // Update password if provided
+      // Update password if provided (via edge function)
       if (formData.newPassword && formData.newPassword.length >= 6) {
-        const { error: passwordError } = await supabase.auth.admin.updateUserById(
-          user.id,
-          { password: formData.newPassword }
+        const { data: passwordData, error: passwordError } = await supabase.functions.invoke(
+          "admin-user-management",
+          {
+            body: {
+              action: "updateUserPassword",
+              userId: user.id,
+              password: formData.newPassword,
+            },
+          }
         );
 
-        if (passwordError) {
-          console.error("Erro ao atualizar senha:", passwordError);
+        if (passwordError || passwordData?.error) {
+          console.error("Erro ao atualizar senha:", passwordError || passwordData?.error);
           toast({
             title: "Erro ao atualizar senha",
-            description: passwordError.message,
+            description: passwordError?.message || passwordData?.error || "Erro desconhecido",
             variant: "destructive",
           });
         } else {

@@ -34,17 +34,18 @@ export const AddUserDialog = ({ open, onOpenChange, onRefetch }: AddUserDialogPr
     setLoading(true);
 
     try {
-      // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: formData.email,
-        password: formData.password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: formData.fullName,
+      // Create user via edge function (server-side admin operation)
+      const { data, error } = await supabase.functions.invoke("admin-user-management", {
+        body: {
+          action: "createUser",
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
         },
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast({
         title: "Usuário criado com sucesso!",

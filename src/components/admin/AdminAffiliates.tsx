@@ -228,13 +228,21 @@ export const AdminAffiliates = () => {
     mutationFn: async ({ 
       id, 
       status, 
-      notes 
+      notes,
+      affiliateEmail,
+      affiliateName,
+      payoutAmount,
+      pixKey,
     }: { 
       id: string; 
       status: "paid" | "rejected"; 
       notes?: string;
+      affiliateEmail?: string;
+      affiliateName?: string;
+      payoutAmount?: number;
+      pixKey?: string;
     }) => {
-      const updateData: any = { 
+      const updateData: Record<string, unknown> = { 
         status,
         notes,
         updated_at: new Date().toISOString(),
@@ -262,6 +270,29 @@ export const AdminAffiliates = () => {
             .eq("status", "available");
         }
       }
+
+      // Send notification email
+      if (affiliateEmail && payoutAmount) {
+        const formatCurrency = (cents: number) => {
+          return new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(cents / 100);
+        };
+
+        await supabase.functions.invoke("send-notification", {
+          body: {
+            type: status === "paid" ? "affiliate_payout_approved" : "affiliate_payout_rejected",
+            email: affiliateEmail,
+            name: affiliateName || "Afiliado",
+            data: {
+              payoutAmount: formatCurrency(payoutAmount),
+              pixKey: pixKey || "—",
+              notes: notes,
+            },
+          },
+        });
+      }
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-payout-requests"] });
@@ -270,8 +301,8 @@ export const AdminAffiliates = () => {
       setPayoutNotes("");
       toast.success(
         variables.status === "paid" 
-          ? "Saque marcado como pago" 
-          : "Saque rejeitado"
+          ? "Saque marcado como pago e notificação enviada" 
+          : "Saque rejeitado e notificação enviada"
       );
     },
     onError: () => {
@@ -862,6 +893,10 @@ export const AdminAffiliates = () => {
                     id: selectedPayout.id,
                     status: selectedPayout.action === "approve" ? "paid" : "rejected",
                     notes: payoutNotes,
+                    affiliateEmail: selectedPayout.affiliate?.profile?.email,
+                    affiliateName: selectedPayout.affiliate?.profile?.full_name,
+                    payoutAmount: selectedPayout.amount_cents,
+                    pixKey: selectedPayout.pix_key,
                   });
                 }
               }}

@@ -178,6 +178,59 @@ serve(async (req) => {
         availableAt: availableAt.toISOString(),
       });
 
+      // Get affiliate user info to send notification
+      const { data: affiliateData } = await supabaseAdmin
+        .from("affiliates")
+        .select("user_id, code")
+        .eq("id", referral.affiliate_id)
+        .single();
+
+      if (affiliateData) {
+        const { data: affiliateProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("email, full_name")
+          .eq("id", affiliateData.user_id)
+          .single();
+
+        if (affiliateProfile?.email) {
+          // Send commission notification email
+          try {
+            const supabaseUrl = Deno.env.get("SUPABASE_URL");
+            const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+            
+            const formatCurrency = (cents: number) => {
+              return new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(cents / 100);
+            };
+
+            await fetch(`${supabaseUrl}/functions/v1/send-notification`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${supabaseAnonKey}`,
+              },
+              body: JSON.stringify({
+                type: "affiliate_commission",
+                email: affiliateProfile.email,
+                name: affiliateProfile.full_name || "Afiliado",
+                data: {
+                  commissionAmount: formatCurrency(commissionAmountCents),
+                  availableDate: availableAt.toLocaleDateString("pt-BR"),
+                  affiliateCode: affiliateData.code,
+                },
+              }),
+            });
+
+            logStep("Commission notification sent", { email: affiliateProfile.email });
+          } catch (notifyError) {
+            logStep("Failed to send commission notification", { error: String(notifyError) });
+            // Don't throw - notification failure shouldn't fail the webhook
+          }
+        }
+      }
+
       // If first payment, approve the referral
       if (referral.status === "pending") {
         const { error: updateError } = await supabaseAdmin

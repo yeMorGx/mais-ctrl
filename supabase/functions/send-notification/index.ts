@@ -22,7 +22,10 @@ type NotificationType =
   | 'trial_started'
   | 'trial_ending'
   | 'trial_ended'
-  | 'debt_reminder';
+  | 'debt_reminder'
+  | 'affiliate_commission'
+  | 'affiliate_payout_approved'
+  | 'affiliate_payout_rejected';
 
 interface NotificationRequest {
   type: NotificationType;
@@ -38,6 +41,13 @@ interface NotificationRequest {
     debtValue?: string;
     personName?: string;
     debtType?: 'i_owe' | 'they_owe';
+    // Affiliate data
+    commissionAmount?: string;
+    availableDate?: string;
+    payoutAmount?: string;
+    pixKey?: string;
+    affiliateCode?: string;
+    notes?: string;
   };
 }
 
@@ -535,6 +545,92 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
           Mantenha suas finanças organizadas com o +Ctrl! 💜
+        </p>
+      `,
+    },
+    
+    affiliate_commission: {
+      subject: `🎉 Nova comissão de ${data?.commissionAmount} - Programa CTRL 20`,
+      preheader: 'Você acabou de receber uma nova comissão de afiliado!',
+      content: `
+        ${greeting}
+        <p style="color: #D1D5DB; font-size: 16px; margin-bottom: 20px;">
+          Ótimas notícias! Você acabou de receber uma <strong style="color: #10B981;">nova comissão</strong> no programa de afiliados <strong style="color: #8B5CF6;">CTRL 20</strong>! 🎉
+        </p>
+        
+        ${createSuccessBox('💰', 'Nova Comissão Recebida!', `
+          <strong style="color: #ffffff;">Valor:</strong> ${data?.commissionAmount}<br>
+          <strong style="color: #ffffff;">Código:</strong> ${data?.affiliateCode}<br>
+          <strong style="color: #ffffff;">Disponível em:</strong> ${data?.availableDate}
+        `)}
+        
+        ${createInfoBox('⏰', 'Período de Carência', 'As comissões ficam disponíveis para saque após 14 dias, garantindo que não haja estornos ou cancelamentos.')}
+        
+        <p style="color: #E5E7EB; font-size: 15px; margin: 25px 0 15px;">
+          Continue compartilhando seu link de afiliado para ganhar mais!
+        </p>
+        
+        ${createButton('Ver Meu Painel de Afiliado', 'https://maisctrl.com/affiliate')}
+        
+        <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
+          Obrigado por fazer parte do CTRL 20! 💜
+        </p>
+      `,
+    },
+    
+    affiliate_payout_approved: {
+      subject: `✅ Saque de ${data?.payoutAmount} aprovado! - Programa CTRL 20`,
+      preheader: 'Seu saque foi aprovado e o pagamento será realizado em breve!',
+      content: `
+        ${greeting}
+        <p style="color: #D1D5DB; font-size: 16px; margin-bottom: 20px;">
+          Excelente notícia! Seu pedido de saque foi <strong style="color: #10B981;">aprovado</strong>! 🎉
+        </p>
+        
+        ${createSuccessBox('✅', 'Saque Aprovado!', `
+          <strong style="color: #ffffff;">Valor:</strong> ${data?.payoutAmount}<br>
+          <strong style="color: #ffffff;">Chave PIX:</strong> ${data?.pixKey}<br>
+          <strong style="color: #ffffff;">Status:</strong> Pago
+        `)}
+        
+        <p style="color: #D1D5DB; font-size: 15px; margin: 20px 0;">
+          O pagamento foi enviado para a chave PIX informada. Confira sua conta bancária!
+        </p>
+        
+        ${data?.notes ? createInfoBox('📝', 'Observações', data.notes) : ''}
+        
+        ${createButton('Ver Histórico de Saques', 'https://maisctrl.com/affiliate')}
+        
+        <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
+          Continue indicando e ganhando comissões! 💜
+        </p>
+      `,
+    },
+    
+    affiliate_payout_rejected: {
+      subject: `❌ Saque não aprovado - Programa CTRL 20`,
+      preheader: 'Seu pedido de saque não foi aprovado. Veja os detalhes.',
+      content: `
+        ${greeting}
+        <p style="color: #D1D5DB; font-size: 16px; margin-bottom: 20px;">
+          Infelizmente, seu pedido de saque <strong style="color: #F87171;">não foi aprovado</strong>.
+        </p>
+        
+        ${createDangerBox('❌', 'Saque Não Aprovado', `
+          <strong style="color: #ffffff;">Valor solicitado:</strong> ${data?.payoutAmount}<br>
+          <strong style="color: #ffffff;">Chave PIX:</strong> ${data?.pixKey}
+        `)}
+        
+        ${data?.notes ? createWarningBox('📝', 'Motivo', data.notes) : createWarningBox('📝', 'Motivo', 'Entre em contato com nosso suporte para mais informações.')}
+        
+        <p style="color: #D1D5DB; font-size: 15px; margin: 20px 0;">
+          Se você acredita que houve um engano ou precisa de mais informações, entre em contato com nosso suporte.
+        </p>
+        
+        ${createButton('Entrar em Contato', 'https://maisctrl.com/support')}
+        
+        <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
+          Estamos aqui para ajudar! 💜
         </p>
       `,
     },

@@ -28,12 +28,12 @@ const Affiliates = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-hero">
       <Navigation />
       
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
         <div className="container mx-auto max-w-5xl relative z-10">
           <div className="text-center space-y-6">
             <Badge variant="secondary" className="px-4 py-2 text-sm font-medium">
@@ -41,7 +41,7 @@ const Affiliates = () => {
               Programa CTRL 20
             </Badge>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95]">
               Ganhe <span className="bg-gradient-primary bg-clip-text text-transparent">20% TODO MÊS</span>
               <br />indicando o MaisCtrl
             </h1>
@@ -66,10 +66,10 @@ const Affiliates = () => {
       </section>
 
       {/* Sub-hero - Proof Points */}
-      <section className="py-12 px-4 bg-muted/30">
+      <section className="py-12 px-4 bg-muted/30 backdrop-blur-xl">
         <div className="container mx-auto max-w-5xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="border-0 bg-card/50 backdrop-blur">
+            <Card className="glass-panel kinetic-card border-0">
               <CardContent className="p-6 text-center">
                 <DollarSign className="w-10 h-10 mx-auto mb-3 text-primary" />
                 <h3 className="font-bold text-lg">Planos acessíveis</h3>
@@ -77,7 +77,7 @@ const Affiliates = () => {
               </CardContent>
             </Card>
             
-            <Card className="border-0 bg-card/50 backdrop-blur">
+            <Card className="glass-panel kinetic-card border-0">
               <CardContent className="p-6 text-center">
                 <TrendingUp className="w-10 h-10 mx-auto mb-3 text-primary" />
                 <h3 className="font-bold text-lg">Comissão recorrente</h3>
@@ -85,7 +85,7 @@ const Affiliates = () => {
               </CardContent>
             </Card>
             
-            <Card className="border-0 bg-card/50 backdrop-blur">
+            <Card className="glass-panel kinetic-card border-0">
               <CardContent className="p-6 text-center">
                 <Zap className="w-10 h-10 mx-auto mb-3 text-primary" />
                 <h3 className="font-bold text-lg">Pagamento via PIX</h3>

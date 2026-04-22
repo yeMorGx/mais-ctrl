@@ -147,13 +147,13 @@ const Affiliate = () => {
   // Not an affiliate yet - show signup form
   if (!affiliate) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-hero">
         <div className="container mx-auto max-w-2xl px-4 py-12">
           <div className="text-center mb-8">
             <Logo size="lg" linkTo="/" />
           </div>
 
-          <Card className="border-2 border-primary/20">
+          <Card className="glass-panel border-2 border-primary/20 shadow-elegant">
             <CardHeader className="text-center">
               <Badge className="w-fit mx-auto mb-4">
                 <Sparkles className="w-4 h-4 mr-2" />
@@ -166,17 +166,17 @@ const Affiliate = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 rounded-lg bg-muted/50">
+                <div className="text-center p-4 rounded-2xl bg-muted/50 shadow-soft">
                   <DollarSign className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <div className="font-bold">20%</div>
                   <div className="text-sm text-muted-foreground">Comissão recorrente</div>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
+                <div className="text-center p-4 rounded-2xl bg-muted/50 shadow-soft">
                   <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <div className="font-bold">14 dias</div>
                   <div className="text-sm text-muted-foreground">Para liberação</div>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
+                <div className="text-center p-4 rounded-2xl bg-muted/50 shadow-soft">
                   <Wallet className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <div className="font-bold">PIX</div>
                   <div className="text-sm text-muted-foreground">Pagamento rápido</div>
@@ -225,7 +225,7 @@ const Affiliate = () => {
   const canRequestPayout = availableBalance >= 5000; // R$ 50 minimum
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-hero">
       <div className="container mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -239,7 +239,7 @@ const Affiliate = () => {
         </div>
 
         {/* Affiliate Link */}
-        <Card className="mb-8 border-primary/20">
+        <Card className="mb-8 glass-panel border-primary/20 shadow-elegant">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               <div className="flex-1">

@@ -348,8 +348,7 @@ export const UnifiedDashboard = ({
                     count={subscriptions.length}
                     items={subscriptions.slice(0, 3).map(s => s.name)}
                     onClick={() => setActiveSection('subscriptions')}
-                    gradient="from-blue-500/10 to-blue-600/10"
-                    iconColor="text-blue-500"
+                    emphasis="primary"
                   />
                   <QuickSummaryCard
                     title="Tarefas Pendentes"
@@ -357,8 +356,7 @@ export const UnifiedDashboard = ({
                     count={tasks.filter((t: any) => !t.completed).length}
                     items={tasks.filter((t: any) => !t.completed).slice(0, 3).map((t: any) => t.title)}
                     onClick={() => setActiveSection('tasks')}
-                    gradient="from-amber-500/10 to-amber-600/10"
-                    iconColor="text-amber-500"
+                    emphasis="secondary"
                   />
                   <QuickSummaryCard
                     title="Parcelas Ativas"
@@ -366,8 +364,7 @@ export const UnifiedDashboard = ({
                     count={installments.filter((i: any) => i.is_active).length}
                     items={installments.filter((i: any) => i.is_active).slice(0, 3).map((i: any) => i.name)}
                     onClick={() => setActiveSection('installments')}
-                    gradient="from-emerald-500/10 to-emerald-600/10"
-                    iconColor="text-emerald-500"
+                    emphasis="primary"
                   />
                   <QuickSummaryCard
                     title="Debto"
@@ -375,8 +372,7 @@ export const UnifiedDashboard = ({
                     count={debts.filter((d: any) => !d.is_paid).length}
                     items={debts.filter((d: any) => !d.is_paid).slice(0, 3).map((d: any) => d.debt_name)}
                     onClick={() => setActiveSection('debts')}
-                    gradient="from-purple-500/10 to-purple-600/10"
-                    iconColor="text-purple-500"
+                    emphasis="accent"
                   />
                   <QuickSummaryCard
                     title="Financiamentos"
@@ -384,8 +380,7 @@ export const UnifiedDashboard = ({
                     count={financings.filter((f: any) => f.status === 'active').length}
                     items={financings.filter((f: any) => f.status === 'active').slice(0, 3).map((f: any) => f.name)}
                     onClick={() => setActiveSection('financings')}
-                    gradient="from-cyan-500/10 to-cyan-600/10"
-                    iconColor="text-cyan-500"
+                    emphasis="secondary"
                   />
                 </div>
               </div>
@@ -457,25 +452,29 @@ function QuickSummaryCard({
   count,
   items,
   onClick,
-  gradient,
-  iconColor,
+  emphasis,
 }: {
   title: string;
   icon: React.ReactNode;
   count: number;
   items: string[];
   onClick: () => void;
-  gradient: string;
-  iconColor: string;
+  emphasis: "primary" | "secondary" | "accent";
 }) {
+  const emphasisClass = {
+    primary: "from-primary/10 to-primary/5 text-primary",
+    secondary: "from-secondary/10 to-secondary/5 text-secondary",
+    accent: "from-accent/10 to-accent/5 text-accent",
+  }[emphasis];
+
   return (
     <Card 
-      className={`cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-br ${gradient}`}
+      className={`kinetic-card cursor-pointer bg-gradient-to-br ${emphasisClass}`}
       onClick={onClick}
     >
       <CardContent className="p-4">
         <div className="flex items-center gap-3 mb-3">
-          <div className={`${iconColor}`}>{icon}</div>
+          <div>{icon}</div>
           <div>
             <p className="font-semibold">{title}</p>
             <p className="text-2xl font-bold">{count}</p>

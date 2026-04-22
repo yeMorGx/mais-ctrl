@@ -269,14 +269,14 @@ const Auth = () => {
           </p>
         </div>
 
-        <Card className="border-border shadow-elegant backdrop-blur-sm animate-scale-in">
+        <Card className="glass-panel animate-scale-in border-border/70 shadow-elegant">
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl">Bem-vindo</CardTitle>
+            <CardTitle className="text-2xl font-black">Bem-vindo</CardTitle>
             <CardDescription className="text-sm">Entre na sua conta ou crie uma nova</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsList className="grid w-full grid-cols-2 mb-4 rounded-xl bg-muted/70 p-1">
                 <TabsTrigger value="signin" className="transition-all duration-200">Entrar</TabsTrigger>
                 <TabsTrigger value="signup" className="transition-all duration-200">Criar conta</TabsTrigger>
               </TabsList>

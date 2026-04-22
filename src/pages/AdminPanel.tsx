@@ -93,7 +93,7 @@ const AdminPanel = () => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-gradient-hero">
         <AdminSidebar 
           activeSection={activeSection} 
           onSectionChange={setActiveSection}

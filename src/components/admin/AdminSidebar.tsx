@@ -86,8 +86,8 @@ export const AdminSidebar = ({ activeSection, onSectionChange, isOwner }: AdminS
   ];
 
   return (
-    <Sidebar className={open ? "w-64" : "w-16"} collapsible="icon">
-      <div className="p-4 border-b flex items-center justify-between">
+    <Sidebar className={open ? "w-64 border-r border-border/70 bg-background/72 backdrop-blur-2xl" : "w-16 border-r border-border/70 bg-background/72 backdrop-blur-2xl"} collapsible="icon">
+      <div className="p-4 border-b border-border/70 flex items-center justify-between">
         {open && (
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
@@ -111,8 +111,8 @@ export const AdminSidebar = ({ activeSection, onSectionChange, isOwner }: AdminS
                     isActive={activeSection === item.id}
                     className={
                       activeSection === item.id
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "hover:bg-muted"
+                        ? "bg-primary/10 text-primary font-medium shadow-soft"
+                        : "hover:bg-muted/80"
                     }
                   >
                     <item.icon className="h-5 w-5" />
@@ -125,7 +125,7 @@ export const AdminSidebar = ({ activeSection, onSectionChange, isOwner }: AdminS
         </SidebarGroup>
 
         {isOwner && open && (
-          <div className="mt-auto p-4 border-t bg-gradient-to-br from-primary/5 to-secondary/5">
+          <div className="mt-auto p-4 border-t border-border/70 bg-gradient-surface">
             <div className="flex items-center gap-2 text-sm">
               <Shield className="h-4 w-4 text-primary" />
               <div>

@@ -8,25 +8,25 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 10%;
+    --background: 210 40% 99%;
+    --foreground: 222 47% 9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
+    --card-foreground: 222 47% 9%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 10%;
 
-    --primary: 262 83% 58%;
+    --primary: 259 94% 60%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 262 83% 68%;
 
-    --secondary: 189 94% 43%;
+    --secondary: 199 89% 48%;
     --secondary-foreground: 0 0% 100%;
     --secondary-glow: 189 94% 53%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    --muted: 220 28% 96%;
+    --muted-foreground: 222 12% 43%;
 
     --accent: 262 83% 58%;
     --accent-foreground: 0 0% 100%;
@@ -34,16 +34,18 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
+    --border: 220 18% 90%;
+    --input: 220 18% 90%;
     --ring: 262 83% 58%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(189 94% 43%));
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%), hsl(262 83% 98%));
-    --shadow-elegant: 0 10px 40px -10px hsl(262 83% 58% / 0.3);
-    --shadow-glow: 0 0 60px hsl(262 83% 68% / 0.5);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)) 55%, hsl(var(--primary-glow)));
+    --gradient-hero: radial-gradient(circle at 50% 0%, hsl(var(--primary) / 0.16), transparent 34%), linear-gradient(180deg, hsl(var(--background)), hsl(220 60% 97%));
+    --gradient-surface: linear-gradient(180deg, hsl(var(--card) / 0.92), hsl(var(--muted) / 0.7));
+    --shadow-elegant: 0 24px 80px -28px hsl(var(--primary) / 0.34), 0 8px 28px -18px hsl(222 47% 9% / 0.22);
+    --shadow-glow: 0 0 70px hsl(var(--primary-glow) / 0.28);
+    --shadow-soft: 0 18px 60px -34px hsl(222 47% 9% / 0.35);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
@@ -66,10 +68,10 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 240 10% 8%;
+    --background: 222 47% 7%;
     --foreground: 0 0% 98%;
 
-    --card: 240 10% 12%;
+    --card: 222 35% 11%;
     --card-foreground: 0 0% 98%;
 
     --popover: 240 10% 12%;
@@ -83,8 +85,8 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 100%;
     --secondary-glow: 189 94% 53%;
 
-    --muted: 240 10% 16%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 222 30% 15%;
+    --muted-foreground: 220 14% 72%;
 
     --accent: 262 83% 58%;
     --accent-foreground: 0 0% 100%;
@@ -92,14 +94,16 @@ All colors MUST be HSL.
     --destructive: 0 63% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 10% 20%;
-    --input: 240 10% 20%;
+    --border: 222 25% 20%;
+    --input: 222 25% 20%;
     --ring: 262 83% 58%;
 
     --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(189 94% 43%));
-    --gradient-hero: linear-gradient(180deg, hsl(240 10% 8%), hsl(262 83% 15%));
-    --shadow-elegant: 0 10px 40px -10px hsl(262 83% 58% / 0.5);
-    --shadow-glow: 0 0 80px hsl(262 83% 68% / 0.6);
+    --gradient-hero: radial-gradient(circle at 50% 0%, hsl(var(--primary) / 0.28), transparent 36%), linear-gradient(180deg, hsl(var(--background)), hsl(222 42% 10%));
+    --gradient-surface: linear-gradient(180deg, hsl(var(--card) / 0.86), hsl(var(--muted) / 0.7));
+    --shadow-elegant: 0 24px 80px -28px hsl(var(--primary) / 0.5), 0 8px 28px -18px hsl(0 0% 0% / 0.55);
+    --shadow-glow: 0 0 90px hsl(var(--primary-glow) / 0.36);
+    --shadow-soft: 0 18px 60px -34px hsl(0 0% 0% / 0.72);
 
     --sidebar-background: 240 10% 10%;
     --sidebar-foreground: 240 5% 90%;
@@ -141,6 +145,30 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: geometricPrecision;
+    background:
+      radial-gradient(circle at 50% -10%, hsl(var(--primary) / 0.08), transparent 34%),
+      hsl(var(--background));
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.18);
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply border border-border/70 bg-card/75 shadow-soft backdrop-blur-2xl;
+  }
+
+  .apple-section {
+    @apply relative overflow-hidden rounded-[2rem] border border-border/70 bg-gradient-surface shadow-soft;
+  }
+
+  .kinetic-card {
+    @apply transition-all duration-500 hover:-translate-y-1 hover:shadow-elegant;
   }
 }
 

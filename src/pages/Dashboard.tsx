@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, Building2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
@@ -18,6 +18,7 @@ import { PlanManagement } from "@/components/dashboard/PlanManagement";
 import { LiveChatTab } from "@/components/dashboard/LiveChatTab";
 import { SiteManagement } from "@/components/dashboard/SiteManagement";
 import { UnifiedDashboard } from "@/components/dashboard/UnifiedDashboard";
+import { FinancingControl } from "@/components/dashboard/FinancingControl";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
 import { SuccessAnimation } from "@/components/SuccessAnimation";
@@ -215,6 +216,15 @@ const Dashboard = () => {
                   </Button>
                   
                   <Button
+                    variant={activeTab === "financings" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("financings"); setMobileMenuOpen(false); }}
+                  >
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Financiamentos
+                  </Button>
+
+                  <Button
                     variant={activeTab === "profile" ? "default" : "ghost"}
                     className="justify-start"
                     onClick={() => { setActiveTab("profile"); setMobileMenuOpen(false); }}
@@ -308,9 +318,9 @@ const Dashboard = () => {
 
           {/* Desktop Tabs */}
           <TabsList className={`hidden lg:grid w-full ${
-            isOwner ? 'grid-cols-10' : 
-            isPremium ? 'grid-cols-9' : 
-            'grid-cols-7'
+            isOwner ? 'grid-cols-11' : 
+            isPremium ? 'grid-cols-10' : 
+            'grid-cols-8'
           } mb-8`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
@@ -329,6 +339,10 @@ const Dashboard = () => {
             <TabsTrigger value="alerts" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
               <span className="hidden sm:inline">Alertas</span>
+            </TabsTrigger>
+            <TabsTrigger value="financings" className="flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Financiamentos</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
@@ -396,6 +410,10 @@ const Dashboard = () => {
           <TabsContent value="alerts">
             <h1 className="text-3xl font-bold mb-6">Alertas de Renovação</h1>
             <AlertsPanel subscriptions={subscriptions} />
+          </TabsContent>
+
+          <TabsContent value="financings">
+            <FinancingControl />
           </TabsContent>
 
           {/* Subscriptions Tab */}

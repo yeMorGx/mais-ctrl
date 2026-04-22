@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign, Users, ArrowRight } from "lucide-react";
+import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign, Users, ArrowRight, Building2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export const UnifiedDashboard = ({
   const [activeSection, setActiveSection] = useState("overview");
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
-    types: ['subscriptions', 'tasks', 'installments', 'debts'],
+    types: ['subscriptions', 'tasks', 'installments', 'debts', 'financings'],
     status: 'all',
     sortBy: 'name',
     sortOrder: 'asc',
@@ -80,6 +80,19 @@ export const UnifiedDashboard = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("debts")
+        .select("*")
+        .eq("user_id", user?.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: financings = [] } = useQuery({
+    queryKey: ["financings", user?.id],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("financings")
         .select("*")
         .eq("user_id", user?.id);
       if (error) throw error;
@@ -174,21 +187,36 @@ export const UnifiedDashboard = ({
         })
       : [];
 
+    let filteredFinancings = filters.types.includes('financings')
+      ? financings.filter((financing: any) => {
+          if (query && !financing.name.toLowerCase().includes(query) && !(financing.institution || '').toLowerCase().includes(query)) return false;
+          if (filters.dateRange !== 'all' && financing.start_date) {
+            const date = parseISO(financing.start_date);
+            if (filters.dateRange === 'today' && !isToday(date)) return false;
+            if (filters.dateRange === 'week' && !isThisWeek(date)) return false;
+            if (filters.dateRange === 'month' && !isThisMonth(date)) return false;
+          }
+          return true;
+        })
+      : [];
+
     filteredSubs = filteredSubs.sort(sortFn);
     filteredTasks = filteredTasks.sort(sortFn);
     filteredInstallments = filteredInstallments.sort(sortFn);
     filteredDebts = filteredDebts.sort(sortFn);
+    filteredFinancings = filteredFinancings.sort(sortFn);
 
     return {
       subscriptions: filteredSubs,
       tasks: filteredTasks,
       installments: filteredInstallments,
       debts: filteredDebts,
-      totalCount: filteredSubs.length + filteredTasks.length + filteredInstallments.length + filteredDebts.length,
+      financings: filteredFinancings,
+      totalCount: filteredSubs.length + filteredTasks.length + filteredInstallments.length + filteredDebts.length + filteredFinancings.length,
     };
-  }, [subscriptions, tasks, installments, debts, filters]);
+  }, [subscriptions, tasks, installments, debts, financings, filters]);
 
-  const hasActiveSearch = filters.query !== '' || filters.types.length < 4 || filters.dateRange !== 'all';
+  const hasActiveSearch = filters.query !== '' || filters.types.length < 5 || filters.dateRange !== 'all';
 
   return (
     <div className="space-y-6">
@@ -257,7 +285,7 @@ export const UnifiedDashboard = ({
         </CardHeader>
         <CardContent>
           <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-6">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-6">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Resumo</span>
@@ -299,12 +327,21 @@ export const UnifiedDashboard = ({
                   </span>
                 )}
               </TabsTrigger>
+              <TabsTrigger value="financings" className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Financ.</span>
+                {hasActiveSearch && filters.types.includes('financings') && (
+                  <span className="text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+                    {filteredData.financings.length}
+                  </span>
+                )}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-0">
               <div className="space-y-4">
                 {/* Quick Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                   <QuickSummaryCard
                     title="Assinaturas"
                     icon={<CreditCard className="h-5 w-5" />}
@@ -341,6 +378,15 @@ export const UnifiedDashboard = ({
                     gradient="from-purple-500/10 to-purple-600/10"
                     iconColor="text-purple-500"
                   />
+                  <QuickSummaryCard
+                    title="Financiamentos"
+                    icon={<Building2 className="h-5 w-5" />}
+                    count={financings.filter((f: any) => f.status === 'active').length}
+                    items={financings.filter((f: any) => f.status === 'active').slice(0, 3).map((f: any) => f.name)}
+                    onClick={() => setActiveSection('financings')}
+                    gradient="from-cyan-500/10 to-cyan-600/10"
+                    iconColor="text-cyan-500"
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -362,6 +408,13 @@ export const UnifiedDashboard = ({
 
             <TabsContent value="debts" className="mt-0">
               <DebtoList />
+            </TabsContent>
+
+            <TabsContent value="financings" className="mt-0">
+              <Button variant="outline" onClick={() => onTabChange('financings')}>
+                Abrir controle completo de financiamentos
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </TabsContent>
           </Tabs>
         </CardContent>

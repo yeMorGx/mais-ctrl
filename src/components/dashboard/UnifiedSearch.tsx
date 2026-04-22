@@ -12,7 +12,8 @@ import {
   Calendar,
   SortAsc,
   SortDesc,
-  DollarSign
+  DollarSign,
+  Building2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -32,7 +33,7 @@ import {
 
 export interface SearchFilters {
   query: string;
-  types: ('subscriptions' | 'tasks' | 'installments' | 'debts')[];
+  types: ('subscriptions' | 'tasks' | 'installments' | 'debts' | 'financings')[];
   status: 'all' | 'active' | 'completed' | 'pending';
   sortBy: 'name' | 'value' | 'date';
   sortOrder: 'asc' | 'desc';
@@ -50,7 +51,7 @@ export function UnifiedSearch({ filters, onFiltersChange, resultCount }: Unified
     onFiltersChange({ ...filters, [key]: value });
   };
 
-  const toggleType = (type: 'subscriptions' | 'tasks' | 'installments' | 'debts') => {
+  const toggleType = (type: 'subscriptions' | 'tasks' | 'installments' | 'debts' | 'financings') => {
     const newTypes = filters.types.includes(type)
       ? filters.types.filter(t => t !== type)
       : [...filters.types, type];
@@ -64,7 +65,7 @@ export function UnifiedSearch({ filters, onFiltersChange, resultCount }: Unified
   const clearFilters = () => {
     onFiltersChange({
       query: '',
-      types: ['subscriptions', 'tasks', 'installments', 'debts'],
+      types: ['subscriptions', 'tasks', 'installments', 'debts', 'financings'],
       status: 'all',
       sortBy: 'name',
       sortOrder: 'asc',
@@ -74,7 +75,7 @@ export function UnifiedSearch({ filters, onFiltersChange, resultCount }: Unified
 
   const hasActiveFilters = 
     filters.query !== '' || 
-    filters.types.length !== 4 || 
+    filters.types.length !== 5 || 
     filters.status !== 'all' ||
     filters.dateRange !== 'all';
 
@@ -143,6 +144,13 @@ export function UnifiedSearch({ filters, onFiltersChange, resultCount }: Unified
               <DollarSign className="h-4 w-4 mr-2" />
               Debto
             </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={filters.types.includes('financings')}
+              onCheckedChange={() => toggleType('financings')}
+            >
+              <Building2 className="h-4 w-4 mr-2" />
+              Financiamentos
+            </DropdownMenuCheckboxItem>
             
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Período</DropdownMenuLabel>
@@ -206,7 +214,7 @@ export function UnifiedSearch({ filters, onFiltersChange, resultCount }: Unified
       {/* Active Filters */}
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2">
-          {filters.types.length < 4 && (
+          {filters.types.length < 5 && (
             <>
               {filters.types.map(type => (
                 <Badge key={type} variant="secondary" className="gap-1">
@@ -214,6 +222,7 @@ export function UnifiedSearch({ filters, onFiltersChange, resultCount }: Unified
                   {type === 'tasks' && <><CheckSquare className="h-3 w-3" /> Tarefas</>}
                   {type === 'installments' && <><Wallet className="h-3 w-3" /> Parcelas</>}
                   {type === 'debts' && <><DollarSign className="h-3 w-3" /> Debto</>}
+                  {type === 'financings' && <><Building2 className="h-3 w-3" /> Financiamentos</>}
                   <X 
                     className="h-3 w-3 ml-1 cursor-pointer hover:text-destructive" 
                     onClick={() => toggleType(type)}

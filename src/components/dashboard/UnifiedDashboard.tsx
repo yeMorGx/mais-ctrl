@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign, Users, ArrowRight } from "lucide-react";
+import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign, Users, ArrowRight, Building2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export const UnifiedDashboard = ({
   const [activeSection, setActiveSection] = useState("overview");
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
-    types: ['subscriptions', 'tasks', 'installments', 'debts'],
+    types: ['subscriptions', 'tasks', 'installments', 'debts', 'financings'],
     status: 'all',
     sortBy: 'name',
     sortOrder: 'asc',
@@ -80,6 +80,19 @@ export const UnifiedDashboard = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("debts")
+        .select("*")
+        .eq("user_id", user?.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: financings = [] } = useQuery({
+    queryKey: ["financings", user?.id],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("financings")
         .select("*")
         .eq("user_id", user?.id);
       if (error) throw error;
@@ -174,21 +187,36 @@ export const UnifiedDashboard = ({
         })
       : [];
 
+    let filteredFinancings = filters.types.includes('financings')
+      ? financings.filter((financing: any) => {
+          if (query && !financing.name.toLowerCase().includes(query) && !(financing.institution || '').toLowerCase().includes(query)) return false;
+          if (filters.dateRange !== 'all' && financing.start_date) {
+            const date = parseISO(financing.start_date);
+            if (filters.dateRange === 'today' && !isToday(date)) return false;
+            if (filters.dateRange === 'week' && !isThisWeek(date)) return false;
+            if (filters.dateRange === 'month' && !isThisMonth(date)) return false;
+          }
+          return true;
+        })
+      : [];
+
     filteredSubs = filteredSubs.sort(sortFn);
     filteredTasks = filteredTasks.sort(sortFn);
     filteredInstallments = filteredInstallments.sort(sortFn);
     filteredDebts = filteredDebts.sort(sortFn);
+    filteredFinancings = filteredFinancings.sort(sortFn);
 
     return {
       subscriptions: filteredSubs,
       tasks: filteredTasks,
       installments: filteredInstallments,
       debts: filteredDebts,
-      totalCount: filteredSubs.length + filteredTasks.length + filteredInstallments.length + filteredDebts.length,
+      financings: filteredFinancings,
+      totalCount: filteredSubs.length + filteredTasks.length + filteredInstallments.length + filteredDebts.length + filteredFinancings.length,
     };
-  }, [subscriptions, tasks, installments, debts, filters]);
+  }, [subscriptions, tasks, installments, debts, financings, filters]);
 
-  const hasActiveSearch = filters.query !== '' || filters.types.length < 4 || filters.dateRange !== 'all';
+  const hasActiveSearch = filters.query !== '' || filters.types.length < 5 || filters.dateRange !== 'all';
 
   return (
     <div className="space-y-6">

@@ -511,12 +511,12 @@ const Index = () => {
 const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => {
   return (
     <motion.div 
-      className="bg-card rounded-2xl p-8 border border-border hover:shadow-elegant transition-all duration-300 group"
+      className="glass-panel kinetic-card rounded-2xl p-8 group"
       whileHover={{ scale: 1.03, y: -5 }}
       transition={{ duration: 0.3 }}
     >
       <motion.div 
-        className="w-14 h-14 bg-gradient-primary rounded-xl flex items-center justify-center mb-6 text-primary-foreground"
+        className="w-14 h-14 bg-gradient-primary rounded-2xl flex items-center justify-center mb-6 text-primary-foreground shadow-glow"
         whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
         transition={{ duration: 0.5 }}
       >
@@ -560,7 +560,7 @@ const PricingCard = ({
 
   return (
     <motion.div 
-      className={`bg-card rounded-2xl p-8 border ${highlighted ? 'border-primary shadow-glow' : 'border-border'} relative h-full`}
+      className={`glass-panel kinetic-card rounded-2xl p-8 relative h-full ${highlighted ? 'border-primary shadow-glow' : ''}`}
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.3 }}
     >
@@ -664,7 +664,7 @@ const TestimonialCard = ({
 }) => {
   return (
     <motion.div 
-      className="bg-card rounded-2xl p-8 border border-border hover:shadow-elegant transition-all duration-300 relative h-full"
+      className="glass-panel kinetic-card rounded-2xl p-8 relative h-full"
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.3 }}
     >

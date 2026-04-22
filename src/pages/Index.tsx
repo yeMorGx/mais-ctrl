@@ -180,10 +180,10 @@ const Index = () => {
       <motion.section 
         ref={heroRef}
         id="hero" 
-        className="container mx-auto px-4 pt-32 pb-32 relative"
+        className="container mx-auto px-4 pt-32 pb-24 md:pb-32 relative"
         style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
       >
-        <div className="text-center max-w-4xl mx-auto space-y-8">
+        <div className="text-center max-w-5xl mx-auto space-y-8">
           <motion.div 
             className="flex justify-center mb-4"
             initial={{ opacity: 0, scale: 0.5 }}
@@ -194,7 +194,7 @@ const Index = () => {
           </motion.div>
           
           <motion.h1 
-            className="text-4xl md:text-6xl font-bold leading-tight"
+            className="text-5xl md:text-7xl font-black leading-[0.95] tracking-normal"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.4, 0.25, 1] }}
@@ -209,7 +209,7 @@ const Index = () => {
           </motion.h1>
           
           <motion.p 
-            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto"
+            className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
@@ -258,7 +258,7 @@ const Index = () => {
       </motion.section>
 
       {/* Features Section */}
-      <section id="features" className="container mx-auto px-4 py-20">
+       <section id="features" className="container mx-auto px-4 py-20">
         <StaggerContainer className="grid md:grid-cols-3 gap-8" staggerDelay={0.15}>
           <StaggerItem>
             <FeatureCard
@@ -285,7 +285,7 @@ const Index = () => {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="container mx-auto px-4 py-20">
+       <section id="pricing" className="container mx-auto px-4 py-20">
         <ScrollReveal>
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
             {t("pricing.title")}
@@ -425,7 +425,7 @@ const Index = () => {
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-32">
         <ScaleOnScroll>
-          <div className="bg-gradient-primary rounded-3xl p-12 md:p-20 text-center shadow-glow relative overflow-hidden">
+           <div className="apple-section p-12 md:p-20 text-center shadow-glow relative overflow-hidden">
             {/* Animated background elements */}
             <motion.div 
               className="absolute inset-0 opacity-20"
@@ -444,7 +444,7 @@ const Index = () => {
             />
             
             <motion.h2 
-              className="text-4xl md:text-5xl font-bold text-primary-foreground mb-6 relative z-10"
+              className="text-4xl md:text-5xl font-black bg-gradient-primary bg-clip-text text-transparent mb-6 relative z-10"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -453,7 +453,7 @@ const Index = () => {
               {t("cta.title")}
             </motion.h2>
             <motion.p 
-              className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto relative z-10"
+              className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto relative z-10"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

@@ -285,7 +285,7 @@ export const UnifiedDashboard = ({
         </CardHeader>
         <CardContent>
           <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-6">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-6">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Resumo</span>
@@ -327,12 +327,21 @@ export const UnifiedDashboard = ({
                   </span>
                 )}
               </TabsTrigger>
+              <TabsTrigger value="financings" className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Financ.</span>
+                {hasActiveSearch && filters.types.includes('financings') && (
+                  <span className="text-xs bg-primary/20 px-1.5 py-0.5 rounded-full">
+                    {filteredData.financings.length}
+                  </span>
+                )}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-0">
               <div className="space-y-4">
                 {/* Quick Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                   <QuickSummaryCard
                     title="Assinaturas"
                     icon={<CreditCard className="h-5 w-5" />}
@@ -369,6 +378,15 @@ export const UnifiedDashboard = ({
                     gradient="from-purple-500/10 to-purple-600/10"
                     iconColor="text-purple-500"
                   />
+                  <QuickSummaryCard
+                    title="Financiamentos"
+                    icon={<Building2 className="h-5 w-5" />}
+                    count={financings.filter((f: any) => f.status === 'active').length}
+                    items={financings.filter((f: any) => f.status === 'active').slice(0, 3).map((f: any) => f.name)}
+                    onClick={() => setActiveSection('financings')}
+                    gradient="from-cyan-500/10 to-cyan-600/10"
+                    iconColor="text-cyan-500"
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -390,6 +408,13 @@ export const UnifiedDashboard = ({
 
             <TabsContent value="debts" className="mt-0">
               <DebtoList />
+            </TabsContent>
+
+            <TabsContent value="financings" className="mt-0">
+              <Button variant="outline" onClick={() => onTabChange('financings')}>
+                Abrir controle completo de financiamentos
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </TabsContent>
           </Tabs>
         </CardContent>

@@ -185,7 +185,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-hero">
       <SuccessAnimation 
         show={showSuccessAnimation} 
         onComplete={() => setShowSuccessAnimation(false)}
@@ -204,7 +204,7 @@ const Dashboard = () => {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px]">
+              <SheetContent side="right" className="w-[280px] glass-panel">
                 <nav className="flex flex-col gap-2 mt-8">
                   <Button
                     variant={activeTab === "overview" ? "default" : "ghost"}
@@ -321,7 +321,7 @@ const Dashboard = () => {
             isOwner ? 'grid-cols-11' : 
             isPremium ? 'grid-cols-10' : 
             'grid-cols-8'
-          } mb-8`}>
+          } mb-8 rounded-2xl bg-card/70 p-1.5 shadow-soft backdrop-blur-xl`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>

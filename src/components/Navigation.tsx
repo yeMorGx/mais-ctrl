@@ -26,7 +26,7 @@ export const Navigation = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/70 bg-background/72 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -38,7 +38,7 @@ export const Navigation = () => {
               <button
                 key={link.href}
                 onClick={() => scrollToSection(link.href.substring(1))}
-                className="text-foreground/80 hover:text-foreground transition-colors font-medium"
+                className="text-sm font-semibold text-foreground/70 transition-colors hover:text-foreground"
               >
                 {link.label}
               </button>
@@ -75,7 +75,7 @@ export const Navigation = () => {
                 <button
                   key={link.href}
                   onClick={() => scrollToSection(link.href.substring(1))}
-                  className="text-left px-4 py-2 text-foreground/80 hover:text-foreground hover:bg-accent rounded-lg transition-colors font-medium"
+                  className="rounded-lg px-4 py-2 text-left font-medium text-foreground/80 transition-colors hover:bg-accent/80 hover:text-foreground"
                 >
                   {link.label}
                 </button>

@@ -72,7 +72,7 @@ const Pricing = () => {
       
       <main className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-5xl md:text-6xl font-black mb-4 leading-tight">
             Escolha seu plano
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
@@ -103,7 +103,7 @@ const Pricing = () => {
 
         {/* Card Unificado */}
         <div className="max-w-2xl mx-auto">
-          <Card className={`relative ${isAnnual ? 'border-2 border-primary shadow-glow' : 'border-border hover:shadow-md'} transition-all`}>
+          <Card className={`relative overflow-hidden glass-panel kinetic-card ${isAnnual ? 'border-2 border-primary shadow-glow' : 'border-border/70'} transition-all`}>
             {isAnnual && (
               <>
                 {/* Selo de destaque */}
@@ -137,7 +137,7 @@ const Pricing = () => {
               {isAnnual && <CountdownTimer />}
               
               {/* Preço */}
-              <div className={`text-center py-6 rounded-xl ${isAnnual ? 'bg-card/80 border border-primary/20' : ''}`}>
+              <div className={`text-center py-6 rounded-2xl ${isAnnual ? 'bg-card/80 border border-primary/20 shadow-soft' : ''}`}>
                 {isAnnual && (
                   <div className="mb-3">
                     <span className="text-2xl text-muted-foreground line-through">
@@ -216,7 +216,7 @@ const Pricing = () => {
         {/* Informação adicional */}
         {isAnnual && (
           <div className="max-w-2xl mx-auto mt-12">
-            <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20 rounded-2xl p-8 text-center">
+            <div className="apple-section p-8 text-center">
               <h3 className="text-2xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
                 🎉 Teste Grátis por 3 Dias no Plano Anual
               </h3>

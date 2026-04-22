@@ -316,6 +316,122 @@ export type Database = {
         }
         Relationships: []
       }
+      financing_payments: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          financing_id: string
+          id: string
+          installment_number: number
+          interest_paid: number
+          notes: string | null
+          paid_at: string
+          principal_paid: number
+          remaining_balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          financing_id: string
+          id?: string
+          installment_number: number
+          interest_paid?: number
+          notes?: string | null
+          paid_at?: string
+          principal_paid?: number
+          remaining_balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          financing_id?: string
+          id?: string
+          installment_number?: number
+          interest_paid?: number
+          notes?: string | null
+          paid_at?: string
+          principal_paid?: number
+          remaining_balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financing_payments_financing_id_fkey"
+            columns: ["financing_id"]
+            isOneToOne: false
+            referencedRelation: "financings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financings: {
+        Row: {
+          alert_enabled: boolean
+          asset_type: string
+          created_at: string
+          current_installment: number
+          down_payment: number
+          due_day: number
+          financed_amount: number
+          id: string
+          installment_value: number
+          institution: string | null
+          interest_rate: number
+          name: string
+          notes: string | null
+          start_date: string
+          status: string
+          term_months: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_enabled?: boolean
+          asset_type?: string
+          created_at?: string
+          current_installment?: number
+          down_payment?: number
+          due_day: number
+          financed_amount: number
+          id?: string
+          installment_value: number
+          institution?: string | null
+          interest_rate?: number
+          name: string
+          notes?: string | null
+          start_date: string
+          status?: string
+          term_months: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_enabled?: boolean
+          asset_type?: string
+          created_at?: string
+          current_installment?: number
+          down_payment?: number
+          due_day?: number
+          financed_amount?: number
+          id?: string
+          installment_value?: number
+          institution?: string | null
+          interest_rate?: number
+          name?: string
+          notes?: string | null
+          start_date?: string
+          status?: string
+          term_months?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invites: {
         Row: {
           accepted_at: string | null

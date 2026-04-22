@@ -452,25 +452,29 @@ function QuickSummaryCard({
   count,
   items,
   onClick,
-  gradient,
-  iconColor,
+  emphasis,
 }: {
   title: string;
   icon: React.ReactNode;
   count: number;
   items: string[];
   onClick: () => void;
-  gradient: string;
-  iconColor: string;
+  emphasis: "primary" | "secondary" | "accent";
 }) {
+  const emphasisClass = {
+    primary: "from-primary/10 to-primary/5 text-primary",
+    secondary: "from-secondary/10 to-secondary/5 text-secondary",
+    accent: "from-accent/10 to-accent/5 text-accent",
+  }[emphasis];
+
   return (
     <Card 
-      className={`cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-br ${gradient}`}
+      className={`kinetic-card cursor-pointer bg-gradient-to-br ${emphasisClass}`}
       onClick={onClick}
     >
       <CardContent className="p-4">
         <div className="flex items-center gap-3 mb-3">
-          <div className={`${iconColor}`}>{icon}</div>
+          <div>{icon}</div>
           <div>
             <p className="font-semibold">{title}</p>
             <p className="text-2xl font-bold">{count}</p>

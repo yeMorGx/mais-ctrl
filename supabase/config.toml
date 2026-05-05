@@ -35,3 +35,12 @@ verify_jwt = false
 
 [functions.release-commissions]
 verify_jwt = false
+
+[functions.pluggy-connect-token]
+verify_jwt = false
+
+[functions.pluggy-sync]
+verify_jwt = false
+
+[functions.ctrl-ai-chat]
+verify_jwt = false

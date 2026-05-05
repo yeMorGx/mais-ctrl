@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, Building2 } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, Building2, Sparkles } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
@@ -19,6 +19,7 @@ import { LiveChatTab } from "@/components/dashboard/LiveChatTab";
 import { SiteManagement } from "@/components/dashboard/SiteManagement";
 import { UnifiedDashboard } from "@/components/dashboard/UnifiedDashboard";
 import { FinancingControl } from "@/components/dashboard/FinancingControl";
+import { CtrlAIChat } from "@/components/dashboard/CtrlAIChat";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
 import { SuccessAnimation } from "@/components/SuccessAnimation";

@@ -226,6 +226,15 @@ const Dashboard = () => {
                   </Button>
 
                   <Button
+                    variant={activeTab === "ctrl-ai" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("ctrl-ai"); setMobileMenuOpen(false); }}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Ctrl AI
+                  </Button>
+
+                  <Button
                     variant={activeTab === "profile" ? "default" : "ghost"}
                     className="justify-start"
                     onClick={() => { setActiveTab("profile"); setMobileMenuOpen(false); }}
@@ -319,9 +328,9 @@ const Dashboard = () => {
 
           {/* Desktop Tabs */}
           <TabsList className={`hidden lg:grid w-full ${
-            isOwner ? 'grid-cols-11' : 
-            isPremium ? 'grid-cols-10' : 
-            'grid-cols-8'
+            isOwner ? 'grid-cols-12' : 
+            isPremium ? 'grid-cols-11' : 
+            'grid-cols-9'
           } mb-8 rounded-2xl bg-card/70 p-1.5 shadow-soft backdrop-blur-xl`}>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
@@ -344,6 +353,10 @@ const Dashboard = () => {
             <TabsTrigger value="financings" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Financiamentos</span>
+            </TabsTrigger>
+            <TabsTrigger value="ctrl-ai" className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline">Ctrl AI</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
@@ -415,6 +428,10 @@ const Dashboard = () => {
 
           <TabsContent value="financings">
             <FinancingControl />
+          </TabsContent>
+
+          <TabsContent value="ctrl-ai">
+            <CtrlAIChat />
           </TabsContent>
 
           {/* Subscriptions Tab */}

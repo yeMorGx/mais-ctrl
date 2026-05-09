@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Send, Plug, Loader2, Building2, RefreshCw, Trash2, AlertTriangle, Lightbulb, Crown, X, Copy } from "lucide-react";
+import { Sparkles, Send, Plug, Loader2, Building2, RefreshCw, Trash2, AlertTriangle, Lightbulb, Crown, X, Copy, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -29,7 +29,7 @@ export const CtrlAIChat = () => {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Oi! Eu sou a **Ctrl AI** ✨\n\nConecte sua conta bancária via Open Finance e me pergunte qualquer coisa sobre seus gastos, padrões e oportunidades de economia.\n\n> Dica: você também pode pedir **\"analise minhas assinaturas\"** ou **\"onde posso economizar?\"**" },
+    { role: "assistant", content: "Oi! Eu sou a **Ctrl AI** ✨\n\nPosso te ajudar com **dicas de economia, análise de assinaturas e organização financeira** mesmo sem conectar nenhuma conta.\n\n> 💡 Para análises **muito mais precisas** (gastos reais, padrões e duplicatas), conecte sua conta via **Open Finance** no botão acima." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -128,12 +128,20 @@ export const CtrlAIChat = () => {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
-      if (error || !data?.accessToken) throw new Error(error?.message || "Falha ao iniciar conexão");
-      if (!window.PluggyConnect) {
-        toast({ title: "Aguarde", description: "Carregando widget, tente novamente em 2s." });
-        return;
+      // Wait for widget script (up to 8s)
+      let waited = 0;
+      while (!window.PluggyConnect && waited < 8000) {
+        await new Promise((r) => setTimeout(r, 200));
+        waited += 200;
       }
+      if (!window.PluggyConnect) {
+        throw new Error("Widget do Open Finance não carregou. Verifique sua conexão ou bloqueadores de script e tente novamente.");
+      }
+
+      const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
+      if (error) throw new Error(error.message || "Falha ao iniciar conexão");
+      if (!data?.accessToken) throw new Error(data?.error || "Token não recebido. Verifique as credenciais Pluggy.");
+
       const pc = new window.PluggyConnect({
         connectToken: data.accessToken,
         includeSandbox: true,
@@ -143,11 +151,11 @@ export const CtrlAIChat = () => {
           qc.invalidateQueries({ queryKey: ["pluggy-items"] });
           qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
         },
-        onError: (err: any) => toast({ title: "Erro", description: err?.message, variant: "destructive" }),
+        onError: (err: any) => toast({ title: "Erro no widget", description: err?.message || "Falha ao conectar", variant: "destructive" }),
       });
       pc.init();
     } catch (e: any) {
-      toast({ title: "Erro", description: e.message, variant: "destructive" });
+      toast({ title: "Não foi possível conectar", description: e.message, variant: "destructive" });
     } finally {
       setConnecting(false);
     }

@@ -29,7 +29,7 @@ export const CtrlAIChat = () => {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Oi! Eu sou a **Ctrl AI** ✨\n\nConecte sua conta bancária via Open Finance e me pergunte qualquer coisa sobre seus gastos, padrões e oportunidades de economia.\n\n> Dica: você também pode pedir **\"analise minhas assinaturas\"** ou **\"onde posso economizar?\"**" },
+    { role: "assistant", content: "Oi! Eu sou a **Ctrl AI** ✨\n\nPosso te ajudar com **dicas de economia, análise de assinaturas e organização financeira** mesmo sem conectar nenhuma conta.\n\n> 💡 Para análises **muito mais precisas** (gastos reais, padrões e duplicatas), conecte sua conta via **Open Finance** no botão acima." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);

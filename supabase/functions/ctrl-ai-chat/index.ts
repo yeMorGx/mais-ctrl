@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     const [{ data: accounts }, { data: txs }, { data: subs }, { data: financings }] = await Promise.all([
       supabase.from("pluggy_accounts").select("name,type,balance,currency").eq("user_id", user.id),
       supabase.from("pluggy_transactions").select("description,amount,date,category").eq("user_id", user.id).order("date", { ascending: false }).limit(100),
-      supabase.from("subscriptions").select("name,price,frequency").eq("user_id", user.id),
+      supabase.from("subscriptions").select("name,value,frequency").eq("user_id", user.id),
       supabase.from("financings").select("description,asset_type,monthly_payment,remaining_installments").eq("user_id", user.id),
     ]);
 

@@ -128,12 +128,20 @@ export const CtrlAIChat = () => {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
-      if (error || !data?.accessToken) throw new Error(error?.message || "Falha ao iniciar conexão");
-      if (!window.PluggyConnect) {
-        toast({ title: "Aguarde", description: "Carregando widget, tente novamente em 2s." });
-        return;
+      // Wait for widget script (up to 8s)
+      let waited = 0;
+      while (!window.PluggyConnect && waited < 8000) {
+        await new Promise((r) => setTimeout(r, 200));
+        waited += 200;
       }
+      if (!window.PluggyConnect) {
+        throw new Error("Widget do Open Finance não carregou. Verifique sua conexão ou bloqueadores de script e tente novamente.");
+      }
+
+      const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
+      if (error) throw new Error(error.message || "Falha ao iniciar conexão");
+      if (!data?.accessToken) throw new Error(data?.error || "Token não recebido. Verifique as credenciais Pluggy.");
+
       const pc = new window.PluggyConnect({
         connectToken: data.accessToken,
         includeSandbox: true,
@@ -143,11 +151,11 @@ export const CtrlAIChat = () => {
           qc.invalidateQueries({ queryKey: ["pluggy-items"] });
           qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
         },
-        onError: (err: any) => toast({ title: "Erro", description: err?.message, variant: "destructive" }),
+        onError: (err: any) => toast({ title: "Erro no widget", description: err?.message || "Falha ao conectar", variant: "destructive" }),
       });
       pc.init();
     } catch (e: any) {
-      toast({ title: "Erro", description: e.message, variant: "destructive" });
+      toast({ title: "Não foi possível conectar", description: e.message, variant: "destructive" });
     } finally {
       setConnecting(false);
     }

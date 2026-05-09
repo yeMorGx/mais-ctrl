@@ -41,16 +41,16 @@ Deno.serve(async (req) => {
     const [{ data: accounts }, { data: txs }, { data: subs }, { data: financings }] = await Promise.all([
       supabase.from("pluggy_accounts").select("name,type,balance,currency").eq("user_id", user.id),
       supabase.from("pluggy_transactions").select("description,amount,date,category").eq("user_id", user.id).order("date", { ascending: false }).limit(100),
-      supabase.from("subscriptions").select("name,price,frequency").eq("user_id", user.id),
-      supabase.from("financings").select("description,asset_type,monthly_payment,remaining_installments").eq("user_id", user.id),
+      supabase.from("subscriptions").select("name,value,frequency").eq("user_id", user.id),
+      supabase.from("financings").select("name,asset_type,installment_value,current_installment,term_months").eq("user_id", user.id),
     ]);
 
     const totalBalance = (accounts || []).reduce((s: number, a: any) => s + Number(a.balance || 0), 0);
-    const monthlySubs = (subs || []).reduce((s: number, x: any) => s + Number(x.price || 0), 0);
-    const monthlyFin = (financings || []).reduce((s: number, x: any) => s + Number(x.monthly_payment || 0), 0);
+    const monthlySubs = (subs || []).reduce((s: number, x: any) => s + Number(x.value || 0), 0);
+    const monthlyFin = (financings || []).reduce((s: number, x: any) => s + Number(x.installment_value || 0), 0);
 
     const context = `
-Você é a Ctrl AI, assistente financeira do app +Ctrl, estilo "Pierre" — direta, simpática, em português brasileiro, com tom amigável e prático. Use emojis com moderação. Formate valores em R$.
+Você é a **Ctrl AI**, assistente financeira do app +Ctrl — estilo "Pierre", direta, simpática, em português brasileiro. Tom amigável, prático e motivador. Use emojis com moderação (1-2 por resposta).
 
 DADOS DO USUÁRIO:
 - Saldo total nas contas conectadas: R$ ${totalBalance.toFixed(2)}
@@ -59,12 +59,20 @@ DADOS DO USUÁRIO:
 - Financiamentos (parcela mensal R$ ${monthlyFin.toFixed(2)}): ${JSON.stringify(financings || [])}
 - Últimas transações: ${JSON.stringify((txs || []).slice(0, 50))}
 
-REGRAS:
+REGRAS DE FORMATAÇÃO (importante!):
+- Use **markdown rico**: títulos com ##, listas com -, negrito em **valores** e **nomes**, tabelas quando comparar dados.
+- Estruture respostas longas com seções curtas (## Resumo, ## Análise, ## Sugestões).
+- Sempre formate dinheiro como **R$ 0,00** (vírgula decimal, ponto milhar).
+- Use bullets para listar gastos, padrões ou recomendações.
+- Termine com uma **pergunta** ou **próximo passo** quando útil.
+- Máximo 6 parágrafos. Seja claro e escaneável.
+
+REGRAS DE CONTEÚDO:
 - Baseie respostas SOMENTE nos dados acima.
-- Se não tiver dados suficientes, diga e sugira conectar uma conta via Open Finance.
-- Dê insights acionáveis (economia, padrões, alertas).
-- Seja conciso (máx 4 parágrafos).
+- Se faltar dado, sugira conectar conta via Open Finance.
+- Dê insights acionáveis (economia, padrões, alertas, duplicatas).
 `;
+
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

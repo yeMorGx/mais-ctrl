@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Send, Plug, Loader2, Building2, RefreshCw, Trash2, AlertTriangle, Lightbulb, Crown, X, Copy, Info } from "lucide-react";
+import { Sparkles, Send, Plug, Loader2, Building2, RefreshCw, Trash2, AlertTriangle, Lightbulb, Crown, X, Copy, Info, CheckCircle2, XCircle, FlaskConical, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";

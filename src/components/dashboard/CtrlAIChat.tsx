@@ -325,6 +325,61 @@ export const CtrlAIChat = () => {
         </Card>
       )}
 
+      {/* Open Finance status panel */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h3 className="font-semibold flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            Status da conexão Open Finance
+          </h3>
+          <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400">
+            <FlaskConical className="h-3 w-3" /> Modo Demo (sandbox)
+          </Badge>
+        </div>
+
+        <div className="rounded-lg border bg-background/60 p-3 flex items-start gap-3">
+          {scriptStatus === "loading" && !connectionError && (
+            <>
+              <Loader2 className="h-5 w-5 text-primary animate-spin shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Carregando widget Pluggy…</p>
+                <p className="text-xs text-muted-foreground">Isso normalmente leva alguns segundos.</p>
+              </div>
+            </>
+          )}
+          {scriptStatus === "ready" && !connectionError && (
+            <>
+              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Pronto para conectar</p>
+                <p className="text-xs text-muted-foreground">
+                  Estamos em <strong>ambiente de testes (sandbox)</strong>. Use as credenciais demo do Pluggy para simular uma conta.
+                </p>
+              </div>
+            </>
+          )}
+          {(scriptStatus === "error" || connectionError) && (
+            <>
+              <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">Não foi possível conectar</p>
+                <p className="text-xs text-muted-foreground break-words">
+                  {connectionError || "Falha ao carregar o widget. Verifique sua conexão ou desative bloqueadores de script."}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setConnectionError(null); probeScript(); }}
+                disabled={connecting}
+              >
+                <RefreshCw className="h-3 w-3 mr-1" /> Tentar novamente
+              </Button>
+            </>
+          )}
+        </div>
+      </Card>
+
       {/* Connected accounts */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">

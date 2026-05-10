@@ -162,8 +162,11 @@ export const CtrlAIChat = () => {
 
   const handleConnect = async () => {
     setConnecting(true);
+    setConnectionError(null);
     try {
+      setScriptStatus("loading");
       await loadPluggyConnect();
+      setScriptStatus("ready");
 
       const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
       if (error) throw new Error(error.message || "Falha ao iniciar conexão");
@@ -178,10 +181,16 @@ export const CtrlAIChat = () => {
           qc.invalidateQueries({ queryKey: ["pluggy-items"] });
           qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
         },
-        onError: (err: any) => toast({ title: "Erro no widget", description: err?.message || "Falha ao conectar", variant: "destructive" }),
+        onError: (err: any) => {
+          const msg = err?.message || "Falha ao conectar";
+          setConnectionError(msg);
+          toast({ title: "Erro no widget", description: msg, variant: "destructive" });
+        },
       });
       pc.init();
     } catch (e: any) {
+      setScriptStatus("error");
+      setConnectionError(e.message);
       toast({ title: "Não foi possível conectar", description: e.message, variant: "destructive" });
     } finally {
       setConnecting(false);

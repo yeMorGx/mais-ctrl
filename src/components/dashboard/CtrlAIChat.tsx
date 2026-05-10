@@ -18,6 +18,37 @@ declare global {
 
 interface Msg { role: "user" | "assistant"; content: string; limitReached?: boolean; }
 
+const PLUGGY_CONNECT_SCRIPT_URL = "https://cdn.pluggy.ai/pluggy-connect/latest/pluggy-connect.js";
+
+const loadPluggyConnect = () => new Promise<void>((resolve, reject) => {
+  if (window.PluggyConnect) return resolve();
+
+  const previousScript = document.getElementById("pluggy-connect-script") as HTMLScriptElement | null;
+  if (previousScript && previousScript.src !== PLUGGY_CONNECT_SCRIPT_URL) previousScript.remove();
+
+  const existingScript = document.getElementById("pluggy-connect-script") as HTMLScriptElement | null;
+  let settled = false;
+  const done = (error?: Error) => {
+    if (settled) return;
+    settled = true;
+    error ? reject(error) : resolve();
+  };
+
+  const script = existingScript || document.createElement("script");
+  script.id = "pluggy-connect-script";
+  script.src = PLUGGY_CONNECT_SCRIPT_URL;
+  script.async = true;
+  script.onload = () => done();
+  script.onerror = () => done(new Error("Widget do Open Finance não carregou. Verifique sua conexão ou bloqueadores de script e tente novamente."));
+
+  if (!existingScript) document.body.appendChild(script);
+
+  window.setTimeout(() => {
+    if (window.PluggyConnect) done();
+    else done(new Error("Widget do Open Finance demorou para carregar. Verifique sua conexão, desative bloqueadores para este site e tente novamente."));
+  }, 12000);
+});
+
 const fmtBRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -38,12 +69,7 @@ export const CtrlAIChat = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (document.getElementById("pluggy-connect-script")) return;
-    const s = document.createElement("script");
-    s.id = "pluggy-connect-script";
-    s.src = "https://cdn.pluggy.ai/web-connect/v2.9.0/pluggy-connect.js";
-    s.async = true;
-    document.body.appendChild(s);
+    loadPluggyConnect().catch(() => undefined);
   }, []);
 
   useEffect(() => {
@@ -128,15 +154,7 @@ export const CtrlAIChat = () => {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      // Wait for widget script (up to 8s)
-      let waited = 0;
-      while (!window.PluggyConnect && waited < 8000) {
-        await new Promise((r) => setTimeout(r, 200));
-        waited += 200;
-      }
-      if (!window.PluggyConnect) {
-        throw new Error("Widget do Open Finance não carregou. Verifique sua conexão ou bloqueadores de script e tente novamente.");
-      }
+      await loadPluggyConnect();
 
       const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
       if (error) throw new Error(error.message || "Falha ao iniciar conexão");

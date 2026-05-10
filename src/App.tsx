@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { DevelopmentBanner } from "@/components/DevelopmentBanner";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
+import { ChangelogNotification } from "@/components/dashboard/ChangelogNotification";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";

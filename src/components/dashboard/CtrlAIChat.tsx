@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Send, Plug, Loader2, Building2, RefreshCw, Trash2, AlertTriangle, Lightbulb, Crown, X, Copy, Info } from "lucide-react";
+import { Sparkles, Send, Plug, Loader2, Building2, RefreshCw, Trash2, AlertTriangle, Lightbulb, Crown, X, Copy, Info, CheckCircle2, XCircle, FlaskConical, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -66,10 +66,19 @@ export const CtrlAIChat = () => {
   const [loading, setLoading] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [scriptStatus, setScriptStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const probeScript = () => {
+    setScriptStatus("loading");
+    loadPluggyConnect()
+      .then(() => setScriptStatus("ready"))
+      .catch(() => setScriptStatus("error"));
+  };
+
   useEffect(() => {
-    loadPluggyConnect().catch(() => undefined);
+    probeScript();
   }, []);
 
   useEffect(() => {
@@ -153,8 +162,11 @@ export const CtrlAIChat = () => {
 
   const handleConnect = async () => {
     setConnecting(true);
+    setConnectionError(null);
     try {
+      setScriptStatus("loading");
       await loadPluggyConnect();
+      setScriptStatus("ready");
 
       const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
       if (error) throw new Error(error.message || "Falha ao iniciar conexão");
@@ -169,10 +181,16 @@ export const CtrlAIChat = () => {
           qc.invalidateQueries({ queryKey: ["pluggy-items"] });
           qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
         },
-        onError: (err: any) => toast({ title: "Erro no widget", description: err?.message || "Falha ao conectar", variant: "destructive" }),
+        onError: (err: any) => {
+          const msg = err?.message || "Falha ao conectar";
+          setConnectionError(msg);
+          toast({ title: "Erro no widget", description: msg, variant: "destructive" });
+        },
       });
       pc.init();
     } catch (e: any) {
+      setScriptStatus("error");
+      setConnectionError(e.message);
       toast({ title: "Não foi possível conectar", description: e.message, variant: "destructive" });
     } finally {
       setConnecting(false);
@@ -306,6 +324,61 @@ export const CtrlAIChat = () => {
           </div>
         </Card>
       )}
+
+      {/* Open Finance status panel */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h3 className="font-semibold flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            Status da conexão Open Finance
+          </h3>
+          <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400">
+            <FlaskConical className="h-3 w-3" /> Modo Demo (sandbox)
+          </Badge>
+        </div>
+
+        <div className="rounded-lg border bg-background/60 p-3 flex items-start gap-3">
+          {scriptStatus === "loading" && !connectionError && (
+            <>
+              <Loader2 className="h-5 w-5 text-primary animate-spin shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Carregando widget Pluggy…</p>
+                <p className="text-xs text-muted-foreground">Isso normalmente leva alguns segundos.</p>
+              </div>
+            </>
+          )}
+          {scriptStatus === "ready" && !connectionError && (
+            <>
+              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Pronto para conectar</p>
+                <p className="text-xs text-muted-foreground">
+                  Estamos em <strong>ambiente de testes (sandbox)</strong>. Use as credenciais demo do Pluggy para simular uma conta.
+                </p>
+              </div>
+            </>
+          )}
+          {(scriptStatus === "error" || connectionError) && (
+            <>
+              <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">Não foi possível conectar</p>
+                <p className="text-xs text-muted-foreground break-words">
+                  {connectionError || "Falha ao carregar o widget. Verifique sua conexão ou desative bloqueadores de script."}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setConnectionError(null); probeScript(); }}
+                disabled={connecting}
+              >
+                <RefreshCw className="h-3 w-3 mr-1" /> Tentar novamente
+              </Button>
+            </>
+          )}
+        </div>
+      </Card>
 
       {/* Connected accounts */}
       <Card className="p-4">

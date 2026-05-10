@@ -66,10 +66,19 @@ export const CtrlAIChat = () => {
   const [loading, setLoading] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [scriptStatus, setScriptStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const probeScript = () => {
+    setScriptStatus("loading");
+    loadPluggyConnect()
+      .then(() => setScriptStatus("ready"))
+      .catch(() => setScriptStatus("error"));
+  };
+
   useEffect(() => {
-    loadPluggyConnect().catch(() => undefined);
+    probeScript();
   }, []);
 
   useEffect(() => {

@@ -33,6 +33,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <FeedbackWidget />
+          <ChangelogNotification />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />

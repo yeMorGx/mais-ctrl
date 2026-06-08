@@ -1,4 +1,4 @@
-## Próximos passos do MaisCtrl
+## Próximos passos do ZULU
 - Sistema de fatura de cartão por banco
 - Relatórios mensais
 - Exportação de dados

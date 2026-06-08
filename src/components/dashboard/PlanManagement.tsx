@@ -115,7 +115,7 @@ export const PlanManagement = ({
                 {isPremium && !isExpired ? (
                   <>
                     <Crown className="h-5 w-5 text-primary" />
-                    +Premium
+                    ZULU Pro
                   </>
                 ) : (
                   "Plano Gratuito"
@@ -162,7 +162,7 @@ export const PlanManagement = ({
           ) : (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Faça upgrade para o plano +Premium e desbloqueie todos os recursos
+                Faça upgrade para o plano ZULU Pro e desbloqueie todos os recursos
               </p>
               <Button
                 className="w-full bg-gradient-primary"
@@ -174,7 +174,7 @@ export const PlanManagement = ({
                 }}
               >
                 <Crown className="mr-2 h-5 w-5" />
-                Fazer Upgrade para +Premium
+                Fazer Upgrade para ZULU Pro
               </Button>
             </div>
           )}
@@ -245,7 +245,7 @@ export const PlanManagement = ({
       {/* Benefícios */}
       <Card>
         <CardHeader>
-          <CardTitle>Benefícios do +Premium</CardTitle>
+          <CardTitle>Benefícios do ZULU Pro</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm">

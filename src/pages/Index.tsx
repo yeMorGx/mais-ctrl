@@ -362,7 +362,7 @@ const Index = () => {
                 <TestimonialCard
                   name="Maria Silva"
                   role="Empresária"
-                  content="Com o +Ctrl consegui economizar mais de R$ 300 por mês cancelando assinaturas que nem usava mais. O relatório mensal é incrível!"
+                  content="Com o ZULU consegui economizar mais de R$ 300 por mês cancelando assinaturas que nem usava mais. O relatório mensal é incrível!"
                   rating={5}
                   initials="MS"
                   image={testimonialMaria}
@@ -392,7 +392,7 @@ const Index = () => {
                 <TestimonialCard
                   name="Pedro Oliveira"
                   role="Estudante"
-                  content="Como estudante, cada real conta. O +Ctrl me ajudou a identificar gastos desnecessários e hoje economizo quase 30% ao mês!"
+                  content="Como estudante, cada real conta. O ZULU me ajudou a identificar gastos desnecessários e hoje economizo quase 30% ao mês!"
                   rating={5}
                   initials="PO"
                 />
@@ -410,7 +410,7 @@ const Index = () => {
                 <TestimonialCard
                   name="Roberto Lima"
                   role="Empreendedor"
-                  content="Gerencio várias ferramentas para meu negócio. O +Ctrl centralizou tudo e me deu visibilidade total dos custos. Essencial!"
+                  content="Gerencio várias ferramentas para meu negócio. O ZULU centralizou tudo e me deu visibilidade total dos custos. Essencial!"
                   rating={5}
                   initials="RL"
                 />
@@ -488,7 +488,7 @@ const Index = () => {
       >
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-muted-foreground">© 2025 +Ctrl. Todos os direitos reservados.</p>
+            <p className="text-muted-foreground">© 2025 ZULU. Todos os direitos reservados.</p>
             <div className="flex items-center gap-6 text-sm">
               <Link to="/affiliates" className="text-muted-foreground hover:text-primary transition-colors">
                 Programa de Afiliados

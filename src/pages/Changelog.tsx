@@ -52,7 +52,7 @@ const Changelog = () => {
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 Novidades do{" "}
                 <span className="bg-gradient-primary bg-clip-text text-transparent">
-                  +Ctrl
+                  ZULU
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground">
@@ -121,7 +121,7 @@ const Changelog = () => {
         {/* Footer */}
         <footer className="border-t border-border py-12">
           <div className="container mx-auto px-4 text-center text-muted-foreground">
-            <p>© 2025 +Ctrl. Todos os direitos reservados.</p>
+            <p>© 2025 ZULU. Todos os direitos reservados.</p>
           </div>
         </footer>
       </div>

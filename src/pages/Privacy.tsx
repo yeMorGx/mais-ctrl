@@ -21,7 +21,7 @@ const Privacy = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">1. Informações que Coletamos</h2>
             <p className="text-muted-foreground mb-4">
-              Coletamos as seguintes informações quando você usa o +Ctrl:
+              Coletamos as seguintes informações quando você usa o ZULU:
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li><strong>Informações de Conta:</strong> Nome, e-mail, senha (criptografada)</li>
@@ -149,7 +149,7 @@ const Privacy = () => {
               Para questões sobre privacidade ou para exercer seus direitos, entre em contato:
             </p>
             <ul className="list-none pl-0 text-muted-foreground space-y-2 mt-4">
-              <li><strong>E-mail:</strong> privacidade@maisctrl.com</li>
+              <li><strong>E-mail:</strong> privacidade@zulu.app</li>
               <li><strong>Página de Suporte:</strong> Através da plataforma</li>
             </ul>
           </section>

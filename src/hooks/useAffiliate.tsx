@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
-const REF_COOKIE_NAME = "maisctrl_ref";
-const REF_STORAGE_KEY = "maisctrl_ref";
+const REF_COOKIE_NAME = "zulu_ref";
+const REF_STORAGE_KEY = "zulu_ref";
 const REF_EXPIRY_DAYS = 30;
 
 interface Affiliate {

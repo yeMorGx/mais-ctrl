@@ -75,16 +75,16 @@ export const AdminSiteSettings = () => {
   // Local state for form values
   const [showDevBanner, setShowDevBanner] = useState(() => getSetting("show_development_banner").enabled ?? true);
   const [maintenanceMode, setMaintenanceMode] = useState(() => getSetting("maintenance_mode").enabled ?? false);
-  const [siteName, setSiteName] = useState(() => getSetting("site_name").value ?? "+Ctrl");
-  const [supportEmail, setSupportEmail] = useState(() => getSetting("support_email").value ?? "maisctrlsuporte@gmail.com");
+  const [siteName, setSiteName] = useState(() => getSetting("site_name").value ?? "ZULU");
+  const [supportEmail, setSupportEmail] = useState(() => getSetting("support_email").value ?? "suporte@zulu.app");
 
   // Update state when settings load
   useState(() => {
     if (settings.length > 0) {
       setShowDevBanner(getSetting("show_development_banner").enabled ?? true);
       setMaintenanceMode(getSetting("maintenance_mode").enabled ?? false);
-      setSiteName(getSetting("site_name").value ?? "+Ctrl");
-      setSupportEmail(getSetting("support_email").value ?? "maisctrlsuporte@gmail.com");
+      setSiteName(getSetting("site_name").value ?? "ZULU");
+      setSupportEmail(getSetting("support_email").value ?? "suporte@zulu.app");
     }
   });
 
@@ -221,7 +221,7 @@ export const AdminSiteSettings = () => {
                     id="site-name"
                     value={siteName}
                     onChange={(e) => setSiteName(e.target.value)}
-                    placeholder="+Ctrl"
+                    placeholder="ZULU"
                   />
                 </div>
                 <div className="space-y-2">

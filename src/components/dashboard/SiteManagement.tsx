@@ -156,7 +156,7 @@ export const SiteManagement = () => {
             <Label htmlFor="site-name">Nome do Site</Label>
             <Input
               id="site-name"
-              defaultValue="+Ctrl"
+              defaultValue="ZULU"
               placeholder="Nome da plataforma"
             />
           </div>
@@ -166,7 +166,7 @@ export const SiteManagement = () => {
             <Input
               id="support-email"
               type="email"
-              defaultValue="suporte@maisctrl.com"
+              defaultValue="suporte@zulu.app"
               placeholder="email@exemplo.com"
             />
           </div>

@@ -21,7 +21,7 @@ const Terms = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">1. Aceitação dos Termos</h2>
             <p className="text-muted-foreground">
-              Ao acessar e usar o +Ctrl, você concorda em cumprir e estar vinculado a estes Termos de Serviço. 
+              Ao acessar e usar o ZULU, você concorda em cumprir e estar vinculado a estes Termos de Serviço. 
               Se você não concordar com qualquer parte destes termos, não poderá acessar o serviço.
             </p>
           </section>
@@ -29,7 +29,7 @@ const Terms = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">2. Descrição do Serviço</h2>
             <p className="text-muted-foreground">
-              O +Ctrl é uma plataforma de gerenciamento de assinaturas que permite aos usuários:
+              O ZULU é uma plataforma de gerenciamento de assinaturas que permite aos usuários:
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>Acompanhar e gerenciar suas assinaturas mensais e anuais</li>
@@ -91,7 +91,7 @@ const Terms = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">7. Propriedade Intelectual</h2>
             <p className="text-muted-foreground">
-              Todo o conteúdo, recursos e funcionalidades do +Ctrl são de propriedade exclusiva da empresa 
+              Todo o conteúdo, recursos e funcionalidades do ZULU são de propriedade exclusiva da empresa 
               e são protegidos por leis de direitos autorais, marcas registradas e outras leis de propriedade intelectual.
             </p>
           </section>
@@ -99,7 +99,7 @@ const Terms = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">8. Limitação de Responsabilidade</h2>
             <p className="text-muted-foreground">
-              O +Ctrl não se responsabiliza por:
+              O ZULU não se responsabiliza por:
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>Danos indiretos, incidentais ou consequenciais</li>

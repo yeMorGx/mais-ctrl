@@ -43,7 +43,7 @@ const Affiliates = () => {
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95]">
               Ganhe <span className="bg-gradient-primary bg-clip-text text-transparent">20% TODO MÊS</span>
-              <br />indicando o MaisCtrl
+              <br />indicando o ZULU
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -95,7 +95,7 @@ const Affiliates = () => {
           </div>
           
           <p className="text-center text-muted-foreground max-w-2xl mx-auto">
-            O MaisCtrl é uma ferramenta simples pra quem vive no aperto dos boletos e precisa de controle de verdade.
+            O ZULU é uma ferramenta simples pra quem vive no aperto dos boletos e precisa de controle de verdade.
           </p>
         </div>
       </section>
@@ -124,7 +124,7 @@ const Affiliates = () => {
               </div>
               <h3 className="text-xl font-bold">Compartilhe</h3>
               <p className="text-muted-foreground">
-                Indique o MaisCtrl para amigos, seguidores ou clientes que precisam organizar as contas.
+                Indique o ZULU para amigos, seguidores ou clientes que precisam organizar as contas.
               </p>
             </div>
             
@@ -185,7 +185,7 @@ const Affiliates = () => {
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Planos do MaisCtrl
+            Planos do ZULU
           </h2>
           <p className="text-center text-muted-foreground mb-12">Pra você vender fácil</p>
           
@@ -233,7 +233,7 @@ const Affiliates = () => {
       <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-5xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Por que o MaisCtrl converte?
+            Por que o ZULU converte?
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -273,7 +273,7 @@ const Affiliates = () => {
           <Card className="border-0 bg-primary/5">
             <CardContent className="p-6 text-center">
               <p className="text-lg font-medium">
-                O MaisCtrl não te manda parar de gastar.
+                O ZULU não te manda parar de gastar.
                 <br />
                 <span className="text-primary font-bold">Ele te mostra onde você tá gastando.</span>
               </p>
@@ -310,7 +310,7 @@ const Affiliates = () => {
               <p className="text-lg">
                 Se você conhece alguém que vive no susto do boleto,
                 <br />
-                <span className="font-bold">você já sabe vender o MaisCtrl.</span>
+                <span className="font-bold">você já sabe vender o ZULU.</span>
               </p>
             </CardContent>
           </Card>
@@ -401,7 +401,7 @@ const Affiliates = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Logo size="sm" linkTo="/" />
             <p className="text-sm text-muted-foreground">
-              © 2025 +Ctrl. Todos os direitos reservados.
+              © 2025 ZULU. Todos os direitos reservados.
             </p>
             <div className="flex gap-4 text-sm text-muted-foreground">
               <Link to="/terms" className="hover:text-foreground transition-colors">Termos</Link>

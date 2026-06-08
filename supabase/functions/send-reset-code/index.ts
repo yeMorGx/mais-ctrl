@@ -13,7 +13,7 @@ const getEmailTemplate = (code: string) => `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redefinir Senha - +Ctrl</title>
+  <title>Redefinir Senha - ZULU</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #0f0f23; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
   <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0f0f23;">
@@ -74,10 +74,10 @@ const getEmailTemplate = (code: string) => `
           <tr>
             <td style="padding: 25px 40px; background-color: rgba(0, 0, 0, 0.2); border-top: 1px solid rgba(139, 92, 246, 0.1);">
               <p style="color: #9CA3AF; font-size: 13px; text-align: center; margin: 0 0 10px 0;">
-                Feito com 💜 pela equipe +Ctrl
+                Feito com 💜 pela equipe ZULU
               </p>
               <p style="color: #6B7280; font-size: 12px; text-align: center; margin: 0;">
-                © ${new Date().getFullYear()} +Ctrl. Todos os direitos reservados.
+                © ${new Date().getFullYear()} ZULU. Todos os direitos reservados.
               </p>
             </td>
           </tr>
@@ -146,7 +146,7 @@ serve(async (req) => {
     // Send email with Resend
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
     const { error: emailError } = await resend.emails.send({
-      from: "+Ctrl Segurança <onboarding@resend.dev>",
+      from: "ZULU Segurança <onboarding@resend.dev>",
       to: [email],
       subject: "🔐 Código de Verificação - Redefinição de Senha",
       html: getEmailTemplate(code),

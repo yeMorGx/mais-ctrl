@@ -37,7 +37,7 @@ const getAdminEmailTemplate = (name: string, email: string, subject: string, mes
                 📬 Nova Mensagem de Suporte
               </h1>
               <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">
-                +Ctrl - Painel de Suporte
+                ZULU - Painel de Suporte
               </p>
             </td>
           </tr>
@@ -90,7 +90,7 @@ const getAdminEmailTemplate = (name: string, email: string, subject: string, mes
           <tr>
             <td style="padding: 20px 30px; background: #f8fafc; border-top: 1px solid #e5e7eb;">
               <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
-                +Ctrl Suporte • Recebido em ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+                ZULU Suporte • Recebido em ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
               </p>
             </td>
           </tr>
@@ -109,7 +109,7 @@ const getConfirmationEmailTemplate = (name: string, subject: string) => `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recebemos sua mensagem - +Ctrl</title>
+  <title>Recebemos sua mensagem - ZULU</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #0f0f23; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
   <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0f0f23;">
@@ -166,10 +166,10 @@ const getConfirmationEmailTemplate = (name: string, subject: string) => `
           <tr>
             <td style="padding: 25px 40px; background-color: rgba(0, 0, 0, 0.2); border-top: 1px solid rgba(139, 92, 246, 0.1);">
               <p style="color: #9CA3AF; font-size: 13px; text-align: center; margin: 0 0 8px 0;">
-                Feito com 💜 pela equipe +Ctrl
+                Feito com 💜 pela equipe ZULU
               </p>
               <p style="color: #6B7280; font-size: 12px; text-align: center; margin: 0;">
-                © ${new Date().getFullYear()} +Ctrl. Todos os direitos reservados.
+                © ${new Date().getFullYear()} ZULU. Todos os direitos reservados.
               </p>
             </td>
           </tr>
@@ -214,8 +214,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to admin
     await resend.emails.send({
-      from: "+Ctrl Suporte <onboarding@resend.dev>",
-      to: ["maisctrlsuporte@gmail.com"],
+      from: "ZULU Suporte <onboarding@resend.dev>",
+      to: ["suporte@zulu.app"],
       replyTo: email,
       subject: `[Suporte] ${subject}`,
       html: getAdminEmailTemplate(name, email, subject, message),
@@ -223,9 +223,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send confirmation email to user
     await resend.emails.send({
-      from: "+Ctrl Suporte <onboarding@resend.dev>",
+      from: "ZULU Suporte <onboarding@resend.dev>",
       to: [email],
-      subject: "✅ Recebemos sua mensagem - +Ctrl",
+      subject: "✅ Recebemos sua mensagem - ZULU",
       html: getConfirmationEmailTemplate(name, subject),
     });
 

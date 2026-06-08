@@ -23,7 +23,7 @@ export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Demonstração do +Ctrl
+            Demonstração do ZULU
           </DialogTitle>
           <DialogDescription className="text-base">
             Veja como você pode ter controle total das suas assinaturas
@@ -56,7 +56,7 @@ export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
                 <iframe
                   className="w-full h-full"
                   src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                  title="Demonstração +Ctrl"
+                  title="Demonstração ZULU"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
@@ -132,7 +132,7 @@ export const DemoModal = ({ open, onOpenChange }: DemoModalProps) => {
                 </span>
               </h3>
               <p className="text-muted-foreground">
-                Divida assinaturas com amigos e família. O +Ctrl calcula automaticamente 
+                Divida assinaturas com amigos e família. O ZULU calcula automaticamente 
                 quanto cada pessoa deve pagar e envia lembretes.
               </p>
             </div>

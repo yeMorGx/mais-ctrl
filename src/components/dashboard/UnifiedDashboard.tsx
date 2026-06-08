@@ -427,7 +427,7 @@ export const UnifiedDashboard = ({
                 <Users className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Ganhe 20% indicando o ZULU</h3>
+                <h3 className="font-semibold text-lg">Ganhe 20% indicando o +Ctrl</h3>
                 <p className="text-sm text-muted-foreground">
                   Comissão recorrente enquanto seus indicados usarem a plataforma
                 </p>

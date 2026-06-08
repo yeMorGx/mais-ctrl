@@ -47,7 +47,7 @@ export const FeedbackWidget = () => {
       setSubmitted(true);
       toast({
         title: "Obrigado pelo feedback! 💜",
-        description: "Sua opinião nos ajuda a melhorar o ZULU.",
+        description: "Sua opinião nos ajuda a melhorar o +Ctrl.",
       });
 
       setTimeout(() => {

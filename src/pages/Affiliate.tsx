@@ -68,7 +68,7 @@ const Affiliate = () => {
       await becomeAffiliate(pixKey || undefined);
       toast({
         title: "Parabéns! 🎉",
-        description: "Você agora é um afiliado do ZULU!",
+        description: "Você agora é um afiliado do MaisCtrl!",
       });
     } catch (err) {
       toast({
@@ -83,7 +83,7 @@ const Affiliate = () => {
 
   const handleCopyLink = () => {
     if (!affiliate) return;
-    const link = `https://zulu.app/?ref=${affiliate.code}`;
+    const link = `https://maisctrl.com/?ref=${affiliate.code}`;
     navigator.clipboard.writeText(link);
     toast({
       title: "Link copiado!",
@@ -161,7 +161,7 @@ const Affiliate = () => {
               </Badge>
               <CardTitle className="text-3xl">Torne-se um Afiliado</CardTitle>
               <CardDescription className="text-lg">
-                Ganhe 20% de comissão recorrente indicando o ZULU
+                Ganhe 20% de comissão recorrente indicando o MaisCtrl
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -220,7 +220,7 @@ const Affiliate = () => {
   }
 
   // Affiliate dashboard
-  const affiliateLink = `https://zulu.app/?ref=${affiliate.code}`;
+  const affiliateLink = `https://maisctrl.com/?ref=${affiliate.code}`;
   const availableBalance = stats?.available_commissions_cents || 0;
   const canRequestPayout = availableBalance >= 5000; // R$ 50 minimum
 

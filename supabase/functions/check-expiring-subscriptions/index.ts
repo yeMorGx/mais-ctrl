@@ -237,7 +237,7 @@ serve(async (req) => {
             <h2>Olá ${name}! 👋</h2>
             <div style="background: #FEF3C7; border-radius: 8px; padding: 15px; margin: 20px 0;">
               <p style="margin: 0; font-size: 18px;"><strong>⚠️ Atenção!</strong></p>
-              <p style="margin: 10px 0 0 0;">Sua assinatura <strong>ZULU Pro</strong> expira em <strong>${daysUntilExpiry} dia(s)</strong>.</p>
+              <p style="margin: 10px 0 0 0;">Sua assinatura <strong>+Premium</strong> expira em <strong>${daysUntilExpiry} dia(s)</strong>.</p>
               <p style="margin: 5px 0 0 0;">Data: ${formatDate(sub.current_period_end)}</p>
             </div>
             <p>Renove agora para continuar aproveitando todos os recursos premium!</p>

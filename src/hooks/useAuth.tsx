@@ -62,7 +62,7 @@ export const useAuth = () => {
 
       toast({
         title: "Conta criada com sucesso!",
-        description: "Você já pode começar a usar o ZULU",
+        description: "Você já pode começar a usar o +Ctrl",
       });
 
       navigate("/dashboard");
@@ -88,7 +88,7 @@ export const useAuth = () => {
 
       toast({
         title: "Login realizado!",
-        description: "Bem-vindo de volta ao ZULU",
+        description: "Bem-vindo de volta ao +Ctrl",
       });
 
       navigate("/dashboard");

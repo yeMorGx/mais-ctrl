@@ -62,24 +62,24 @@ export const HelpTab = () => {
         "Clique no botão 'Nova Assinatura' no dashboard, preencha as informações e clique em salvar.",
     },
     {
-      question: "Como funciona o plano ZULU Pro?",
+      question: "Como funciona o plano +Premium?",
       answer:
-        "O plano ZULU Pro oferece assinaturas ilimitadas, relatórios avançados, +Share e muito mais por R$ 12,49/mês (cobrado anualmente).",
+        "O plano +Premium oferece assinaturas ilimitadas, relatórios avançados, +Share e muito mais por R$ 12,49/mês (cobrado anualmente).",
     },
     {
       question: "O que é o +Share?",
       answer:
-        "É um recurso exclusivo do ZULU Pro que permite compartilhar assinaturas com parceiros e dividir os custos de forma automática.",
+        "É um recurso exclusivo do +Premium que permite compartilhar assinaturas com parceiros e dividir os custos de forma automática.",
     },
     {
-      question: "Como cancelar minha assinatura do ZULU Pro?",
+      question: "Como cancelar minha assinatura do +Premium?",
       answer:
         "Acesse a aba 'Plano' e clique em 'Gerenciar Assinatura'. Lá você pode cancelar ou pausar a qualquer momento.",
     },
     {
       question: "Posso exportar meus relatórios?",
       answer:
-        "Sim! Usuários ZULU Pro podem exportar relatórios em PDF e Excel na aba de Relatórios.",
+        "Sim! Usuários +Premium podem exportar relatórios em PDF e Excel na aba de Relatórios.",
     },
   ];
 

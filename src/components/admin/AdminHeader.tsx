@@ -56,7 +56,7 @@ export const AdminHeader = ({ isOwner }: AdminHeaderProps) => {
             size="icon"
             onClick={() => navigate("/dashboard")}
             className="rounded-full"
-            title="Voltar para ZULU"
+            title="Voltar para +Ctrl"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -64,7 +64,7 @@ export const AdminHeader = ({ isOwner }: AdminHeaderProps) => {
           <div>
             <h1 className="text-xl font-bold">Painel Administrativo</h1>
             <p className="text-sm text-muted-foreground">
-              Gerencie todo o sistema ZULU
+              Gerencie todo o sistema +Ctrl
             </p>
           </div>
           

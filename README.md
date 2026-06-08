@@ -1,4 +1,4 @@
-# 💳 ZULU
+# 💳 MaisCtrl
 
 Sistema web de controle financeiro pessoal.
 
@@ -10,7 +10,7 @@ Muitas pessoas perdem o controle de:
 - valores a receber
 
 ## 🎯 Solução
-O ZULU centraliza todas essas informações em um único sistema,
+O MaisCtrl centraliza todas essas informações em um único sistema,
 com foco em simplicidade e organização visual.
 
 ## 🚀 Funcionalidades
@@ -31,7 +31,7 @@ com foco em simplicidade e organização visual.
 - Plataforma: Lovable
 
 ## 🌐 Demo
-[ZULU](https://zulu.app)
+[+Ctrl](https://maisctrl.com)
 
 ## 📄 Status
 Em desenvolvimento

@@ -84,7 +84,7 @@
       "cta": "Comenzar gratis"
     },
     "premium": {
-      "name": "ZULU Pro",
+      "name": "+Premium",
       "price": "$2.99",
       "period": "/mes",
       "annual": "Facturado anualmente: $35.90/año",
@@ -100,12 +100,12 @@
     }
   },
   "testimonials": {
-    "title": "Lo que dicen nuestros usuarios ZULU Pro",
-    "subtitle": "Descubre cómo ZULU transformó la gestión financiera de nuestros usuarios"
+    "title": "Lo que dicen nuestros usuarios +Premium",
+    "subtitle": "Descubre cómo +Ctrl transformó la gestión financiera de nuestros usuarios"
   },
   "cta": {
     "title": "¿Listo para tomar control?",
-    "subtitle": "Únete a miles de usuarios que ya ahorran con ZULU",
+    "subtitle": "Únete a miles de usuarios que ya ahorran con +Ctrl",
     "button": "Crear cuenta gratis"
   }
 }

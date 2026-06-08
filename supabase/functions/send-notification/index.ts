@@ -59,7 +59,7 @@ const getBaseTemplate = (content: string, preheader: string) => `
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>ZULU</title>
+  <title>+Ctrl</title>
   <!--[if mso]>
   <noscript>
     <xml>
@@ -134,10 +134,10 @@ const getBaseTemplate = (content: string, preheader: string) => `
                 <tr>
                   <td align="center">
                     <p style="color: #9CA3AF; font-size: 13px; margin-bottom: 15px;">
-                      Feito com 💜 pela equipe ZULU
+                      Feito com 💜 pela equipe +Ctrl
                     </p>
                     <p style="color: #6B7280; font-size: 12px; margin: 0;">
-                      © ${new Date().getFullYear()} ZULU. Todos os direitos reservados.
+                      © ${new Date().getFullYear()} +Ctrl. Todos os direitos reservados.
                     </p>
                     <p style="color: #6B7280; font-size: 11px; margin-top: 10px;">
                       Gerencie suas assinaturas com inteligência
@@ -229,12 +229,12 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
   
   const templates: Record<NotificationType, { subject: string; content: string; preheader: string }> = {
     welcome: {
-      subject: '🎉 Bem-vindo ao ZULU! Sua jornada começa agora',
+      subject: '🎉 Bem-vindo ao +Ctrl! Sua jornada começa agora',
       preheader: 'Comece a organizar suas assinaturas de forma inteligente',
       content: `
         ${greeting}
         <p style="color: #D1D5DB; font-size: 16px; margin-bottom: 20px;">
-          Que alegria ter você conosco! 🎉 O <strong style="color: #8B5CF6;">ZULU</strong> foi criado para simplificar sua vida financeira.
+          Que alegria ter você conosco! 🎉 O <strong style="color: #8B5CF6;">+Ctrl</strong> foi criado para simplificar sua vida financeira.
         </p>
         
         ${createSuccessBox('🚀', 'Conta criada com sucesso!', 'Sua conta está pronta. Agora você pode começar a organizar todas as suas assinaturas em um só lugar.')}
@@ -257,12 +257,12 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
     },
     
     subscription_created: {
-      subject: '💎 Parabéns! Você agora é Premium no ZULU',
+      subject: '💎 Parabéns! Você agora é Premium no +Ctrl',
       preheader: 'Aproveite todos os recursos exclusivos do plano Premium',
       content: `
         ${greeting}
         <p style="color: #D1D5DB; font-size: 16px; margin-bottom: 20px;">
-          Você acaba de desbloquear o melhor do <strong style="color: #8B5CF6;">ZULU</strong>! 
+          Você acaba de desbloquear o melhor do <strong style="color: #8B5CF6;">+Ctrl</strong>! 
           Sua assinatura <strong style="color: #10B981;">Premium</strong> está ativa.
         </p>
         
@@ -283,13 +283,13 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
         ${createButton('Explorar Recursos Premium')}
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
-          Obrigado por confiar no ZULU! Estamos aqui para ajudar você. 💜
+          Obrigado por confiar no +Ctrl! Estamos aqui para ajudar você. 💜
         </p>
       `,
     },
     
     subscription_cancelled: {
-      subject: '😢 Sua assinatura Premium foi cancelada - ZULU',
+      subject: '😢 Sua assinatura Premium foi cancelada - +Ctrl',
       preheader: 'Sentiremos sua falta! Você ainda pode aproveitar até o fim do período',
       content: `
         ${greeting}
@@ -320,7 +320,7 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
     },
     
     subscription_expiring: {
-      subject: `⚠️ Sua assinatura expira em ${data?.daysRemaining || 'poucos'} dias - ZULU`,
+      subject: `⚠️ Sua assinatura expira em ${data?.daysRemaining || 'poucos'} dias - +Ctrl`,
       preheader: `Renove agora para não perder seus benefícios Premium`,
       content: `
         ${greeting}
@@ -349,12 +349,12 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
     },
     
     password_changed: {
-      subject: '🔐 Senha alterada com sucesso - ZULU',
+      subject: '🔐 Senha alterada com sucesso - +Ctrl',
       preheader: 'Sua senha foi atualizada. Se não foi você, entre em contato.',
       content: `
         ${greeting}
         <p style="color: #D1D5DB; font-size: 16px; margin-bottom: 20px;">
-          Sua senha foi alterada com sucesso no <strong style="color: #8B5CF6;">ZULU</strong>.
+          Sua senha foi alterada com sucesso no <strong style="color: #8B5CF6;">+Ctrl</strong>.
         </p>
         
         ${createSuccessBox('✅', 'Alteração realizada!', 'Sua nova senha já está ativa e você pode usá-la para fazer login.')}
@@ -375,12 +375,12 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
     },
     
     account_deleted: {
-      subject: '👋 Até logo! Sua conta foi excluída - ZULU',
+      subject: '👋 Até logo! Sua conta foi excluída - +Ctrl',
       preheader: 'Todos os seus dados foram removidos permanentemente',
       content: `
         <h2 style="color: #ffffff; font-size: 24px; font-weight: 600; margin-bottom: 20px;">Até logo, ${name}! 👋</h2>
         <p style="color: #D1D5DB; font-size: 16px; margin-bottom: 20px;">
-          Sua conta no <strong style="color: #8B5CF6;">ZULU</strong> foi excluída com sucesso.
+          Sua conta no <strong style="color: #8B5CF6;">+Ctrl</strong> foi excluída com sucesso.
         </p>
         
         ${createInfoBox('🗑️', 'Dados removidos', 'Todos os seus dados foram permanentemente excluídos de nossos servidores, incluindo:')}
@@ -396,13 +396,13 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
         ${createInfoBox('💜', 'Sentiremos sua falta!', 'Se mudar de ideia, você sempre pode criar uma nova conta. Estaremos aqui esperando!')}
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
-          Agradecemos por ter usado o ZULU. Desejamos tudo de bom! 🙏
+          Agradecemos por ter usado o +Ctrl. Desejamos tudo de bom! 🙏
         </p>
       `,
     },
     
     payment_reminder: {
-      subject: `🔔 Lembrete: ${data?.subscriptionName} vence em ${data?.daysRemaining} dia${(data?.daysRemaining || 0) > 1 ? 's' : ''} - ZULU`,
+      subject: `🔔 Lembrete: ${data?.subscriptionName} vence em ${data?.daysRemaining} dia${(data?.daysRemaining || 0) > 1 ? 's' : ''} - +Ctrl`,
       preheader: `Não esqueça: ${data?.subscriptionName} vence em breve`,
       content: `
         ${greeting}
@@ -420,16 +420,16 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
           💡 <em>Dica: Verifique se há saldo suficiente para evitar cobranças indesejadas.</em>
         </p>
         
-        ${createButton('Ver Detalhes no ZULU')}
+        ${createButton('Ver Detalhes no +Ctrl')}
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
-          Você pode gerenciar seus alertas nas configurações do ZULU. 💜
+          Você pode gerenciar seus alertas nas configurações do +Ctrl. 💜
         </p>
       `,
     },
     
     trial_started: {
-      subject: '🎁 Seu período de teste Premium começou! - ZULU',
+      subject: '🎁 Seu período de teste Premium começou! - +Ctrl',
       preheader: 'Aproveite 7 dias grátis de todos os recursos Premium',
       content: `
         ${greeting}
@@ -459,7 +459,7 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
     },
     
     trial_ending: {
-      subject: `⏰ Seu trial Premium termina em ${data?.daysRemaining} dia${(data?.daysRemaining || 0) > 1 ? 's' : ''} - ZULU`,
+      subject: `⏰ Seu trial Premium termina em ${data?.daysRemaining} dia${(data?.daysRemaining || 0) > 1 ? 's' : ''} - +Ctrl`,
       preheader: 'Não perca acesso aos recursos Premium',
       content: `
         ${greeting}
@@ -488,7 +488,7 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
     },
     
     trial_ended: {
-      subject: '📋 Seu período de teste terminou - ZULU',
+      subject: '📋 Seu período de teste terminou - +Ctrl',
       preheader: 'Obrigado por experimentar o Premium! Veja como continuar',
       content: `
         ${greeting}
@@ -496,7 +496,7 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
           Seu período de teste <strong style="color: #8B5CF6;">Premium</strong> chegou ao fim.
         </p>
         
-        ${createInfoBox('📋', 'Trial Finalizado', 'Sua conta agora está no plano gratuito. Você ainda pode usar o ZULU com recursos básicos.')}
+        ${createInfoBox('📋', 'Trial Finalizado', 'Sua conta agora está no plano gratuito. Você ainda pode usar o +Ctrl com recursos básicos.')}
         
         <p style="color: #E5E7EB; font-size: 15px; margin: 25px 0 15px;">
           No plano gratuito você tem:
@@ -512,13 +512,13 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
         ${createButton('Assinar Premium')}
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
-          Obrigado por experimentar o ZULU Premium! 💜
+          Obrigado por experimentar o +Ctrl Premium! 💜
         </p>
       `,
     },
     
     debt_reminder: {
-      subject: `💰 Lembrete de dívida: ${data?.debtName || 'Pagamento'} - ZULU`,
+      subject: `💰 Lembrete de dívida: ${data?.debtName || 'Pagamento'} - +Ctrl`,
       preheader: `${data?.debtType === 'i_owe' ? 'Você deve' : 'Te devem'}: ${data?.debtValue}`,
       content: `
         ${greeting}
@@ -544,7 +544,7 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
         ${createButton('Ver no Debto')}
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
-          Mantenha suas finanças organizadas com o ZULU! 💜
+          Mantenha suas finanças organizadas com o +Ctrl! 💜
         </p>
       `,
     },
@@ -570,7 +570,7 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
           Continue compartilhando seu link de afiliado para ganhar mais!
         </p>
         
-        ${createButton('Ver Meu Painel de Afiliado', 'https://zulu.app/affiliate')}
+        ${createButton('Ver Meu Painel de Afiliado', 'https://maisctrl.com/affiliate')}
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
           Obrigado por fazer parte do CTRL 20! 💜
@@ -599,7 +599,7 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
         
         ${data?.notes ? createInfoBox('📝', 'Observações', data.notes) : ''}
         
-        ${createButton('Ver Histórico de Saques', 'https://zulu.app/affiliate')}
+        ${createButton('Ver Histórico de Saques', 'https://maisctrl.com/affiliate')}
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
           Continue indicando e ganhando comissões! 💜
@@ -627,7 +627,7 @@ const getEmailTemplate = (type: NotificationType, name: string, data?: Notificat
           Se você acredita que houve um engano ou precisa de mais informações, entre em contato com nosso suporte.
         </p>
         
-        ${createButton('Entrar em Contato', 'https://zulu.app/support')}
+        ${createButton('Entrar em Contato', 'https://maisctrl.com/support')}
         
         <p style="color: #9CA3AF; font-size: 14px; margin-top: 30px;">
           Estamos aqui para ajudar! 💜
@@ -666,7 +666,7 @@ serve(async (req) => {
     const template = getEmailTemplate(type, name || 'Cliente', data);
 
     const { error } = await resend.emails.send({
-      from: 'ZULU <onboarding@resend.dev>',
+      from: '+Ctrl <onboarding@resend.dev>',
       to: [email],
       subject: template.subject,
       html: template.html,

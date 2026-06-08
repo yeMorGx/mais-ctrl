@@ -29,7 +29,7 @@ const sendSubscriptionEmail = async (
   const messages = {
     cancelled: `
       <h1>Olá ${name},</h1>
-      <p>Sua assinatura do plano ZULU Pro foi cancelada.</p>
+      <p>Sua assinatura do plano +Premium foi cancelada.</p>
       <p>Você ainda terá acesso aos recursos premium até o fim do período atual.</p>
       <p>Se mudou de ideia, você pode renovar sua assinatura a qualquer momento acessando seu painel.</p>
       <br>
@@ -38,14 +38,14 @@ const sendSubscriptionEmail = async (
     `,
     renewed: `
       <h1>Olá ${name},</h1>
-      <p>Sua assinatura do plano ZULU Pro foi renovada com sucesso! 🎉</p>
+      <p>Sua assinatura do plano +Premium foi renovada com sucesso! 🎉</p>
       <p>Continue aproveitando todos os recursos premium do SubsOrganizer.</p>
       <br>
       <p>Obrigado por continuar conosco!</p>
       <p>Equipe SubsOrganizer</p>
     `,
     created: `
-      <h1>Bem-vindo ao ZULU Pro, ${name}! 🎉</h1>
+      <h1>Bem-vindo ao +Premium, ${name}! 🎉</h1>
       <p>Sua assinatura foi ativada com sucesso!</p>
       <p>Agora você tem acesso a:</p>
       <ul>

@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
     const monthlyFin = (financings || []).reduce((s: number, x: any) => s + Number(x.installment_value || 0), 0);
 
     const context = `
-Você é a **Ctrl AI**, assistente financeira do app ZULU — estilo "Pierre", direta, simpática, em português brasileiro. Tom amigável, prático e motivador. Use emojis com moderação (1-2 por resposta).
+Você é a **Ctrl AI**, assistente financeira do app +Ctrl — estilo "Pierre", direta, simpática, em português brasileiro. Tom amigável, prático e motivador. Use emojis com moderação (1-2 por resposta).
 
 DADOS DO USUÁRIO:
 - Saldo total nas contas conectadas: R$ ${totalBalance.toFixed(2)}

@@ -150,7 +150,7 @@ serve(async (req) => {
       case "setup": {
         // Generate a new TOTP secret
         const secret = generateSecret();
-        const issuer = encodeURIComponent("ZULU");
+        const issuer = encodeURIComponent("+Ctrl");
         const accountName = encodeURIComponent(user.email || "user");
         const otpauthUrl = `otpauth://totp/${issuer}:${accountName}?secret=${secret}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
         

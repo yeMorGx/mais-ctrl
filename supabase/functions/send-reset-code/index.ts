@@ -126,7 +126,7 @@ serve(async (req) => {
 
     // Generate 4-digit code
     const code = Math.floor(1000 + Math.random() * 9000).toString();
-    console.log("Generated code:", code, "for email:", email);
+    // Do not log the reset code — it would expose a credential in logs.
 
     // Store code in database (expires in 10 minutes)
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);

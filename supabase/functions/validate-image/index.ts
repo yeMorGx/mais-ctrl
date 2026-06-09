@@ -34,7 +34,8 @@ serve(async (req) => {
       });
     }
 
-    
+    const { imageUrl } = await req.json();
+
     if (!imageUrl) {
       return new Response(
         JSON.stringify({ error: 'Image URL is required' }),

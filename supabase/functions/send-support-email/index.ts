@@ -199,6 +199,7 @@ const getConfirmationEmailTemplate = (rawName: string, rawSubject: string) => {
 </body>
 </html>
 `;
+};
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {

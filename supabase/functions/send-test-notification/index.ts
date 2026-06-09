@@ -197,8 +197,13 @@ serve(async (req) => {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `HTTP ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          const detail = errorData.message || errorData.detail || `HTTP ${response.status}`;
+          const code = errorData.code ? ` (Twilio ${errorData.code})` : '';
+          const hint = errorData.code === 63007 || errorData.code === 63016
+            ? ' — número não está no sandbox do WhatsApp. Envie "join <sandbox-code>" para o número do Twilio primeiro.'
+            : '';
+          throw new Error(`${detail}${code}${hint}`);
         }
 
         results.push({ channel: 'whatsapp', success: true });

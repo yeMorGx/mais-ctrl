@@ -196,8 +196,8 @@ serve(async (req) => {
           // Send commission notification email
           try {
             const supabaseUrl = Deno.env.get("SUPABASE_URL");
-            const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-            
+            const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
             const formatCurrency = (cents: number) => {
               return new Intl.NumberFormat("pt-BR", {
                 style: "currency",
@@ -209,7 +209,7 @@ serve(async (req) => {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${supabaseAnonKey}`,
+                "Authorization": `Bearer ${serviceRoleKey}`,
               },
               body: JSON.stringify({
                 type: "affiliate_commission",

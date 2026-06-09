@@ -671,22 +671,49 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
+    // Require authentication to prevent abuse/phishing
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY is not set");
 
     const resend = new Resend(resendKey);
-    const { type, email, name, data }: NotificationRequest = await req.json();
+    const raw: NotificationRequest = await req.json();
+    const { type, email } = raw;
 
-    logStep("Notification request", { type, email, name });
+    logStep("Notification request", { type, email });
 
     if (!type || !email) {
       throw new Error("Missing required fields: type and email");
     }
 
-    const template = getEmailTemplate(type, name || 'Cliente', data);
+    // Sanitize all user-controlled fields before they enter HTML templates
+    const safeName = escapeHtml(raw.name || 'Cliente');
+    const safeData = sanitizeData(raw.data as Record<string, unknown> | undefined);
+
+    const template = getEmailTemplate(type, safeName, safeData as NotificationRequest['data']);
 
     const { error } = await resend.emails.send({
-      from: '+Ctrl <onboarding@resend.dev>',
+      from: '+Ctrl <noreply@maisctrl.com>',
       to: [email],
       subject: template.subject,
       html: template.html,

@@ -1297,7 +1297,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_2fa_status: {
+        Row: {
+          created_at: string | null
+          is_enabled: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }

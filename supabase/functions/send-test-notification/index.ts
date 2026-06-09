@@ -31,7 +31,39 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
+    // Require authentication — test notifications must only run for the logged-in user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const supabaseAuth = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const authedEmail = (claimsData.claims as { email?: string }).email;
+
     const { channels, email, phone_number, name }: TestNotificationRequest = await req.json();
+
+    // Only allow test notifications addressed to the caller's own email
+    if (!authedEmail || email.toLowerCase() !== authedEmail.toLowerCase()) {
+      return new Response(
+        JSON.stringify({ error: "Test notifications must be sent to your own email" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     logStep("Request received", { channels, email, phone_number: phone_number ? "***" : null, name });
 
     const results: { channel: string; success: boolean; error?: string }[] = [];

@@ -51,7 +51,7 @@ const sendSMS = async (to: string, message: string) => {
           "Authorization": "Basic " + btoa(`${accountSid}:${authToken}`),
         },
         body: new URLSearchParams({
-          To: to,
+          To: toE164(to),
           From: fromNumber,
           Body: message,
         }),

@@ -2,6 +2,17 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@4.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
+// Normalize a phone number to E.164. If input already has '+', trust the
+// country code present; otherwise default to Brazil (+55).
+function toE164(raw: string): string {
+  const trimmed = (raw || "").trim();
+  const digits = trimmed.replace(/\D/g, "");
+  if (!digits) return "";
+  if (trimmed.startsWith("+")) return `+${digits}`;
+  if (digits.startsWith("55")) return `+${digits}`;
+  return `+55${digits}`;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -119,8 +130,8 @@ serve(async (req) => {
         }
 
         // Clean phone number
-        const cleanPhone = phone_number.replace(/\D/g, "");
-        const formattedPhone = cleanPhone.startsWith("55") ? `+${cleanPhone}` : `+55${cleanPhone}`;
+        const formattedPhone = toE164(phone_number);
+        
 
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
         const smsBody = `✅ +Ctrl: Teste de SMS bem-sucedido! Olá ${name}, suas notificações por SMS estão configuradas corretamente.`;
@@ -139,8 +150,10 @@ serve(async (req) => {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `HTTP ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          const detail = errorData.message || errorData.detail || `HTTP ${response.status}`;
+          const code = errorData.code ? ` (Twilio ${errorData.code})` : '';
+          throw new Error(`${detail}${code}`);
         }
 
         results.push({ channel: 'sms', success: true });
@@ -164,8 +177,8 @@ serve(async (req) => {
         }
 
         // Clean phone number
-        const cleanPhone = phone_number.replace(/\D/g, "");
-        const formattedPhone = cleanPhone.startsWith("55") ? `+${cleanPhone}` : `+55${cleanPhone}`;
+        const formattedPhone = toE164(phone_number);
+        
 
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
         const whatsappBody = `✅ +Ctrl: Teste de WhatsApp bem-sucedido! Olá ${name}, suas notificações por WhatsApp estão configuradas corretamente.`;
@@ -184,8 +197,13 @@ serve(async (req) => {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `HTTP ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          const detail = errorData.message || errorData.detail || `HTTP ${response.status}`;
+          const code = errorData.code ? ` (Twilio ${errorData.code})` : '';
+          const hint = errorData.code === 63007 || errorData.code === 63016
+            ? ' — número não está no sandbox do WhatsApp. Envie "join <sandbox-code>" para o número do Twilio primeiro.'
+            : '';
+          throw new Error(`${detail}${code}${hint}`);
         }
 
         results.push({ channel: 'whatsapp', success: true });

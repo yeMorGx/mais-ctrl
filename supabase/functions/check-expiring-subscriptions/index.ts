@@ -19,6 +19,16 @@ const formatDate = (date: string) => {
     year: 'numeric'
   });
 };
+// Normalize a phone to E.164. Keeps existing country code when input
+// starts with '+'; defaults to Brazil (+55) otherwise.
+const toE164 = (raw: string): string => {
+  const trimmed = (raw || "").trim();
+  const digits = trimmed.replace(/\D/g, "");
+  if (!digits) return "";
+  if (trimmed.startsWith("+")) return `+${digits}`;
+  if (digits.startsWith("55")) return `+${digits}`;
+  return `+55${digits}`;
+};
 
 // Send SMS via Twilio
 const sendSMS = async (to: string, message: string) => {

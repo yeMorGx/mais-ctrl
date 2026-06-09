@@ -84,13 +84,13 @@ serve(async (req) => {
       if (resendKey) {
         const resend = new Resend(resendKey);
         await resend.emails.send({
-          from: 'SubsOrganizer <onboarding@resend.dev>',
+          from: '+Ctrl <noreply@maisctrl.com>',
           to: [email],
-          subject: '🔐 Sua senha foi alterada - SubsOrganizer',
+          subject: '🔐 Sua senha foi alterada - +Ctrl',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="text-align: center; margin-bottom: 30px;">
-                <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+                <h1 style="color: #8B5CF6;">+Ctrl</h1>
               </div>
               <h2>Olá ${profile.full_name || 'Cliente'},</h2>
               <p>Sua senha foi alterada com sucesso.</p>
@@ -102,7 +102,7 @@ serve(async (req) => {
                 <p style="margin: 0;"><strong>⚠️ Não foi você?</strong></p>
                 <p style="margin: 5px 0 0 0;">Se você não solicitou essa alteração, entre em contato conosco imediatamente.</p>
               </div>
-              <p><strong>Equipe SubsOrganizer</strong></p>
+              <p><strong>Equipe +Ctrl</strong></p>
             </div>
           `,
         });

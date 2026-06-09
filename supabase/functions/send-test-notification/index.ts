@@ -45,13 +45,13 @@ serve(async (req) => {
         const resend = new Resend(resendKey);
         
         const { error } = await resend.emails.send({
-          from: 'SubsOrganizer <onboarding@resend.dev>',
+          from: '+Ctrl <noreply@maisctrl.com>',
           to: [email],
-          subject: '✅ Teste de Notificação - SubsOrganizer',
+          subject: '✅ Teste de Notificação - +Ctrl',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="text-align: center; margin-bottom: 30px;">
-                <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+                <h1 style="color: #8B5CF6;">+Ctrl</h1>
               </div>
               <h2>Olá ${name}! 👋</h2>
               <div style="background: #DCFCE7; border-radius: 8px; padding: 15px; margin: 20px 0;">
@@ -60,7 +60,7 @@ serve(async (req) => {
               </div>
               <p>Você receberá lembretes de pagamento neste e-mail.</p>
               <br>
-              <p><strong>Equipe SubsOrganizer</strong></p>
+              <p><strong>Equipe +Ctrl</strong></p>
             </div>
           `,
         });
@@ -91,7 +91,7 @@ serve(async (req) => {
         const formattedPhone = cleanPhone.startsWith("55") ? `+${cleanPhone}` : `+55${cleanPhone}`;
 
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-        const smsBody = `✅ SubsOrganizer: Teste de SMS bem-sucedido! Olá ${name}, suas notificações por SMS estão configuradas corretamente.`;
+        const smsBody = `✅ +Ctrl: Teste de SMS bem-sucedido! Olá ${name}, suas notificações por SMS estão configuradas corretamente.`;
 
         const response = await fetch(twilioUrl, {
           method: "POST",
@@ -136,7 +136,7 @@ serve(async (req) => {
         const formattedPhone = cleanPhone.startsWith("55") ? `+${cleanPhone}` : `+55${cleanPhone}`;
 
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-        const whatsappBody = `✅ SubsOrganizer: Teste de WhatsApp bem-sucedido! Olá ${name}, suas notificações por WhatsApp estão configuradas corretamente.`;
+        const whatsappBody = `✅ +Ctrl: Teste de WhatsApp bem-sucedido! Olá ${name}, suas notificações por WhatsApp estão configuradas corretamente.`;
 
         const response = await fetch(twilioUrl, {
           method: "POST",

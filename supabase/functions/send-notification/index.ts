@@ -666,7 +666,7 @@ serve(async (req) => {
     const template = getEmailTemplate(type, name || 'Cliente', data);
 
     const { error } = await resend.emails.send({
-      from: '+Ctrl <onboarding@resend.dev>',
+      from: '+Ctrl <noreply@maisctrl.com>',
       to: [email],
       subject: template.subject,
       html: template.html,

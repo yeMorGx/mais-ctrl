@@ -166,13 +166,8 @@ const Dashboard = () => {
   const isLiveChatAgent = userRoles.includes("support") || userRoles.includes("admin");
   const isAdmin = userRoles.includes("admin") || isOwner;
 
-  // Debug logs
-  console.log("🔍 DEBUG Dashboard - User ID:", user?.id);
-  console.log("🔍 DEBUG Dashboard - Owner ID:", OWNER_ID);
-  console.log("🔍 DEBUG Dashboard - Is Owner:", isOwner);
-  console.log("🔍 DEBUG Dashboard - User Roles:", userRoles);
-  console.log("🔍 DEBUG Dashboard - Is Admin:", isAdmin);
-  console.log("🔍 DEBUG Dashboard - Is Live Chat Agent:", isLiveChatAgent);
+
+
 
   if (authLoading || !user) {
     return (

@@ -116,8 +116,12 @@ const getAdminEmailTemplate = (rawName: string, rawEmail: string, rawSubject: st
 </body>
 </html>
 `;
+};
 
-const getConfirmationEmailTemplate = (name: string, subject: string) => `
+const getConfirmationEmailTemplate = (rawName: string, rawSubject: string) => {
+  const name = escapeHtml(rawName);
+  const subject = escapeHtml(rawSubject);
+  return `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>

@@ -233,7 +233,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to admin
     await resend.emails.send({
-      from: "+Ctrl Suporte <onboarding@resend.dev>",
+      from: "+Ctrl Suporte <suporte@maisctrl.com>",
       to: ["maisctrlsuporte@gmail.com"],
       replyTo: email,
       subject: `[Suporte] ${subject}`,
@@ -242,7 +242,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send confirmation email to user
     await resend.emails.send({
-      from: "+Ctrl Suporte <onboarding@resend.dev>",
+      from: "+Ctrl Suporte <suporte@maisctrl.com>",
       to: [email],
       subject: "✅ Recebemos sua mensagem - +Ctrl",
       html: getConfirmationEmailTemplate(name, subject),

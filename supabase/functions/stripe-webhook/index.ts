@@ -21,9 +21,9 @@ const sendSubscriptionEmail = async (
   const name = customerName || 'Cliente';
   
   const subjects = {
-    cancelled: 'Sua assinatura foi cancelada - SubsOrganizer',
-    renewed: 'Sua assinatura foi renovada - SubsOrganizer',
-    created: 'Bem-vindo ao SubsOrganizer Premium!',
+    cancelled: 'Sua assinatura foi cancelada - +Ctrl',
+    renewed: 'Sua assinatura foi renovada - +Ctrl',
+    created: 'Bem-vindo ao +Ctrl Premium!',
   };
 
   const messages = {
@@ -34,15 +34,15 @@ const sendSubscriptionEmail = async (
       <p>Se mudou de ideia, você pode renovar sua assinatura a qualquer momento acessando seu painel.</p>
       <br>
       <p>Sentiremos sua falta! 💔</p>
-      <p>Equipe SubsOrganizer</p>
+      <p>Equipe +Ctrl</p>
     `,
     renewed: `
       <h1>Olá ${name},</h1>
       <p>Sua assinatura do plano +Premium foi renovada com sucesso! 🎉</p>
-      <p>Continue aproveitando todos os recursos premium do SubsOrganizer.</p>
+      <p>Continue aproveitando todos os recursos premium do +Ctrl.</p>
       <br>
       <p>Obrigado por continuar conosco!</p>
-      <p>Equipe SubsOrganizer</p>
+      <p>Equipe +Ctrl</p>
     `,
     created: `
       <h1>Bem-vindo ao +Premium, ${name}! 🎉</h1>
@@ -57,13 +57,13 @@ const sendSubscriptionEmail = async (
       </ul>
       <br>
       <p>Aproveite!</p>
-      <p>Equipe SubsOrganizer</p>
+      <p>Equipe +Ctrl</p>
     `,
   };
 
   try {
     const { error } = await resend.emails.send({
-      from: 'SubsOrganizer <onboarding@resend.dev>',
+      from: '+Ctrl <noreply@maisctrl.com>',
       to: [email],
       subject: subjects[type],
       html: messages[type],

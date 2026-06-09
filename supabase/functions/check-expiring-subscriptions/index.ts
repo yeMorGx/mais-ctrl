@@ -189,7 +189,7 @@ serve(async (req) => {
       if (prefs.email_enabled) {
         try {
           await resend.emails.send({
-            from: 'SubsOrganizer <onboarding@resend.dev>',
+            from: '+Ctrl <noreply@maisctrl.com>',
             to: [profile.email],
             subject,
             html: emailHtml,
@@ -242,7 +242,7 @@ serve(async (req) => {
         const emailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+              <h1 style="color: #8B5CF6;">+Ctrl</h1>
             </div>
             <h2>Olá ${name}! 👋</h2>
             <div style="background: #FEF3C7; border-radius: 8px; padding: 15px; margin: 20px 0;">
@@ -252,11 +252,11 @@ serve(async (req) => {
             </div>
             <p>Renove agora para continuar aproveitando todos os recursos premium!</p>
             <br>
-            <p><strong>Equipe SubsOrganizer</strong></p>
+            <p><strong>Equipe +Ctrl</strong></p>
           </div>
         `;
 
-        const smsMessage = `SubsOrganizer: Sua assinatura Premium expira em ${daysUntilExpiry} dia(s) (${formatDate(sub.current_period_end)}). Renove agora!`;
+        const smsMessage = `+Ctrl: Sua assinatura Premium expira em ${daysUntilExpiry} dia(s) (${formatDate(sub.current_period_end)}). Renove agora!`;
 
         totalNotifications += await sendNotifications(
           sub.user_id,
@@ -288,7 +288,7 @@ serve(async (req) => {
         const emailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+              <h1 style="color: #8B5CF6;">+Ctrl</h1>
             </div>
             <h2>Olá ${name}! 👋</h2>
             <div style="background: #DBEAFE; border-radius: 8px; padding: 15px; margin: 20px 0;">
@@ -298,11 +298,11 @@ serve(async (req) => {
             </div>
             <p>Acesse seu painel para mais detalhes.</p>
             <br>
-            <p><strong>Equipe SubsOrganizer</strong></p>
+            <p><strong>Equipe +Ctrl</strong></p>
           </div>
         `;
 
-        const smsMessage = `SubsOrganizer: ${sub.name} vence em ${daysUntilRenewal} dia(s) (${formatDate(sub.renewal_date)}).`;
+        const smsMessage = `+Ctrl: ${sub.name} vence em ${daysUntilRenewal} dia(s) (${formatDate(sub.renewal_date)}).`;
 
         totalNotifications += await sendNotifications(
           sub.user_id,
@@ -320,7 +320,7 @@ serve(async (req) => {
         const emailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+              <h1 style="color: #8B5CF6;">+Ctrl</h1>
             </div>
             <h2>Olá ${name}! 👋</h2>
             <div style="background: #FEE2E2; border-radius: 8px; padding: 15px; margin: 20px 0;">
@@ -329,11 +329,11 @@ serve(async (req) => {
             </div>
             <p>Acesse seu painel para regularizar o pagamento.</p>
             <br>
-            <p><strong>Equipe SubsOrganizer</strong></p>
+            <p><strong>Equipe +Ctrl</strong></p>
           </div>
         `;
 
-        const smsMessage = `SubsOrganizer: ATENÇÃO! ${sub.name} venceu ontem. Regularize o pagamento.`;
+        const smsMessage = `+Ctrl: ATENÇÃO! ${sub.name} venceu ontem. Regularize o pagamento.`;
 
         totalNotifications += await sendNotifications(
           sub.user_id,
@@ -364,7 +364,7 @@ serve(async (req) => {
         const emailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #8B5CF6;">SubsOrganizer</h1>
+              <h1 style="color: #8B5CF6;">+Ctrl</h1>
             </div>
             <h2>Olá ${name}! 👋</h2>
             <div style="background: #E0E7FF; border-radius: 8px; padding: 15px; margin: 20px 0;">
@@ -374,11 +374,11 @@ serve(async (req) => {
             </div>
             <p>Como você é o responsável por esta assinatura compartilhada, lembre-se de efetuar o pagamento.</p>
             <br>
-            <p><strong>Equipe SubsOrganizer</strong></p>
+            <p><strong>Equipe +Ctrl</strong></p>
           </div>
         `;
 
-        const smsMessage = `SubsOrganizer: ${sub.name} (compartilhada) vence em ${daysUntilRenewal} dia(s).`;
+        const smsMessage = `+Ctrl: ${sub.name} (compartilhada) vence em ${daysUntilRenewal} dia(s).`;
 
         totalNotifications += await sendNotifications(
           sub.user_id,

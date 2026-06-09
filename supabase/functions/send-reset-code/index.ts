@@ -146,7 +146,7 @@ serve(async (req) => {
     // Send email with Resend
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
     const { error: emailError } = await resend.emails.send({
-      from: "+Ctrl Segurança <onboarding@resend.dev>",
+      from: "+Ctrl Segurança <noreply@maisctrl.com>",
       to: [email],
       subject: "🔐 Código de Verificação - Redefinição de Senha",
       html: getEmailTemplate(code),

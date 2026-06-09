@@ -130,8 +130,8 @@ serve(async (req) => {
         }
 
         // Clean phone number
-        const cleanPhone = phone_number.replace(/\D/g, "");
-        const formattedPhone = cleanPhone.startsWith("55") ? `+${cleanPhone}` : `+55${cleanPhone}`;
+        const formattedPhone = toE164(phone_number);
+        
 
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
         const smsBody = `✅ +Ctrl: Teste de SMS bem-sucedido! Olá ${name}, suas notificações por SMS estão configuradas corretamente.`;
@@ -175,8 +175,8 @@ serve(async (req) => {
         }
 
         // Clean phone number
-        const cleanPhone = phone_number.replace(/\D/g, "");
-        const formattedPhone = cleanPhone.startsWith("55") ? `+${cleanPhone}` : `+55${cleanPhone}`;
+        const formattedPhone = toE164(phone_number);
+        
 
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
         const whatsappBody = `✅ +Ctrl: Teste de WhatsApp bem-sucedido! Olá ${name}, suas notificações por WhatsApp estão configuradas corretamente.`;

@@ -150,8 +150,10 @@ serve(async (req) => {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `HTTP ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          const detail = errorData.message || errorData.detail || `HTTP ${response.status}`;
+          const code = errorData.code ? ` (Twilio ${errorData.code})` : '';
+          throw new Error(`${detail}${code}`);
         }
 
         results.push({ channel: 'sms', success: true });

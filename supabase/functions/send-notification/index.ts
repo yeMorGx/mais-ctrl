@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@4.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,6 +11,25 @@ const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[SEND-NOTIFICATION] ${step}${detailsStr}`);
 };
+
+function escapeHtml(s: unknown): string {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function sanitizeData(input: Record<string, unknown> | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!input) return out;
+  for (const [k, v] of Object.entries(input)) {
+    out[k] = escapeHtml(v);
+  }
+  return out;
+}
+
 
 type NotificationType = 
   | 'welcome'
@@ -651,22 +671,57 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
+    // Require authentication to prevent abuse/phishing.
+    // Accept either a valid user JWT or the service-role key (for internal callers
+    // like Stripe/affiliate webhooks).
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const token = authHeader.replace('Bearer ', '');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const isServiceRole = !!serviceRoleKey && token === serviceRoleKey;
+
+    if (!isServiceRole) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+      const supabaseClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY is not set");
 
     const resend = new Resend(resendKey);
-    const { type, email, name, data }: NotificationRequest = await req.json();
+    const raw: NotificationRequest = await req.json();
+    const { type, email } = raw;
 
-    logStep("Notification request", { type, email, name });
+    logStep("Notification request", { type, email });
 
     if (!type || !email) {
       throw new Error("Missing required fields: type and email");
     }
 
-    const template = getEmailTemplate(type, name || 'Cliente', data);
+    // Sanitize all user-controlled fields before they enter HTML templates
+    const safeName = escapeHtml(raw.name || 'Cliente');
+    const safeData = sanitizeData(raw.data as Record<string, unknown> | undefined);
+
+    const template = getEmailTemplate(type, safeName, safeData as NotificationRequest['data']);
 
     const { error } = await resend.emails.send({
-      from: '+Ctrl <onboarding@resend.dev>',
+      from: '+Ctrl <noreply@maisctrl.com>',
       to: [email],
       subject: template.subject,
       html: template.html,

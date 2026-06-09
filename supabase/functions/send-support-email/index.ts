@@ -16,7 +16,21 @@ interface SupportEmailRequest {
   message: string;
 }
 
-const getAdminEmailTemplate = (name: string, email: string, subject: string, message: string) => `
+function escapeHtml(s: string): string {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+const getAdminEmailTemplate = (rawName: string, rawEmail: string, rawSubject: string, rawMessage: string) => {
+  const name = escapeHtml(rawName);
+  const email = escapeHtml(rawEmail);
+  const subject = escapeHtml(rawSubject);
+  const message = escapeHtml(rawMessage);
+  return `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -102,8 +116,12 @@ const getAdminEmailTemplate = (name: string, email: string, subject: string, mes
 </body>
 </html>
 `;
+};
 
-const getConfirmationEmailTemplate = (name: string, subject: string) => `
+const getConfirmationEmailTemplate = (rawName: string, rawSubject: string) => {
+  const name = escapeHtml(rawName);
+  const subject = escapeHtml(rawSubject);
+  return `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -181,6 +199,7 @@ const getConfirmationEmailTemplate = (name: string, subject: string) => `
 </body>
 </html>
 `;
+};
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {

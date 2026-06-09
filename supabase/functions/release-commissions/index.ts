@@ -25,6 +25,16 @@ serve(async (req) => {
   try {
     logStep("Starting commission release check");
 
+    // Require a shared CRON secret so this can only be triggered by the scheduler
+    const cronSecret = req.headers.get("x-cron-secret");
+    const expected = Deno.env.get("CRON_SECRET");
+    if (!expected || cronSecret !== expected) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data, error } = await supabaseAdmin.rpc("release_pending_commissions");
 
     if (error) {

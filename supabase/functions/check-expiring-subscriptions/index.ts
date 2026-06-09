@@ -94,7 +94,7 @@ const sendWhatsApp = async (to: string, message: string) => {
           "Authorization": "Basic " + btoa(`${accountSid}:${authToken}`),
         },
         body: new URLSearchParams({
-          To: `whatsapp:${to}`,
+          To: `whatsapp:${toE164(to)}`,
           From: `whatsapp:${fromNumber}`,
           Body: message,
         }),

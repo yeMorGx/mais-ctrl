@@ -73,22 +73,30 @@
   "pricing": {
     "title": "Planos para cada necessidade",
     "subtitle": "Comece grátis e evolua quando precisar",
-    "free": {
-      "name": "Gratuito",
-      "price": "R$ 0",
-      "period": "/mês",
-      "feature1": "Até 5 assinaturas",
-      "feature2": "Dashboard básico",
-      "feature3": "Notificações por email",
-      "feature4": "Suporte por email",
-      "cta": "Começar grátis"
-    },
-    "premium": {
-      "name": "+Premium",
-      "price": "R$ 12,49",
-      "period": "/mês",
-      "annual": "Cobrado anualmente: R$ 149,90/ano",
-      "trial": "3 dias grátis",
+      "free": {
+        "name": "Gratuito",
+        "price": "R$ 0",
+        "period": "/mês",
+        "feature1": "Até 5 assinaturas",
+        "feature2": "Dashboard básico",
+        "feature3": "Notificações por email",
+        "feature4": "Suporte por email",
+        "cta": "Começar grátis"
+      },
+      "monthly": {
+        "name": "+Premium Mensal",
+        "price": "R$ 29,90",
+        "period": "/mês",
+        "subtitle": "Flexibilidade total, cancele quando quiser",
+        "cta": "Assinar mensal"
+      },
+      "premium": {
+        "name": "+Premium Anual",
+        "price": "R$ 12,49",
+        "period": "/mês",
+        "annual": "Cobrado anualmente: R$ 149,90/ano",
+        "trial": "3 dias grátis",
+
       "feature1": "Assinaturas ilimitadas",
       "feature2": "Dashboard avançado com gráficos",
       "feature3": "Notificações inteligentes",

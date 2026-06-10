@@ -289,105 +289,72 @@ const Dashboard = () => {
                     <Headphones className="h-4 w-4 mr-2" />
                     Suporte Admin
                   </Button>
-                  
-                  <Button
-                    variant={activeTab === "settings" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => { setActiveTab("settings"); setMobileMenuOpen(false); }}
-                  >
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configurações
-                  </Button>
-                  
-                  <Button
-                    variant={activeTab === "help" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => { setActiveTab("help"); setMobileMenuOpen(false); }}
-                  >
-                    <HelpCircle className="h-4 w-4 mr-2" />
-                    Ajuda
-                  </Button>
-                  
-                  <Button
-                    variant={activeTab === "plan" ? "default" : "ghost"}
-                    className="justify-start"
-                    onClick={() => { setActiveTab("plan"); setMobileMenuOpen(false); }}
-                  >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Plano
-                  </Button>
                 </nav>
               </SheetContent>
             </Sheet>
           </div>
 
+
           {/* Desktop Tabs */}
-          <TabsList className={`hidden lg:grid w-full ${
-            isOwner ? 'grid-cols-12' : 
-            isPremium ? 'grid-cols-11' : 
-            'grid-cols-9'
-          } mb-8 rounded-2xl bg-card/70 p-1.5 shadow-soft backdrop-blur-xl`}>
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </TabsTrigger>
-            {isPremium && (
-              <TabsTrigger value="analysis" className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">Análise</span>
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="calendar" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Calendário</span>
-            </TabsTrigger>
-            <TabsTrigger value="alerts" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              <span className="hidden sm:inline">Alertas</span>
-            </TabsTrigger>
-            <TabsTrigger value="financings" className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Financiamentos</span>
-            </TabsTrigger>
-            <TabsTrigger value="ctrl-ai" className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden sm:inline">Ctrl AI</span>
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Perfil</span>
-            </TabsTrigger>
-            {(isPremium && (isAdmin || isOwner)) && (
-              <TabsTrigger value="share" className="flex items-center gap-2">
-                <Share2 className="h-4 w-4" />
-                <span className="hidden sm:inline">+Share</span>
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Configurações</span>
-            </TabsTrigger>
-            <TabsTrigger value="help" className="flex items-center gap-2">
-              <HelpCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Ajuda</span>
-            </TabsTrigger>
-            <TabsTrigger value="plan" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              <span className="hidden sm:inline">Plano</span>
-            </TabsTrigger>
-            {isOwner && (
-              <>
-                <TabsTrigger value="team" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  <span className="hidden sm:inline">Equipe</span>
+          {(() => {
+            const tabCount =
+              5 +
+              (isPremium ? 1 : 0) +
+              (isPremium && (isAdmin || isOwner) ? 1 : 0) +
+              (isOwner ? 2 : 0);
+            return (
+              <TabsList
+                className="hidden lg:grid w-full mb-8 rounded-2xl bg-card/70 p-1.5 shadow-soft backdrop-blur-xl"
+                style={{ gridTemplateColumns: `repeat(${tabCount}, minmax(0, 1fr))` }}
+              >
+                <TabsTrigger value="overview" className="flex items-center gap-2">
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
                 </TabsTrigger>
-                <TabsTrigger value="site-management" className="flex items-center gap-2">
-                  <Globe className="h-4 w-4" />
-                  <span className="hidden sm:inline">Site</span>
+                {isPremium && (
+                  <TabsTrigger value="analysis" className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    <span className="hidden sm:inline">Análise</span>
+                  </TabsTrigger>
+                )}
+                <TabsTrigger value="calendar" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span className="hidden sm:inline">Calendário</span>
                 </TabsTrigger>
-              </>
-            )}
-          </TabsList>
+                <TabsTrigger value="alerts" className="flex items-center gap-2">
+                  <Bell className="h-4 w-4" />
+                  <span className="hidden sm:inline">Alertas</span>
+                </TabsTrigger>
+                <TabsTrigger value="financings" className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Financiamentos</span>
+                </TabsTrigger>
+                <TabsTrigger value="ctrl-ai" className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="hidden sm:inline">Ctrl AI</span>
+                </TabsTrigger>
+                {(isPremium && (isAdmin || isOwner)) && (
+                  <TabsTrigger value="share" className="flex items-center gap-2">
+                    <Share2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">+Share</span>
+                  </TabsTrigger>
+                )}
+                {isOwner && (
+                  <>
+                    <TabsTrigger value="team" className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span className="hidden sm:inline">Equipe</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="site-management" className="flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      <span className="hidden sm:inline">Site</span>
+                    </TabsTrigger>
+                  </>
+                )}
+              </TabsList>
+            );
+          })()}
+
 
           {/* Overview Tab - Unified Dashboard */}
           <TabsContent value="overview" className="space-y-8">
@@ -444,10 +411,29 @@ const Dashboard = () => {
             <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} showEdit />
           </TabsContent>
 
-          {/* Profile Tab */}
+          {/* Profile Tab (inclui Plano) */}
           <TabsContent value="profile">
             <h1 className="text-3xl font-bold mb-6">Perfil</h1>
             <ProfileTab />
+
+            <div className="mt-10">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Meu Plano</h2>
+                <Button
+                  variant="outline"
+                  onClick={handleCheckSubscription}
+                  disabled={isCheckingSubscription}
+                >
+                  {isCheckingSubscription ? "Verificando..." : "Verificar Status"}
+                </Button>
+              </div>
+              <PlanManagement
+                isPremium={userSubscription?.plan === "premium"}
+                subscriptionEnd={userSubscription?.current_period_end}
+                status={userSubscription?.status}
+                hasStripeSubscription={!!userSubscription?.stripe_subscription_id || !!userSubscription?.stripe_customer_id}
+              />
+            </div>
           </TabsContent>
 
           {/* Share Tab - Premium Only */}
@@ -457,37 +443,18 @@ const Dashboard = () => {
             </TabsContent>
           )}
 
-          {/* Settings Tab */}
+          {/* Settings Tab (via dropdown) */}
           <TabsContent value="settings">
             <h1 className="text-3xl font-bold mb-6">Configurações</h1>
             <SettingsTab />
           </TabsContent>
 
-          {/* Help Tab */}
+          {/* Help Tab (via dropdown) */}
           <TabsContent value="help">
             <h1 className="text-3xl font-bold mb-6">Central de Ajuda</h1>
             <HelpTab />
           </TabsContent>
 
-          {/* Plan Tab */}
-          <TabsContent value="plan">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold">Meu Plano</h1>
-              <Button
-                variant="outline"
-                onClick={handleCheckSubscription}
-                disabled={isCheckingSubscription}
-              >
-                {isCheckingSubscription ? "Verificando..." : "Verificar Status"}
-              </Button>
-            </div>
-            <PlanManagement 
-              isPremium={userSubscription?.plan === "premium"} 
-              subscriptionEnd={userSubscription?.current_period_end}
-              status={userSubscription?.status}
-              hasStripeSubscription={!!userSubscription?.stripe_subscription_id || !!userSubscription?.stripe_customer_id}
-            />
-          </TabsContent>
 
           {/* Team Management Tab - Owner Only */}
           {isOwner && (

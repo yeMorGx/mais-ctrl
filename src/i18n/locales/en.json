@@ -83,12 +83,20 @@
       "feature4": "Email support",
       "cta": "Start free"
     },
+    "monthly": {
+      "name": "+Premium Monthly",
+      "price": "$5.90",
+      "period": "/month",
+      "subtitle": "Full flexibility, cancel anytime",
+      "cta": "Subscribe monthly"
+    },
     "premium": {
-      "name": "+Premium",
+      "name": "+Premium Annual",
       "price": "$2.99",
       "period": "/month",
       "annual": "Billed annually: $35.90/year",
       "trial": "3 days free",
+
       "feature1": "Unlimited subscriptions",
       "feature2": "Advanced dashboard with charts",
       "feature3": "Smart notifications",

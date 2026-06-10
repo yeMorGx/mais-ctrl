@@ -297,7 +297,7 @@ const Index = () => {
           </p>
         </ScrollReveal>
 
-        <StaggerContainer className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto" staggerDelay={0.2}>
+        <StaggerContainer className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto" staggerDelay={0.2}>
           <StaggerItem>
             <PricingCard
               name={t("pricing.free.name")}
@@ -311,6 +311,25 @@ const Index = () => {
               ]}
               highlighted={false}
               ctaText={t("pricing.free.cta")}
+            />
+          </StaggerItem>
+          <StaggerItem>
+            <PricingCard
+              name={t("pricing.monthly.name", "+Premium Mensal")}
+              price={t("pricing.monthly.price", "R$ 29,90")}
+              period={t("pricing.monthly.period", "/mês")}
+              subtitle={t("pricing.monthly.subtitle", "Flexibilidade total, cancele quando quiser")}
+              features={[
+                t("pricing.premium.feature1"),
+                t("pricing.premium.feature2"),
+                t("pricing.premium.feature3"),
+                t("pricing.premium.feature4"),
+                t("pricing.premium.feature5"),
+                t("pricing.premium.feature6"),
+                t("pricing.premium.feature7")
+              ]}
+              highlighted={false}
+              ctaText={t("pricing.monthly.cta", "Assinar mensal")}
             />
           </StaggerItem>
           <StaggerItem>
@@ -334,6 +353,7 @@ const Index = () => {
             />
           </StaggerItem>
         </StaggerContainer>
+
       </section>
 
       {/* Testimonials Section */}
@@ -534,6 +554,7 @@ const PricingCard = ({
   period, 
   annualPrice,
   trialBadge,
+  subtitle,
   features, 
   highlighted,
   ctaText 
@@ -543,10 +564,12 @@ const PricingCard = ({
   period: string; 
   annualPrice?: string;
   trialBadge?: string;
+  subtitle?: string;
   features: string[]; 
   highlighted: boolean;
   ctaText: string;
 }) => {
+
   const navigate = useNavigate();
   
   const handleCTA = async () => {
@@ -615,9 +638,15 @@ const PricingCard = ({
                 {annualPrice}
               </p>
             )}
+            {subtitle && (
+              <p className="text-sm text-muted-foreground mt-2">
+                {subtitle}
+              </p>
+            )}
           </div>
         )}
       </div>
+
       
       <ul className="space-y-4 mb-8">
         {features.map((feature, index) => (

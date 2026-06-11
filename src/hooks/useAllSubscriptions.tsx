@@ -83,7 +83,8 @@ export const useAllSubscriptions = () => {
           frequency: sub.frequency,
           payment_method: sub.payment_method,
           renewal_date: sub.renewal_date,
-          is_shared: false
+          is_shared: false,
+          trial_end_date: sub.trial_end_date
         })));
       }
 

@@ -11,6 +11,7 @@ export interface CombinedSubscription {
   renewal_date: string;
   is_shared?: boolean;
   total_value?: number;
+  trial_end_date?: string | null;
 }
 
 export const useAllSubscriptions = () => {

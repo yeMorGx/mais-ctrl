@@ -197,19 +197,28 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
             const daysUntilRenewal = differenceInDays(renewalDate, new Date());
             const isPaymentDay = daysUntilRenewal <= 0; // Mostra botão no dia ou se atrasado
             const isPaid = daysUntilRenewal > 0;
+            const trialEnd = sub.trial_end_date ? new Date(sub.trial_end_date) : null;
+            const isOnTrial = trialEnd ? trialEnd > new Date() : false;
+            const trialDaysLeft = trialEnd ? differenceInDays(trialEnd, new Date()) : 0;
             
             return (
               <div 
                 key={sub.id}
-                className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-border rounded-lg hover:shadow-md transition-all gap-4"
+                className={`flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:shadow-md transition-all gap-4 ${isOnTrial ? 'border-amber-500/50 bg-amber-500/5' : 'border-border'}`}
               >
                 <div className="flex items-center gap-4 flex-1">
                   <div className={`${logo.bgColor} w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0`}>
                     <IconComponent className="w-6 h-6" style={{ color: logo.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-semibold truncate">{sub.name}</h4>
+                      {isOnTrial && (
+                        <Badge className="text-xs flex items-center gap-1 bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20">
+                          <FlaskConical className="w-3 h-3" />
+                          Em teste{trialDaysLeft > 0 ? ` · ${trialDaysLeft}d` : ''}
+                        </Badge>
+                      )}
                       {sub.is_shared && (
                         <Badge variant="secondary" className="text-xs flex items-center gap-1">
                           <Share2 className="w-3 h-3" />
@@ -219,7 +228,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: 
                     </div>
                     <div className="flex flex-wrap gap-2 mt-1">
                       <p className="text-sm text-muted-foreground">
-                        Próximo: {format(renewalDate, "dd/MM/yyyy", { locale: ptBR })}
+                        {isOnTrial ? 'Fim do teste' : 'Próximo'}: {format(isOnTrial && trialEnd ? trialEnd : renewalDate, "dd/MM/yyyy", { locale: ptBR })}
                       </p>
                       <Badge variant="outline" className="text-xs">
                         {getPaymentMethodLabel(sub.payment_method)}

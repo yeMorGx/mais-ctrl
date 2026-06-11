@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Share2 } from "lucide-react";
+import { Share2, FlaskConical } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ interface Subscription {
   payment_method: string;
   renewal_date: string;
   is_shared?: boolean;
+  trial_end_date?: string | null;
 }
 
 interface SubscriptionListProps {

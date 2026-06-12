@@ -225,6 +225,7 @@ serve(async (req) => {
       subscription_end: subscriptionEnd,
       is_trialing: isTrialing,
       is_canceled: isCanceled,
+      just_activated: justActivated,
       trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

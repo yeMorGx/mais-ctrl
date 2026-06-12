@@ -45,40 +45,56 @@ const Dashboard = () => {
   const { invokeFunction } = useSession();
   const OWNER_ID = "0aa7f072-7169-48f3-9389-170100fb2418";
 
-  // Manual subscription check function with automatic token refresh
-  const handleCheckSubscription = async () => {
-    setIsCheckingSubscription(true);
+  // Manual subscription check with optional silent mode
+  const handleCheckSubscription = async (silent = false) => {
+    if (!silent) setIsCheckingSubscription(true);
     try {
       const { data, error } = await invokeFunction<{ plan: string; subscribed: boolean }>('check-subscription');
-      
+
       if (error) {
-        // Se for erro de sessão, redirecionar
         if (error.message?.includes('session') || error.message?.includes('401')) {
-          toast({
-            title: "Sessão expirada",
-            description: "Por favor, faça login novamente",
-            variant: "destructive"
-          });
-          navigate("/auth");
-          return;
+          if (!silent) {
+            toast({ title: "Sessão expirada", description: "Por favor, faça login novamente", variant: "destructive" });
+            navigate("/auth");
+          }
+          return null;
         }
-        toast({
-          title: "Erro ao verificar assinatura",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else if (data) {
-        // Refresh all queries
+        if (!silent) {
+          toast({ title: "Erro ao verificar assinatura", description: error.message, variant: "destructive" });
+        }
+        return null;
+      }
+      if (data) {
         await queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
-        toast({
-          title: "Assinatura verificada",
-          description: data.plan === 'premium' ? "Você tem o plano Premium ativo!" : "Você está no plano Free",
-        });
+        if (!silent) {
+          toast({
+            title: "Assinatura verificada",
+            description: data.plan === 'premium' ? "Você tem o plano +Premium ativo!" : "Você está no plano Free",
+          });
+        }
+        return data;
       }
     } catch (error) {
       console.error('Failed to check subscription:', error);
     } finally {
-      setIsCheckingSubscription(false);
+      if (!silent) setIsCheckingSubscription(false);
+    }
+    return null;
+  };
+
+  // Poll after Stripe checkout success until premium is reflected
+  const pollSubscriptionAfterPayment = async () => {
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const result = await handleCheckSubscription(attempt > 0);
+      if (result?.plan === 'premium') {
+        toast({
+          title: "🎉 Bem-vindo ao +Premium!",
+          description: "Seu plano foi ativado com sucesso.",
+        });
+        await queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 2500));
     }
   };
 
@@ -87,21 +103,27 @@ const Dashboard = () => {
     const success = searchParams.get('success');
     if (success === 'true') {
       setShowSuccessAnimation(true);
-      // Remove query params from URL
       window.history.replaceState({}, '', '/dashboard');
-      
-      // Automatically check subscription after successful payment
-      setTimeout(() => {
-        handleCheckSubscription();
-      }, 2000);
+      setTimeout(() => { pollSubscriptionAfterPayment(); }, 1500);
     }
 
-    // Handle tab parameter
     const tab = searchParams.get('tab');
     if (tab) {
       setActiveTab(tab);
     }
   }, [searchParams]);
+
+  // Silent sync on dashboard load so Stripe status reflects automatically
+  useEffect(() => {
+    if (!user?.id) return;
+    const key = `subSyncedAt_${user.id}`;
+    const last = Number(sessionStorage.getItem(key) || 0);
+    if (Date.now() - last > 60_000) {
+      sessionStorage.setItem(key, String(Date.now()));
+      handleCheckSubscription(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -421,7 +443,7 @@ const Dashboard = () => {
                 <h2 className="text-2xl font-bold">Meu Plano</h2>
                 <Button
                   variant="outline"
-                  onClick={handleCheckSubscription}
+                  onClick={() => handleCheckSubscription(false)}
                   disabled={isCheckingSubscription}
                 >
                   {isCheckingSubscription ? "Verificando..." : "Verificar Status"}

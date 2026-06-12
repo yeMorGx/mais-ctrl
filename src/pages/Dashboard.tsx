@@ -82,6 +82,23 @@ const Dashboard = () => {
     return null;
   };
 
+  // Fire browser push notification
+  const firePremiumPush = async () => {
+    try {
+      if (!("Notification" in window)) return;
+      let perm = Notification.permission;
+      if (perm === "default") perm = await Notification.requestPermission();
+      if (perm !== "granted") return;
+      new Notification("+Ctrl Premium ativado 🎉", {
+        body: "Seu plano +Premium está ativo. Aproveite todos os recursos!",
+        icon: "/favicon.ico",
+        tag: "premium-activated",
+      });
+    } catch (e) {
+      console.warn("Push notification failed", e);
+    }
+  };
+
   // Poll after Stripe checkout success until premium is reflected
   const pollSubscriptionAfterPayment = async () => {
     for (let attempt = 0; attempt < 6; attempt++) {
@@ -89,9 +106,11 @@ const Dashboard = () => {
       if (result?.plan === 'premium') {
         toast({
           title: "🎉 Bem-vindo ao +Premium!",
-          description: "Seu plano foi ativado com sucesso.",
+          description: "Seu plano foi ativado. Enviamos um e-mail de confirmação.",
         });
+        firePremiumPush();
         await queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
+        await queryClient.invalidateQueries({ queryKey: ["profile"] });
         return;
       }
       await new Promise((r) => setTimeout(r, 2500));

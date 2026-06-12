@@ -172,6 +172,21 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
+  // Fetch profile (name) for the premium banner
+  const { data: dashProfile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
   // Check if subscription has expired
   const subscriptionEndDate = userSubscription?.current_period_end 
     ? new Date(userSubscription.current_period_end) 

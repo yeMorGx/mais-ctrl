@@ -443,7 +443,7 @@ const Dashboard = () => {
                 <h2 className="text-2xl font-bold">Meu Plano</h2>
                 <Button
                   variant="outline"
-                  onClick={handleCheckSubscription}
+                  onClick={() => handleCheckSubscription(false)}
                   disabled={isCheckingSubscription}
                 >
                   {isCheckingSubscription ? "Verificando..." : "Verificar Status"}

@@ -162,6 +162,14 @@ serve(async (req) => {
       period_start: periodStart
     });
 
+    // Read previous plan to detect transition free -> premium
+    const { data: prevSub } = await supabaseClient
+      .from('user_subscriptions')
+      .select('plan, status')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const wasPremium = prevSub?.plan === 'premium' && prevSub?.status === 'active';
+
     // Update user subscription status
     const { error: updateError } = await supabaseClient
       .from('user_subscriptions')
@@ -181,6 +189,34 @@ serve(async (req) => {
     }
     
     logStep("Subscription updated successfully", { plan: 'premium', status: dbStatus });
+
+    // First-time premium activation → send confirmation email (best effort)
+    const justActivated = !wasPremium && dbStatus === 'active';
+    if (justActivated) {
+      try {
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle();
+        const notifType = isTrialing ? 'trial_started' : 'subscription_created';
+        await supabaseClient.functions.invoke('send-notification', {
+          body: {
+            type: notifType,
+            email: user.email,
+            data: {
+              name: profile?.full_name || user.email?.split('@')[0] || 'Cliente',
+              plan: '+Premium',
+              subscription_end: subscriptionEnd,
+            },
+          },
+        });
+        logStep("Activation email queued", { type: notifType });
+      } catch (e) {
+        logStep("Activation email failed (non-fatal)", { error: String(e) });
+      }
+    }
+
 
     return new Response(JSON.stringify({
       subscribed: true,

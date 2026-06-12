@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, Building2, Sparkles } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, Building2, Sparkles, Crown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SubscriptionList } from "@/components/dashboard/SubscriptionList";
@@ -82,6 +83,23 @@ const Dashboard = () => {
     return null;
   };
 
+  // Fire browser push notification
+  const firePremiumPush = async () => {
+    try {
+      if (!("Notification" in window)) return;
+      let perm = Notification.permission;
+      if (perm === "default") perm = await Notification.requestPermission();
+      if (perm !== "granted") return;
+      new Notification("+Ctrl Premium ativado 🎉", {
+        body: "Seu plano +Premium está ativo. Aproveite todos os recursos!",
+        icon: "/favicon.ico",
+        tag: "premium-activated",
+      });
+    } catch (e) {
+      console.warn("Push notification failed", e);
+    }
+  };
+
   // Poll after Stripe checkout success until premium is reflected
   const pollSubscriptionAfterPayment = async () => {
     for (let attempt = 0; attempt < 6; attempt++) {
@@ -89,9 +107,11 @@ const Dashboard = () => {
       if (result?.plan === 'premium') {
         toast({
           title: "🎉 Bem-vindo ao +Premium!",
-          description: "Seu plano foi ativado com sucesso.",
+          description: "Seu plano foi ativado. Enviamos um e-mail de confirmação.",
         });
+        firePremiumPush();
         await queryClient.invalidateQueries({ queryKey: ["userSubscription"] });
+        await queryClient.invalidateQueries({ queryKey: ["profile"] });
         return;
       }
       await new Promise((r) => setTimeout(r, 2500));
@@ -148,6 +168,21 @@ const Dashboard = () => {
         .maybeSingle();
 
       if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Fetch profile (name) for the premium banner
+  const { data: dashProfile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
       return data;
     },
     enabled: !!user,
@@ -212,6 +247,39 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {isPremium && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-5 py-4 shadow-soft">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary shadow-md">
+                <Crown className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold leading-tight">
+                    {dashProfile?.full_name || user.email?.split("@")[0] || "Usuário"}
+                  </p>
+                  <Badge className="bg-gradient-primary text-white border-0 text-[10px] px-2 py-0.5">
+                    +Premium {userSubscription?.status === "canceled" ? "(cancelado)" : "Ativo"}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {subscriptionEndDate
+                    ? `${userSubscription?.status === "canceled" ? "Acesso até" : "Renova em"} ${subscriptionEndDate.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })}`
+                    : "Plano ativo — todos os recursos liberados"}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveTab("profile")}
+              className="border-primary/40"
+            >
+              Ver plano
+            </Button>
+          </div>
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile Menu */}
           <div className="flex items-center justify-between mb-6 lg:hidden">

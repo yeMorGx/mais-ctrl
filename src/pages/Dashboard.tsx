@@ -479,7 +479,7 @@ const Dashboard = () => {
                 Nova assinatura
               </Button>
             </div>
-            <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} showEdit />
+            <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} showEdit premiumPlan={premiumPlanCard} onViewPlan={() => setActiveTab("profile")} />
           </TabsContent>
 
           {/* Profile Tab (inclui Plano) */}

@@ -195,13 +195,24 @@ const Dashboard = () => {
   const isSubscriptionExpired = subscriptionEndDate ? subscriptionEndDate < new Date() : false;
   
   // Premium if plan is premium AND (status is active OR status is canceled but not expired yet)
-  const isPremium = userSubscription?.plan === "premium" && 
+  // OR if plan is lifetime (vitalícia, granted by admin)
+  const isLifetime = userSubscription?.plan === "lifetime" && userSubscription?.status === "active";
+  const isPremium = isLifetime || (userSubscription?.plan === "premium" && 
     (userSubscription?.status === "active" || 
-     (userSubscription?.status === "canceled" && !isSubscriptionExpired));
+     (userSubscription?.status === "canceled" && !isSubscriptionExpired)));
   
   const isOwner = user?.id === OWNER_ID;
   const isFreeUser = !isPremium;
   const hasReachedLimit = isFreeUser && subscriptions.length >= 5;
+
+  // Virtual +Premium subscription card injected into "Suas assinaturas"
+  const premiumPlanCard = isPremium ? {
+    isLifetime,
+    status: userSubscription?.status || "active",
+    endDate: isLifetime ? null : (userSubscription?.current_period_end || null),
+    userName: dashProfile?.full_name || user?.email?.split("@")[0] || "Usuário",
+  } : null;
+
 
   // Fetch user roles
   const { data: userRoles = [] } = useQuery({

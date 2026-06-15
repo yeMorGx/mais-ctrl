@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Share2, FlaskConical } from "lucide-react";
+import { Share2, FlaskConical, Crown, Infinity as InfinityIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,21 @@ interface Subscription {
   trial_end_date?: string | null;
 }
 
+export interface PremiumPlanCard {
+  isLifetime: boolean;
+  status: string;
+  endDate: string | null;
+  userName: string;
+}
+
 interface SubscriptionListProps {
   subscriptions: Subscription[];
   onUpdate: () => void;
   showEdit?: boolean;
+  premiumPlan?: PremiumPlanCard | null;
+  onViewPlan?: () => void;
 }
+
 
 export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: SubscriptionListProps) => {
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);

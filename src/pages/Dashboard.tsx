@@ -436,7 +436,9 @@ const Dashboard = () => {
               isPremium={isPremium}
               hasReachedLimit={hasReachedLimit}
               onTabChange={setActiveTab}
+              premiumPlan={premiumPlanCard}
             />
+
           </TabsContent>
 
           {/* Financial Analysis Tab - Premium Only */}

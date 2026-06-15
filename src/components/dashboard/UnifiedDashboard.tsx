@@ -4,7 +4,7 @@ import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign, Use
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SubscriptionList } from "./SubscriptionList";
+import { SubscriptionList, type PremiumPlanCard } from "./SubscriptionList";
 import { TodoList } from "./TodoList";
 import { CardInstallments } from "./CardInstallments";
 import { DebtoList } from "./DebtoList";

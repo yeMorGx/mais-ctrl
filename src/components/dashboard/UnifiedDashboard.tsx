@@ -24,6 +24,7 @@ interface UnifiedDashboardProps {
   isPremium: boolean;
   hasReachedLimit: boolean;
   onTabChange: (tab: string) => void;
+  premiumPlan?: PremiumPlanCard | null;
 }
 
 export const UnifiedDashboard = ({
@@ -33,7 +34,9 @@ export const UnifiedDashboard = ({
   isPremium,
   hasReachedLimit,
   onTabChange,
+  premiumPlan = null,
 }: UnifiedDashboardProps) => {
+
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeSection, setActiveSection] = useState("overview");

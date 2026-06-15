@@ -38,7 +38,7 @@ interface SubscriptionListProps {
 }
 
 
-export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false }: SubscriptionListProps) => {
+export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false, premiumPlan = null, onViewPlan }: SubscriptionListProps) => {
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const handleDelete = async (id: string, name: string, isShared?: boolean) => {

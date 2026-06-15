@@ -237,17 +237,21 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false, pr
     }
   };
 
+  const totalCount = subscriptions.length + (premiumPlan ? 1 : 0);
+
   return (
     <Card className="border-border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CreditCard className="w-5 h-5 text-primary" />
-          Suas Assinaturas ({subscriptions.length})
+          Suas Assinaturas ({totalCount})
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {renderPremiumCard()}
           {subscriptions.map((sub) => {
+
             const logo = getSubscriptionLogo(sub.name);
             const IconComponent = logo.icon;
             const renewalDate = new Date(sub.renewal_date);

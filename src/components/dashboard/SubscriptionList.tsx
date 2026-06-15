@@ -91,7 +91,53 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false, pr
     }
   };
 
-  if (subscriptions.length === 0) {
+  const renderPremiumCard = () => {
+    if (!premiumPlan) return null;
+    const endDate = premiumPlan.endDate ? new Date(premiumPlan.endDate) : null;
+    const statusLabel = premiumPlan.isLifetime
+      ? "Vitalícia"
+      : premiumPlan.status === "canceled"
+        ? "(cancelado)"
+        : "Ativo";
+    const subtitle = premiumPlan.isLifetime
+      ? "Acesso vitalício — concedido pela equipe +Ctrl"
+      : endDate
+        ? `${premiumPlan.status === "canceled" ? "Acesso até" : "Renova em"} ${format(endDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}`
+        : "Plano ativo";
+    return (
+      <div className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-4 border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="bg-gradient-primary w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+            <Crown className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h4 className="font-semibold truncate">+Ctrl Premium</h4>
+              <Badge className="bg-gradient-primary text-white border-0 text-[10px] px-2 py-0.5">
+                {statusLabel}
+              </Badge>
+              {premiumPlan.isLifetime && (
+                <Badge variant="outline" className="text-xs flex items-center gap-1 border-primary/40">
+                  <InfinityIcon className="w-3 h-3" />
+                  Vitalícia
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-end gap-3">
+          {onViewPlan && (
+            <Button variant="outline" size="sm" className="border-primary/40" onClick={onViewPlan}>
+              Ver plano
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  if (subscriptions.length === 0 && !premiumPlan) {
     return (
       <Card className="border-border">
         <CardHeader>
@@ -116,6 +162,7 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false, pr
       </Card>
     );
   }
+
 
   const getPaymentMethodLabel = (method: string) => {
     const labels: Record<string, string> = {

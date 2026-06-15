@@ -4,7 +4,7 @@ import { Plus, Lock, CreditCard, CheckSquare, Wallet, BarChart3, DollarSign, Use
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SubscriptionList } from "./SubscriptionList";
+import { SubscriptionList, type PremiumPlanCard } from "./SubscriptionList";
 import { TodoList } from "./TodoList";
 import { CardInstallments } from "./CardInstallments";
 import { DebtoList } from "./DebtoList";
@@ -24,6 +24,7 @@ interface UnifiedDashboardProps {
   isPremium: boolean;
   hasReachedLimit: boolean;
   onTabChange: (tab: string) => void;
+  premiumPlan?: PremiumPlanCard | null;
 }
 
 export const UnifiedDashboard = ({
@@ -33,7 +34,9 @@ export const UnifiedDashboard = ({
   isPremium,
   hasReachedLimit,
   onTabChange,
+  premiumPlan = null,
 }: UnifiedDashboardProps) => {
+
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeSection, setActiveSection] = useState("overview");
@@ -390,8 +393,11 @@ export const UnifiedDashboard = ({
               <SubscriptionList 
                 subscriptions={hasActiveSearch ? filteredData.subscriptions : subscriptions} 
                 onUpdate={onRefetch} 
+                premiumPlan={premiumPlan}
+                onViewPlan={() => onTabChange("profile")}
               />
             </TabsContent>
+
 
             <TabsContent value="tasks" className="mt-0">
               <TodoList />

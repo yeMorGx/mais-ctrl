@@ -1334,7 +1334,7 @@ export type Database = {
       release_pending_commissions: { Args: never; Returns: number }
     }
     Enums: {
-      subscription_plan: "free" | "premium"
+      subscription_plan: "free" | "premium" | "lifetime"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1462,7 +1462,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      subscription_plan: ["free", "premium"],
+      subscription_plan: ["free", "premium", "lifetime"],
     },
   },
 } as const

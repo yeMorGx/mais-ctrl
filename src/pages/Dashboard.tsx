@@ -195,13 +195,24 @@ const Dashboard = () => {
   const isSubscriptionExpired = subscriptionEndDate ? subscriptionEndDate < new Date() : false;
   
   // Premium if plan is premium AND (status is active OR status is canceled but not expired yet)
-  const isPremium = userSubscription?.plan === "premium" && 
+  // OR if plan is lifetime (vitalícia, granted by admin)
+  const isLifetime = userSubscription?.plan === "lifetime" && userSubscription?.status === "active";
+  const isPremium = isLifetime || (userSubscription?.plan === "premium" && 
     (userSubscription?.status === "active" || 
-     (userSubscription?.status === "canceled" && !isSubscriptionExpired));
+     (userSubscription?.status === "canceled" && !isSubscriptionExpired)));
   
   const isOwner = user?.id === OWNER_ID;
   const isFreeUser = !isPremium;
   const hasReachedLimit = isFreeUser && subscriptions.length >= 5;
+
+  // Virtual +Premium subscription card injected into "Suas assinaturas"
+  const premiumPlanCard = isPremium ? {
+    isLifetime,
+    status: userSubscription?.status || "active",
+    endDate: isLifetime ? null : (userSubscription?.current_period_end || null),
+    userName: dashProfile?.full_name || user?.email?.split("@")[0] || "Usuário",
+  } : null;
+
 
   // Fetch user roles
   const { data: userRoles = [] } = useQuery({
@@ -247,38 +258,8 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {isPremium && (
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent px-5 py-4 shadow-soft">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-primary shadow-md">
-                <Crown className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold leading-tight">
-                    {dashProfile?.full_name || user.email?.split("@")[0] || "Usuário"}
-                  </p>
-                  <Badge className="bg-gradient-primary text-white border-0 text-[10px] px-2 py-0.5">
-                    +Premium {userSubscription?.status === "canceled" ? "(cancelado)" : "Ativo"}
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {subscriptionEndDate
-                    ? `${userSubscription?.status === "canceled" ? "Acesso até" : "Renova em"} ${subscriptionEndDate.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })}`
-                    : "Plano ativo — todos os recursos liberados"}
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setActiveTab("profile")}
-              className="border-primary/40"
-            >
-              Ver plano
-            </Button>
-          </div>
-        )}
+        {/* Premium status now shown directly inside "Suas assinaturas" list */}
+
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile Menu */}
@@ -455,7 +436,9 @@ const Dashboard = () => {
               isPremium={isPremium}
               hasReachedLimit={hasReachedLimit}
               onTabChange={setActiveTab}
+              premiumPlan={premiumPlanCard}
             />
+
           </TabsContent>
 
           {/* Financial Analysis Tab - Premium Only */}
@@ -498,7 +481,7 @@ const Dashboard = () => {
                 Nova assinatura
               </Button>
             </div>
-            <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} showEdit />
+            <SubscriptionList subscriptions={subscriptions} onUpdate={refetch} showEdit premiumPlan={premiumPlanCard} onViewPlan={() => setActiveTab("profile")} />
           </TabsContent>
 
           {/* Profile Tab (inclui Plano) */}

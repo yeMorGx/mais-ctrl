@@ -114,6 +114,10 @@ export const ProfileTab = () => {
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
+      if (filePath.includes('..')) {
+        throw new Error('Invalid file path');
+      }
+
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')

@@ -1,11 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { brandSlugs, getBrandLogoUrl, getSubscriptionLogo } from "@/lib/subscriptionLogos";
+import { Check, ChevronsUpDown, ImageOff } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Subscription {
   id: string;
@@ -23,6 +28,13 @@ interface EditSubscriptionDialogProps {
   onSuccess: () => void;
 }
 
+// Lista única e ordenada de marcas (nome canônico) a partir do mapa de slugs
+const BRANDS = Array.from(
+  new Map(
+    Object.entries(brandSlugs).map(([label, slug]) => [slug, { label, slug }])
+  ).values()
+).sort((a, b) => a.label.localeCompare(b.label));
+
 export const EditSubscriptionDialog = ({
   subscription,
   open,
@@ -32,13 +44,30 @@ export const EditSubscriptionDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [frequency, setFrequency] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [brandOpen, setBrandOpen] = useState(false);
+  const [brokenPreview, setBrokenPreview] = useState(false);
 
   useEffect(() => {
     if (subscription) {
       setFrequency(subscription.frequency);
       setPaymentMethod(subscription.payment_method);
+      setName(subscription.name);
+      setBrokenPreview(false);
     }
   }, [subscription]);
+
+  const brandUrl = useMemo(() => getBrandLogoUrl(name), [name]);
+  const fallbackLogo = useMemo(() => getSubscriptionLogo(name), [name]);
+  const FallbackIcon = fallbackLogo.icon;
+
+  const handleSelectBrand = (label: string) => {
+    // Capitaliza a primeira letra de cada palavra para exibição
+    const pretty = label.replace(/\b\w/g, (c) => c.toUpperCase());
+    setName(pretty);
+    setBrokenPreview(false);
+    setBrandOpen(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +77,6 @@ export const EditSubscriptionDialog = ({
 
     try {
       const formData = new FormData(e.currentTarget);
-      const name = formData.get("name") as string;
       const value = parseFloat(formData.get("value") as string);
       const renewalDate = formData.get("renewal-date") as string;
 
@@ -90,16 +118,107 @@ export const EditSubscriptionDialog = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Editar Assinatura</DialogTitle>
-          <DialogDescription>Atualize as informações da assinatura</DialogDescription>
+          <DialogDescription>Atualize as informações e corrija a logo</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Preview + seletor de marca */}
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+            <div className="w-12 h-12 rounded-xl bg-background flex items-center justify-center overflow-hidden p-2 border border-border/50 shrink-0">
+              {brandUrl && !brokenPreview ? (
+                <img
+                  src={brandUrl}
+                  alt={name}
+                  className="max-w-full max-h-full object-contain"
+                  onError={() => setBrokenPreview(true)}
+                />
+              ) : name ? (
+                <FallbackIcon className="w-6 h-6" style={{ color: fallbackLogo.color }} />
+              ) : (
+                <ImageOff className="w-5 h-5 text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground">Logo detectada</p>
+              <p className="text-sm font-medium truncate">
+                {brandUrl && !brokenPreview ? "Marca oficial" : "Ícone genérico"}
+              </p>
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="name">Nome da assinatura</Label>
+            <Label>Marca / Serviço</Label>
+            <Popover open={brandOpen} onOpenChange={setBrandOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={brandOpen}
+                  className="w-full justify-between font-normal"
+                >
+                  <span className="truncate">
+                    {name || "Selecione uma marca..."}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command
+                  filter={(value, search) =>
+                    value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
+                  }
+                >
+                  <CommandInput placeholder="Buscar marca (Netflix, Nubank...)" />
+                  <CommandList className="max-h-64">
+                    <CommandEmpty>
+                      <div className="text-sm text-muted-foreground py-2">
+                        Nenhuma marca encontrada. Você pode digitar o nome livremente abaixo.
+                      </div>
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {BRANDS.map((b) => (
+                        <CommandItem
+                          key={b.slug}
+                          value={b.label}
+                          onSelect={() => handleSelectBrand(b.label)}
+                          className="flex items-center gap-2"
+                        >
+                          <img
+                            src={`https://cdn.simpleicons.org/${b.slug}`}
+                            alt=""
+                            loading="lazy"
+                            className="w-4 h-4 object-contain"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                            }}
+                          />
+                          <span className="capitalize flex-1">{b.label}</span>
+                          <Check
+                            className={cn(
+                              "h-4 w-4",
+                              name.toLowerCase() === b.label ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome exibido</Label>
             <Input
               id="name"
               name="name"
-              defaultValue={subscription.name}
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setBrokenPreview(false);
+              }}
               placeholder="Ex: Netflix, Spotify, Academia..."
               required
             />

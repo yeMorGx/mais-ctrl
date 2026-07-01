@@ -41,6 +41,7 @@ interface SubscriptionListProps {
 export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false, premiumPlan = null, onViewPlan }: SubscriptionListProps) => {
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [failedLogos, setFailedLogos] = useState<Record<string, boolean>>({});
   const handleDelete = async (id: string, name: string, isShared?: boolean) => {
     const confirmed = window.confirm(`Tem certeza que deseja excluir "${name}"?`);
     if (!confirmed) return;

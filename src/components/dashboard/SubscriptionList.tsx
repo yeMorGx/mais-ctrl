@@ -8,7 +8,7 @@ import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { getSubscriptionLogo } from "@/lib/subscriptionLogos";
+import { getSubscriptionLogo, getBrandLogoUrl } from "@/lib/subscriptionLogos";
 import { EditSubscriptionDialog } from "./EditSubscriptionDialog";
 
 interface Subscription {
@@ -41,6 +41,7 @@ interface SubscriptionListProps {
 export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false, premiumPlan = null, onViewPlan }: SubscriptionListProps) => {
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [failedLogos, setFailedLogos] = useState<Record<string, boolean>>({});
   const handleDelete = async (id: string, name: string, isShared?: boolean) => {
     const confirmed = window.confirm(`Tem certeza que deseja excluir "${name}"?`);
     if (!confirmed) return;
@@ -254,6 +255,8 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false, pr
 
             const logo = getSubscriptionLogo(sub.name);
             const IconComponent = logo.icon;
+            const brandUrl = getBrandLogoUrl(sub.name);
+            const useBrandImage = brandUrl && !failedLogos[sub.id];
             const renewalDate = new Date(sub.renewal_date);
             const daysUntilRenewal = differenceInDays(renewalDate, new Date());
             const isPaymentDay = daysUntilRenewal <= 0; // Mostra botão no dia ou se atrasado
@@ -261,16 +264,28 @@ export const SubscriptionList = ({ subscriptions, onUpdate, showEdit = false, pr
             const trialEnd = sub.trial_end_date ? new Date(sub.trial_end_date) : null;
             const isOnTrial = trialEnd ? trialEnd > new Date() : false;
             const trialDaysLeft = trialEnd ? differenceInDays(trialEnd, new Date()) : 0;
-            
+
             return (
-              <div 
+              <div
                 key={sub.id}
                 className={`flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:shadow-md transition-all gap-4 ${isOnTrial ? 'border-amber-500/50 bg-amber-500/5' : 'border-border'}`}
               >
                 <div className="flex items-center gap-4 flex-1">
-                  <div className={`${logo.bgColor} w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0`}>
-                    <IconComponent className="w-6 h-6" style={{ color: logo.color }} />
-                  </div>
+                  {useBrandImage ? (
+                    <div className="bg-muted/40 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
+                      <img
+                        src={brandUrl!}
+                        alt={sub.name}
+                        loading="lazy"
+                        className="max-w-full max-h-full object-contain"
+                        onError={() => setFailedLogos((prev) => ({ ...prev, [sub.id]: true }))}
+                      />
+                    </div>
+                  ) : (
+                    <div className={`${logo.bgColor} w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0`}>
+                      <IconComponent className="w-6 h-6" style={{ color: logo.color }} />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-semibold truncate">{sub.name}</h4>

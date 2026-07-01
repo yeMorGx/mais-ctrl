@@ -393,6 +393,7 @@ export const UnifiedDashboard = ({
               <SubscriptionList 
                 subscriptions={hasActiveSearch ? filteredData.subscriptions : subscriptions} 
                 onUpdate={onRefetch} 
+                showEdit
                 premiumPlan={premiumPlan}
                 onViewPlan={() => onTabChange("profile")}
               />

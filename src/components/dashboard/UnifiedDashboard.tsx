@@ -11,6 +11,8 @@ import { DebtoList } from "./DebtoList";
 import { FinancialOverview } from "./FinancialOverview";
 import { UnifiedSearch, SearchFilters } from "./UnifiedSearch";
 import { FinancialTips } from "./FinancialTips";
+import { UnifiedBills } from "./UnifiedBills";
+import { BudgetPlanner } from "./BudgetPlanner";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -386,6 +388,12 @@ export const UnifiedDashboard = ({
                     emphasis="secondary"
                   />
                 </div>
+
+                {/* Unified bills across subscriptions, installments, financings and debts */}
+                <UnifiedBills subscriptions={subscriptions} />
+
+                {/* Budget planner (70/20/10, 80/10/10, 50/30/20, custom) */}
+                <BudgetPlanner subscriptions={subscriptions} />
               </div>
             </TabsContent>
 

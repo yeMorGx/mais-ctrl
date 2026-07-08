@@ -21,6 +21,8 @@ import { SiteManagement } from "@/components/dashboard/SiteManagement";
 import { UnifiedDashboard } from "@/components/dashboard/UnifiedDashboard";
 import { FinancingControl } from "@/components/dashboard/FinancingControl";
 import { CtrlAIChat } from "@/components/dashboard/CtrlAIChat";
+import { SpaceSwitcher } from "@/components/couple/SpaceSwitcher";
+import { CoupleSpace } from "@/components/couple/CoupleSpace";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Logo } from "@/components/Logo";
 import { SuccessAnimation } from "@/components/SuccessAnimation";

@@ -38,6 +38,12 @@ const Dashboard = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [space, setSpace] = useState<"solo" | "couple">(() => {
+    if (typeof window === "undefined") return "solo";
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("space") === "couple" || url.searchParams.get("couple_token")) return "couple";
+    return (localStorage.getItem("ctrl.space") as "solo" | "couple") || "solo";
+  });
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
   const { user, signOut, loading: authLoading } = useAuth();

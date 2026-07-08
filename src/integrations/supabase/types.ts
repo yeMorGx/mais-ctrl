@@ -304,6 +304,507 @@ export type Database = {
           },
         ]
       }
+      couple_achievements: {
+        Row: {
+          code: string
+          couple_id: string
+          created_at: string
+          id: string
+          progress: number
+          unlocked: boolean
+          unlocked_at: string | null
+        }
+        Insert: {
+          code: string
+          couple_id: string
+          created_at?: string
+          id?: string
+          progress?: number
+          unlocked?: boolean
+          unlocked_at?: string | null
+        }
+        Update: {
+          code?: string
+          couple_id?: string
+          created_at?: string
+          id?: string
+          progress?: number
+          unlocked?: boolean
+          unlocked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_achievements_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_activities: {
+        Row: {
+          action: string
+          actor_id: string
+          couple_id: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          couple_id: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          couple_id?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_activities_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_assets: {
+        Row: {
+          category: string
+          couple_id: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          category: string
+          couple_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          category?: string
+          couple_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_assets_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_checkins: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          completed_by: string
+          couple_id: string
+          created_at: string
+          id: string
+          summary: Json
+          week_start: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          completed_by: string
+          couple_id: string
+          created_at?: string
+          id?: string
+          summary?: Json
+          week_start: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          completed_by?: string
+          couple_id?: string
+          created_at?: string
+          id?: string
+          summary?: Json
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_checkins_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_dream_contributions: {
+        Row: {
+          amount: number
+          contributed_on: string
+          couple_id: string
+          created_at: string
+          dream_id: string
+          id: string
+          member_id: string
+          notes: string | null
+        }
+        Insert: {
+          amount: number
+          contributed_on?: string
+          couple_id: string
+          created_at?: string
+          dream_id: string
+          id?: string
+          member_id: string
+          notes?: string | null
+        }
+        Update: {
+          amount?: number
+          contributed_on?: string
+          couple_id?: string
+          created_at?: string
+          dream_id?: string
+          id?: string
+          member_id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_dream_contributions_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couple_dream_contributions_dream_id_fkey"
+            columns: ["dream_id"]
+            isOneToOne: false
+            referencedRelation: "couple_dreams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_dreams: {
+        Row: {
+          achieved: boolean
+          achieved_at: string | null
+          couple_id: string
+          created_at: string
+          created_by: string
+          current_amount: number
+          deadline: string | null
+          id: string
+          image_url: string | null
+          name: string
+          target_amount: number
+          updated_at: string
+        }
+        Insert: {
+          achieved?: boolean
+          achieved_at?: string | null
+          couple_id: string
+          created_at?: string
+          created_by: string
+          current_amount?: number
+          deadline?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          target_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          achieved?: boolean
+          achieved_at?: string | null
+          couple_id?: string
+          created_at?: string
+          created_by?: string
+          current_amount?: number
+          deadline?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          target_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_dreams_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          couple_id: string
+          created_at: string
+          created_by: string
+          expense_date: string
+          id: string
+          installments_current: number | null
+          installments_total: number | null
+          name: string
+          notes: string | null
+          recurrence: string
+          responsible: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string | null
+          couple_id: string
+          created_at?: string
+          created_by: string
+          expense_date?: string
+          id?: string
+          installments_current?: number | null
+          installments_total?: number | null
+          name: string
+          notes?: string | null
+          recurrence?: string
+          responsible?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          couple_id?: string
+          created_at?: string
+          created_by?: string
+          expense_date?: string
+          id?: string
+          installments_current?: number | null
+          installments_total?: number | null
+          name?: string
+          notes?: string | null
+          recurrence?: string
+          responsible?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_expenses_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_incomes: {
+        Row: {
+          amount: number
+          couple_id: string
+          created_at: string
+          id: string
+          member_id: string
+          name: string
+          notes: string | null
+          received_on: string | null
+          recurrence: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          couple_id: string
+          created_at?: string
+          id?: string
+          member_id: string
+          name: string
+          notes?: string | null
+          received_on?: string | null
+          recurrence?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          couple_id?: string
+          created_at?: string
+          id?: string
+          member_id?: string
+          name?: string
+          notes?: string | null
+          received_on?: string | null
+          recurrence?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_incomes_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_investments: {
+        Row: {
+          couple_id: string
+          created_at: string
+          created_by: string
+          current_amount: number
+          id: string
+          institution: string | null
+          invested_amount: number
+          name: string
+          notes: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string
+          created_by: string
+          current_amount?: number
+          id?: string
+          institution?: string | null
+          invested_amount?: number
+          name: string
+          notes?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string
+          created_by?: string
+          current_amount?: number
+          id?: string
+          institution?: string | null
+          invested_amount?: number
+          name?: string
+          notes?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_investments_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couple_invites: {
+        Row: {
+          accepted_at: string | null
+          couple_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          invitee_email: string
+          sender_id: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          couple_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitee_email: string
+          sender_id: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          couple_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitee_email?: string
+          sender_id?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couple_invites_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      couples: {
+        Row: {
+          couple_name: string | null
+          created_at: string
+          id: string
+          owner_id: string
+          partner_id: string | null
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          couple_name?: string | null
+          created_at?: string
+          id?: string
+          owner_id: string
+          partner_id?: string | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          couple_name?: string | null
+          created_at?: string
+          id?: string
+          owner_id?: string
+          partner_id?: string | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       debts: {
         Row: {
           alert_enabled: boolean
@@ -1327,6 +1828,10 @@ export type Database = {
         Returns: Json
       }
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
+      is_couple_member: {
+        Args: { _couple_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_subscription_partner: {
         Args: { _subscription_id: string; _user_id: string }
         Returns: boolean

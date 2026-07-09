@@ -25,16 +25,8 @@ export const CoupleSpace = () => {
     if (!token || !user) return;
     (async () => {
       try {
-        const { data: invite, error } = await db
-          .from("couple_invites")
-          .select("*")
-          .eq("token", token)
-          .maybeSingle();
-        if (error || !invite) throw new Error("Convite inválido");
-        if (invite.status !== "pending") throw new Error("Convite já usado ou expirado");
-        // Attach partner to couple
-        await db.from("couples").update({ partner_id: user.id, status: "active" }).eq("id", invite.couple_id);
-        await db.from("couple_invites").update({ status: "accepted", accepted_at: new Date().toISOString() }).eq("id", invite.id);
+        const { error } = await db.rpc("accept_couple_invite", { _token: token });
+        if (error) throw error;
         toast({ title: "Você entrou no espaço +2 ❤️" });
         params.delete("couple_token"); setParams(params, { replace: true });
         qc.invalidateQueries({ queryKey: ["couple"] });

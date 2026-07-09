@@ -63,18 +63,23 @@ export const CoupleOnboarding = ({ couple }: Props) => {
         .single();
       if (error) throw error;
       // Fire-and-forget e-mail via existing function (best-effort)
-      const link = `${window.location.origin}/dashboard?couple_token=${data.token}`;
+      const link = `${window.location.origin}/dashboard?space=couple&couple_token=${data.token}`;
       try {
-        await supabase.functions.invoke("send-notification", {
+        const { error: fnError } = await supabase.functions.invoke("send-couple-invite", {
           body: {
-            type: "couple_invite",
-            email: inviteeEmail,
-            name: "Parceiro(a)",
-            data: { link, couple_name: couple.couple_name },
+            email: inviteeEmail.trim().toLowerCase(),
+            link,
+            couple_name: couple.couple_name,
+            sender_name: user.email,
           },
         });
+        if (fnError) throw fnError;
       } catch (e) {
         console.warn("Invite email failed", e);
+        toast({
+          title: "Convite criado, mas o e-mail falhou",
+          description: "Compartilhe o link manualmente com seu par.",
+        });
       }
       qc.invalidateQueries({ queryKey: ["couple-invite", couple.id] });
       toast({ title: "Convite enviado ❤️", description: "Compartilhe o link com seu par." });

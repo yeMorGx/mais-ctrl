@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.ctrl-ai-chat]
 verify_jwt = false
+
+[functions.send-couple-invite]
+verify_jwt = false

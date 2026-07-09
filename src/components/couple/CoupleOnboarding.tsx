@@ -93,7 +93,7 @@ export const CoupleOnboarding = ({ couple }: Props) => {
   };
 
   const inviteLink = invite
-    ? `${window.location.origin}/dashboard?couple_token=${invite.token}`
+    ? `${window.location.origin}/dashboard?space=couple&couple_token=${invite.token}`
     : "";
 
   const copyLink = async () => {

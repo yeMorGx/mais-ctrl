@@ -1821,6 +1821,7 @@ export type Database = {
       }
     }
     Functions: {
+      accept_couple_invite: { Args: { _token: string }; Returns: string }
       cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       generate_affiliate_code: { Args: never; Returns: string }
       get_affiliate_stats: {

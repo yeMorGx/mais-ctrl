@@ -594,14 +594,5 @@ const Dashboard = () => {
 
 export default Dashboard;
 
-      {/* Add Subscription Dialog */}
-      <AddSubscriptionDialog
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        onSuccess={refetch}
-      />
-    </div>
-  );
-};
 
 export default Dashboard;

@@ -266,9 +266,23 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Premium status now shown directly inside "Suas assinaturas" list */}
+        <div className="mb-6 flex justify-center lg:justify-end">
+          <SpaceSwitcher
+            space={space}
+            onChange={(s) => {
+              setSpace(s);
+              try { localStorage.setItem("ctrl.space", s); } catch {}
+              const url = new URL(window.location.href);
+              if (s === "couple") url.searchParams.set("space", "couple");
+              else url.searchParams.delete("space");
+              window.history.replaceState({}, "", url.toString());
+            }}
+          />
+        </div>
 
-
+        {space === "couple" ? (
+          <CoupleSpace />
+        ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile Menu */}
           <div className="flex items-center justify-between mb-6 lg:hidden">

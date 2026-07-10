@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { Heart, TrendingUp, TrendingDown, Wallet, PiggyBank, Target, Landmark, LineChart, CalendarClock, HeartPulse } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Heart, TrendingUp, TrendingDown, Wallet, PiggyBank, Target, Landmark, LineChart, CalendarClock, HeartPulse, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,8 @@ import { TimelineSection } from "./sections/TimelineSection";
 import { CheckinSection } from "./sections/CheckinSection";
 import { AchievementsSection } from "./sections/AchievementsSection";
 import { CoupleInsights } from "./CoupleInsights";
+import { CoupleSettings } from "./CoupleSettings";
+import { MembersBreakdown } from "./MembersBreakdown";
 import { cn } from "@/lib/utils";
 
 interface Props { couple: Couple; }

@@ -40,6 +40,7 @@ const StatCard = ({ icon: Icon, label, value, hint, accent }: CardData) => (
 
 export const CoupleDashboard = ({ couple }: Props) => {
   const { user } = useAuth();
+  const [membersOpen, setMembersOpen] = useState(false);
   const { data: incomes = [] } = useCoupleList<{ amount: number; recurrence: string }>("couple_incomes", couple.id);
   const { data: expenses = [] } = useCoupleList<{ amount: number; status: string; expense_date: string; recurrence: string }>("couple_expenses", couple.id, { column: "expense_date", ascending: false });
   const { data: dreams = [] } = useCoupleList<{ name: string; target_amount: number; current_amount: number; achieved: boolean }>("couple_dreams", couple.id);

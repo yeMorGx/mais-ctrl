@@ -98,9 +98,14 @@ export const CoupleDashboard = ({ couple }: Props) => {
       {/* Couple header */}
       <div className="flex flex-col gap-4 rounded-2xl border border-rose-500/20 bg-gradient-to-br from-card via-card to-rose-500/5 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex -space-x-3">
+          <button
+            type="button"
+            onClick={() => setMembersOpen(true)}
+            title="Ver visão individual de cada um"
+            className="group flex -space-x-3 rounded-full outline-none ring-offset-2 transition hover:scale-105 focus-visible:ring-2 focus-visible:ring-rose-500"
+          >
             {memberProfiles.slice(0, 2).map((p) => (
-              <Avatar key={p.id} className="h-12 w-12 border-2 border-background">
+              <Avatar key={p.id} className="h-12 w-12 border-2 border-background transition group-hover:border-rose-500/40">
                 <AvatarImage src={p.avatar_url || undefined} />
                 <AvatarFallback>{p.full_name?.[0] || "?"}</AvatarFallback>
               </Avatar>
@@ -110,7 +115,7 @@ export const CoupleDashboard = ({ couple }: Props) => {
                 <Heart className="h-5 w-5" />
               </div>
             )}
-          </div>
+          </button>
           <div>
             <div className="flex items-center gap-2">
               <Heart className="h-4 w-4 fill-rose-500 text-rose-500" />
@@ -122,15 +127,27 @@ export const CoupleDashboard = ({ couple }: Props) => {
                 ? `${memberName(couple.owner_id)} & ${memberName(couple.partner_id!)}`
                 : "Aguardando parceiro(a) aceitar o convite"}
             </p>
+            <button
+              type="button"
+              onClick={() => setMembersOpen(true)}
+              className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:underline"
+            >
+              <Users className="h-3 w-3" /> Ver individual de cada um
+            </button>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Saldo do mês</p>
-          <p className={cn("text-3xl font-bold tracking-tight", stats.savings >= 0 ? "text-green-500" : "text-red-500")}>
-            {brl(stats.savings)}
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Saldo do mês</p>
+            <p className={cn("text-3xl font-bold tracking-tight", stats.savings >= 0 ? "text-green-500" : "text-red-500")}>
+              {brl(stats.savings)}
+            </p>
+          </div>
+          <CoupleSettings couple={couple} />
         </div>
       </div>
+
+      <MembersBreakdown couple={couple} open={membersOpen} onOpenChange={setMembersOpen} />
 
       {/* Cards */}
       {loading ? (

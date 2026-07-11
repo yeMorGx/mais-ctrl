@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useCoupleList, logCoupleActivity, brl } from "@/hooks/useCouple";
+import { useCoupleMembers, memberFirstName } from "@/hooks/useCoupleMembers";
 import { useAuth } from "@/hooks/useAuth";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,6 +32,8 @@ export const IncomesSection = ({ coupleId, ownerId, partnerId }: Props) => {
   const qc = useQueryClient();
   const { toast } = useToast();
   const { data: incomes = [], isLoading } = useCoupleList<Income>("couple_incomes", coupleId);
+  const { data: members = [] } = useCoupleMembers(ownerId, partnerId);
+  const memberById = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ member_id: user?.id || ownerId, name: "", amount: "", recurrence: "monthly" });
   const [saving, setSaving] = useState(false);
@@ -62,8 +66,6 @@ export const IncomesSection = ({ coupleId, ownerId, partnerId }: Props) => {
     qc.invalidateQueries({ queryKey: ["couple_incomes", coupleId] });
   };
 
-  const memberLabel = (id: string) => (id === ownerId ? "Dono" : id === partnerId ? "Parceiro(a)" : "Membro");
-
   return (
     <Card className="animate-fade-in">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -82,20 +84,29 @@ export const IncomesSection = ({ coupleId, ownerId, partnerId }: Props) => {
           <p className="py-8 text-center text-sm text-muted-foreground">Nenhuma receita cadastrada ainda.</p>
         ) : (
           <div className="space-y-2">
-            {incomes.map((i) => (
-              <div key={i.id} className="flex items-center justify-between rounded-lg border bg-card/50 p-3 transition hover:bg-card">
-                <div>
-                  <p className="font-medium">{i.name}</p>
-                  <p className="text-xs text-muted-foreground">{memberLabel(i.member_id)} · {i.recurrence}</p>
+            {incomes.map((i) => {
+              const owner = memberById.get(i.member_id);
+              return (
+                <div key={i.id} className="flex items-center justify-between rounded-lg border bg-card/50 p-3 transition hover:bg-card">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={owner?.avatar_url || undefined} />
+                      <AvatarFallback>{(owner?.full_name || "?")[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{i.name}</p>
+                      <p className="text-xs text-muted-foreground">{memberFirstName(owner)} · {i.recurrence}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-green-600 dark:text-green-400">{brl(Number(i.amount))}</span>
+                    <Button size="icon" variant="ghost" onClick={() => remove(i.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold text-green-600 dark:text-green-400">{brl(Number(i.amount))}</span>
-                  <Button size="icon" variant="ghost" onClick={() => remove(i.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>
@@ -109,8 +120,8 @@ export const IncomesSection = ({ coupleId, ownerId, partnerId }: Props) => {
               <Select value={form.member_id} onValueChange={(v) => setForm({ ...form, member_id: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ownerId}>{user?.id === ownerId ? "Minha" : "Do parceiro"}</SelectItem>
-                  {partnerId && <SelectItem value={partnerId}>{user?.id === partnerId ? "Minha" : "Do parceiro"}</SelectItem>}
+                  <SelectItem value={ownerId}>{memberFirstName(memberById.get(ownerId))}{user?.id === ownerId ? " (eu)" : ""}</SelectItem>
+                  {partnerId && <SelectItem value={partnerId}>{memberFirstName(memberById.get(partnerId))}{user?.id === partnerId ? " (eu)" : ""}</SelectItem>}
                 </SelectContent>
               </Select>
             </div>

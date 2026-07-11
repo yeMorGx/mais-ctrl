@@ -200,7 +200,7 @@ export const CoupleDashboard = ({ couple }: Props) => {
           </div>
         </TabsContent>
         <TabsContent value="incomes" className="mt-6"><IncomesSection coupleId={couple.id} ownerId={couple.owner_id} partnerId={couple.partner_id} /></TabsContent>
-        <TabsContent value="expenses" className="mt-6"><ExpensesSection coupleId={couple.id} /></TabsContent>
+        <TabsContent value="expenses" className="mt-6"><ExpensesSection coupleId={couple.id} ownerId={couple.owner_id} partnerId={couple.partner_id} /></TabsContent>
         <TabsContent value="dreams" className="mt-6"><DreamsSection coupleId={couple.id} /></TabsContent>
         <TabsContent value="investments" className="mt-6"><InvestmentsSection coupleId={couple.id} /></TabsContent>
         <TabsContent value="assets" className="mt-6"><AssetsSection coupleId={couple.id} /></TabsContent>

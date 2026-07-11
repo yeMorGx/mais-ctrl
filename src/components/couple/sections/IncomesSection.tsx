@@ -120,8 +120,8 @@ export const IncomesSection = ({ coupleId, ownerId, partnerId }: Props) => {
               <Select value={form.member_id} onValueChange={(v) => setForm({ ...form, member_id: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ownerId}>{user?.id === ownerId ? "Minha" : "Do parceiro"}</SelectItem>
-                  {partnerId && <SelectItem value={partnerId}>{user?.id === partnerId ? "Minha" : "Do parceiro"}</SelectItem>}
+                  <SelectItem value={ownerId}>{memberFirstName(memberById.get(ownerId))}{user?.id === ownerId ? " (eu)" : ""}</SelectItem>
+                  {partnerId && <SelectItem value={partnerId}>{memberFirstName(memberById.get(partnerId))}{user?.id === partnerId ? " (eu)" : ""}</SelectItem>}
                 </SelectContent>
               </Select>
             </div>

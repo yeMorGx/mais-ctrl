@@ -805,6 +805,48 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_card_bills: {
+        Row: {
+          amount: number
+          card_name: string
+          created_at: string
+          due_date: string | null
+          id: string
+          is_paid: boolean
+          notes: string | null
+          paid_at: string | null
+          reference_month: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          card_name: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_paid?: boolean
+          notes?: string | null
+          paid_at?: string | null
+          reference_month: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          card_name?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_paid?: boolean
+          notes?: string | null
+          paid_at?: string | null
+          reference_month?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       debts: {
         Row: {
           alert_enabled: boolean

@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { format, addMonths, startOfMonth, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { getBrandLogo } from "@/lib/subscriptionLogos";
+import { getBrandLogoUrl } from "@/lib/subscriptionLogos";
 
 interface CardBill {
   id: string;
@@ -295,7 +295,7 @@ export function CardBills() {
           ) : (
             <div className="space-y-2">
               {monthBills.map((b) => {
-                const logo = getBrandLogo?.(b.card_name);
+                const logo = getBrandLogoUrl?.(b.card_name);
                 return (
                   <div key={b.id} className="flex items-center justify-between gap-3 rounded-lg border bg-card/40 p-3 transition-colors hover:bg-card/70">
                     <div className="flex min-w-0 items-center gap-3">

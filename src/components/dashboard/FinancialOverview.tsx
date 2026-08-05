@@ -195,7 +195,6 @@ export function FinancialOverview({ subscriptions }: FinancialOverviewProps) {
   const history = useMemo(() => {
     const span = Number(months);
     const base = startOfMonth(new Date());
-    const rows: { date: Date; label: string; total: number } & Record<string, any> = [] as any;
     const list: any[] = [];
 
     for (let i = span - 1; i >= 0; i--) {

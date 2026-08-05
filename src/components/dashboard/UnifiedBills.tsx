@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { format, parseISO, isAfter, differenceInDays, startOfMonth, endOfMonth, addMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-type BillKind = "subscription" | "installment" | "financing" | "debt";
+type BillKind = "subscription" | "installment" | "financing" | "debt" | "card";
 type Nature = "fixed" | "variable";
 
 interface UnifiedBill {
@@ -26,6 +26,7 @@ const KIND_META: Record<BillKind, { label: string; icon: React.ReactNode; classN
   subscription: { label: "Assinatura", icon: <CreditCard className="w-4 h-4" />, className: "text-blue-500 bg-blue-500/10" },
   installment:  { label: "Parcela",    icon: <Wallet className="w-4 h-4" />,     className: "text-emerald-500 bg-emerald-500/10" },
   financing:    { label: "Financiamento", icon: <Building2 className="w-4 h-4" />, className: "text-violet-500 bg-violet-500/10" },
+  card:         { label: "Fatura de cartão", icon: <Receipt className="w-4 h-4" />, className: "text-primary bg-primary/10" },
   debt:         { label: "Debto",      icon: <DollarSign className="w-4 h-4" />,  className: "text-amber-500 bg-amber-500/10" },
 };
 
@@ -80,6 +81,16 @@ export function UnifiedBills({ subscriptions }: UnifiedBillsProps) {
     queryKey: ["debts", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase.from("debts").select("*").eq("user_id", user?.id).eq("is_paid", false);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: cardBills = [] } = useQuery({
+    queryKey: ["credit_card_bills", user?.id],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).from("credit_card_bills").select("*").eq("user_id", user?.id);
       if (error) throw error;
       return data;
     },
@@ -144,8 +155,22 @@ export function UnifiedBills({ subscriptions }: UnifiedBillsProps) {
       });
     });
 
+    cardBills.forEach((c: any) => {
+      if (c.is_paid) return;
+      const ref = parseISO(c.reference_month);
+      list.push({
+        id: `c-${c.id}`,
+        name: `${c.card_name} · ${format(ref, "MMM/yy", { locale: ptBR })}`,
+        value: Number(c.amount) || 0,
+        dueDate: c.due_date ? parseISO(c.due_date) : ref,
+        kind: "card",
+        nature: "variable",
+        meta: "fatura do mês",
+      });
+    });
+
     return list.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
-  }, [subscriptions, installments, financings, debts]);
+  }, [subscriptions, installments, financings, debts, cardBills]);
 
   const filtered = view === "all" ? bills : bills.filter(b => b.nature === view);
 

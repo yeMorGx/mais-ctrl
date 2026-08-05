@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubscriptionList, type PremiumPlanCard } from "./SubscriptionList";
 import { TodoList } from "./TodoList";
 import { CardInstallments } from "./CardInstallments";
+import { CardBills } from "./CardBills";
 import { DebtoList } from "./DebtoList";
 import { FinancialOverview } from "./FinancialOverview";
 import { UnifiedSearch, SearchFilters } from "./UnifiedSearch";
@@ -290,7 +291,7 @@ export const UnifiedDashboard = ({
         </CardHeader>
         <CardContent>
           <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-6">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 mb-6">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Resumo</span>
@@ -313,6 +314,10 @@ export const UnifiedDashboard = ({
                     {filteredData.tasks.length}
                   </span>
                 )}
+              </TabsTrigger>
+              <TabsTrigger value="cards" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                <span className="hidden sm:inline">Cartão</span>
               </TabsTrigger>
               <TabsTrigger value="installments" className="flex items-center gap-2">
                 <Wallet className="h-4 w-4" />
@@ -410,6 +415,10 @@ export const UnifiedDashboard = ({
 
             <TabsContent value="tasks" className="mt-0">
               <TodoList />
+            </TabsContent>
+
+            <TabsContent value="cards" className="mt-0">
+              <CardBills />
             </TabsContent>
 
             <TabsContent value="installments" className="mt-0">

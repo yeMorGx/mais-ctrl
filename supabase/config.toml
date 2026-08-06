@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.send-couple-invite]
 verify_jwt = false
+
+[functions.pluggy-diag]
+verify_jwt = false

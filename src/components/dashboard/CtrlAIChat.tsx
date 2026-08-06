@@ -68,6 +68,7 @@ export const CtrlAIChat = () => {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [scriptStatus, setScriptStatus] = useState<"loading" | "ready" | "error">("loading");
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [includeSandbox, setIncludeSandbox] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const probeScript = () => {

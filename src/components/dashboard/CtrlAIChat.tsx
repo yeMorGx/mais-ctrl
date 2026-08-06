@@ -68,6 +68,7 @@ export const CtrlAIChat = () => {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [scriptStatus, setScriptStatus] = useState<"loading" | "ready" | "error">("loading");
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [includeSandbox, setIncludeSandbox] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const probeScript = () => {
@@ -92,6 +93,16 @@ export const CtrlAIChat = () => {
       return data || [];
     },
   });
+
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["pluggy-accounts"],
+    queryFn: async () => {
+      const { data } = await supabase.from("pluggy_accounts").select("*").order("created_at", { ascending: true });
+      return data || [];
+    },
+  });
+
+
 
   const { data: subs = [] } = useQuery({
     queryKey: ["subs-for-ai"],
@@ -160,7 +171,7 @@ export const CtrlAIChat = () => {
     return recs.filter((r) => !dismissed.has(r.id));
   }, [subs, txs, dismissed]);
 
-  const handleConnect = async () => {
+  const handleConnect = async (updateItemId?: string) => {
     setConnecting(true);
     setConnectionError(null);
     try {
@@ -168,21 +179,36 @@ export const CtrlAIChat = () => {
       await loadPluggyConnect();
       setScriptStatus("ready");
 
-      const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
+      const { data, error } = await supabase.functions.invoke("pluggy-connect-token", {
+        body: updateItemId ? { itemId: updateItemId } : {},
+      });
       if (error) throw new Error(error.message || "Falha ao iniciar conexão");
       if (!data?.accessToken) throw new Error(data?.error || "Token não recebido. Verifique as credenciais Pluggy.");
 
       const pc = new window.PluggyConnect({
         connectToken: data.accessToken,
-        includeSandbox: true,
+        includeSandbox,
+        ...(updateItemId ? { updateItem: updateItemId } : {}),
         onSuccess: async (itemData: any) => {
-          toast({ title: "Conta conectada!", description: "Sincronizando..." });
-          await supabase.functions.invoke("pluggy-sync", { body: { itemId: itemData.item.id } });
+          const newItemId = itemData?.item?.id || updateItemId;
+          toast({ title: "Banco conectado!", description: "Importando contas e transações…" });
+          const { data: syncData, error: syncErr } = await supabase.functions.invoke("pluggy-sync", {
+            body: { itemId: newItemId },
+          });
           qc.invalidateQueries({ queryKey: ["pluggy-items"] });
+          qc.invalidateQueries({ queryKey: ["pluggy-accounts"] });
           qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
+          if (syncErr) {
+            toast({ title: "Conectado, mas a importação falhou", description: syncErr.message, variant: "destructive" });
+          } else {
+            toast({
+              title: "Tudo pronto!",
+              description: `${syncData?.accounts ?? 0} conta(s) e ${syncData?.transactions ?? 0} transação(ões) importadas.`,
+            });
+          }
         },
         onError: (err: any) => {
-          const msg = err?.message || "Falha ao conectar";
+          const msg = err?.message || err?.data?.message || "Falha ao conectar";
           setConnectionError(msg);
           toast({ title: "Erro no widget", description: msg, variant: "destructive" });
         },
@@ -199,15 +225,25 @@ export const CtrlAIChat = () => {
 
   const handleSync = async (itemId: string) => {
     toast({ title: "Sincronizando..." });
-    const { error } = await supabase.functions.invoke("pluggy-sync", { body: { itemId } });
-    if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
-    else { toast({ title: "Sincronizado!" }); qc.invalidateQueries({ queryKey: ["txs-for-ai"] }); }
+    const { data, error } = await supabase.functions.invoke("pluggy-sync", { body: { itemId } });
+    if (error) toast({ title: "Erro ao sincronizar", description: error.message, variant: "destructive" });
+    else {
+      toast({
+        title: "Sincronizado!",
+        description: `${data?.accounts ?? 0} conta(s) · ${data?.transactions ?? 0} transação(ões).`,
+      });
+      qc.invalidateQueries({ queryKey: ["pluggy-items"] });
+      qc.invalidateQueries({ queryKey: ["pluggy-accounts"] });
+      qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
+    }
   };
 
   const handleRemove = async (id: string) => {
-    if (!confirm("Remover esta conta conectada?")) return;
+    if (!confirm("Remover este banco conectado? As transações importadas também serão apagadas.")) return;
     await supabase.from("pluggy_items").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["pluggy-items"] });
+    qc.invalidateQueries({ queryKey: ["pluggy-accounts"] });
+    qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
   };
 
   const cancelSubscription = async (id: string) => {
@@ -332,8 +368,8 @@ export const CtrlAIChat = () => {
             <ShieldCheck className="h-4 w-4 text-primary" />
             Status da conexão Open Finance
           </h3>
-          <Badge variant="outline" className="gap-1 border-amber-500/40 text-amber-600 dark:text-amber-400">
-            <FlaskConical className="h-3 w-3" /> Modo Demo (sandbox)
+          <Badge variant="outline" className="gap-1 border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+            <ShieldCheck className="h-3 w-3" /> Conexão real (bancos oficiais)
           </Badge>
         </div>
 
@@ -342,7 +378,7 @@ export const CtrlAIChat = () => {
             <>
               <Loader2 className="h-5 w-5 text-primary animate-spin shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Carregando widget Pluggy…</p>
+                <p className="text-sm font-medium">Carregando conexão segura…</p>
                 <p className="text-xs text-muted-foreground">Isso normalmente leva alguns segundos.</p>
               </div>
             </>
@@ -351,9 +387,10 @@ export const CtrlAIChat = () => {
             <>
               <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Pronto para conectar</p>
+                <p className="text-sm font-medium">Pronto para conectar seu banco</p>
                 <p className="text-xs text-muted-foreground">
-                  Estamos em <strong>ambiente de testes (sandbox)</strong>. Use as credenciais demo do Pluggy para simular uma conta.
+                  Você entra direto no ambiente do seu banco (Nubank, Itaú, Bradesco, Inter, C6 e outros).
+                  Nós recebemos apenas <strong>leitura</strong> de saldos e transações — nunca sua senha.
                 </p>
               </div>
             </>
@@ -378,39 +415,77 @@ export const CtrlAIChat = () => {
             </>
           )}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIncludeSandbox((v) => !v)}
+          className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <FlaskConical className="h-3 w-3" />
+          {includeSandbox ? "Bancos de teste habilitados — voltar para bancos reais" : "Mostrar bancos de teste (sandbox)"}
+        </button>
       </Card>
 
       {/* Connected accounts */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold flex items-center gap-2"><Building2 className="h-4 w-4" /> Contas conectadas</h3>
-          <Button size="sm" onClick={handleConnect} disabled={connecting} className="bg-gradient-primary">
+          <h3 className="font-semibold flex items-center gap-2"><Building2 className="h-4 w-4" /> Bancos conectados</h3>
+          <Button size="sm" onClick={() => handleConnect()} disabled={connecting} className="bg-gradient-primary">
             {connecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plug className="h-4 w-4 mr-2" />}
-            Conectar conta
+            Conectar banco
           </Button>
         </div>
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma conta conectada. Conecte via Open Finance para começar.</p>
+          <p className="text-sm text-muted-foreground">Nenhum banco conectado. Conecte via Open Finance para que a Ctrl AI leia seus gastos reais.</p>
         ) : (
           <div className="grid gap-2">
-            {items.map((it: any) => (
-              <div key={it.id} className="flex items-center justify-between p-3 rounded-lg bg-background/60 border">
-                <div className="flex items-center gap-3">
-                  {it.institution_logo && <img src={it.institution_logo} alt="" className="h-8 w-8 rounded" />}
-                  <div>
-                    <p className="font-medium text-sm">{it.institution_name}</p>
-                    <p className="text-xs text-muted-foreground">{it.status}</p>
+            {items.map((it: any) => {
+              const itemAccounts = accounts.filter((a: any) => a.item_id === it.id);
+              const total = itemAccounts.reduce((s: number, a: any) => s + Number(a.balance || 0), 0);
+              const needsAttention = it.status && !["UPDATED", "UPDATING"].includes(it.status);
+              return (
+                <div key={it.id} className="p-3 rounded-lg bg-background/60 border">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {it.institution_logo && <img src={it.institution_logo} alt="" className="h-8 w-8 rounded" />}
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{it.institution_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {needsAttention ? "Precisa reconectar" : "Conectado"}
+                          {it.last_synced_at && ` · atualizado em ${new Date(it.last_synced_at).toLocaleString("pt-BR")}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {itemAccounts.length > 0 && (
+                        <span className="text-sm font-semibold mr-1">{fmtBRL(total)}</span>
+                      )}
+                      {needsAttention && (
+                        <Button size="sm" variant="outline" onClick={() => handleConnect(it.pluggy_item_id)} disabled={connecting}>
+                          Reconectar
+                        </Button>
+                      )}
+                      <Button size="icon" variant="ghost" title="Sincronizar" onClick={() => handleSync(it.pluggy_item_id)}><RefreshCw className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" title="Remover" onClick={() => handleRemove(it.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
                   </div>
+                  {itemAccounts.length > 0 && (
+                    <div className="mt-2 grid gap-1 pl-11">
+                      {itemAccounts.map((a: any) => (
+                        <div key={a.id} className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="truncate">{a.name || a.type}</span>
+                          <span>{fmtBRL(Number(a.balance || 0))}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-1">
-                  <Button size="icon" variant="ghost" onClick={() => handleSync(it.pluggy_item_id)}><RefreshCw className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => handleRemove(it.id)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>
+
 
       {/* Chat */}
       <Card className="flex flex-col h-[600px]">

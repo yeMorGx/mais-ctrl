@@ -160,7 +160,7 @@ export const CtrlAIChat = () => {
     return recs.filter((r) => !dismissed.has(r.id));
   }, [subs, txs, dismissed]);
 
-  const handleConnect = async () => {
+  const handleConnect = async (updateItemId?: string) => {
     setConnecting(true);
     setConnectionError(null);
     try {
@@ -168,21 +168,36 @@ export const CtrlAIChat = () => {
       await loadPluggyConnect();
       setScriptStatus("ready");
 
-      const { data, error } = await supabase.functions.invoke("pluggy-connect-token");
+      const { data, error } = await supabase.functions.invoke("pluggy-connect-token", {
+        body: updateItemId ? { itemId: updateItemId } : {},
+      });
       if (error) throw new Error(error.message || "Falha ao iniciar conexão");
       if (!data?.accessToken) throw new Error(data?.error || "Token não recebido. Verifique as credenciais Pluggy.");
 
       const pc = new window.PluggyConnect({
         connectToken: data.accessToken,
-        includeSandbox: true,
+        includeSandbox,
+        ...(updateItemId ? { updateItem: updateItemId } : {}),
         onSuccess: async (itemData: any) => {
-          toast({ title: "Conta conectada!", description: "Sincronizando..." });
-          await supabase.functions.invoke("pluggy-sync", { body: { itemId: itemData.item.id } });
+          const newItemId = itemData?.item?.id || updateItemId;
+          toast({ title: "Banco conectado!", description: "Importando contas e transações…" });
+          const { data: syncData, error: syncErr } = await supabase.functions.invoke("pluggy-sync", {
+            body: { itemId: newItemId },
+          });
           qc.invalidateQueries({ queryKey: ["pluggy-items"] });
+          qc.invalidateQueries({ queryKey: ["pluggy-accounts"] });
           qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
+          if (syncErr) {
+            toast({ title: "Conectado, mas a importação falhou", description: syncErr.message, variant: "destructive" });
+          } else {
+            toast({
+              title: "Tudo pronto!",
+              description: `${syncData?.accounts ?? 0} conta(s) e ${syncData?.transactions ?? 0} transação(ões) importadas.`,
+            });
+          }
         },
         onError: (err: any) => {
-          const msg = err?.message || "Falha ao conectar";
+          const msg = err?.message || err?.data?.message || "Falha ao conectar";
           setConnectionError(msg);
           toast({ title: "Erro no widget", description: msg, variant: "destructive" });
         },
@@ -199,9 +214,17 @@ export const CtrlAIChat = () => {
 
   const handleSync = async (itemId: string) => {
     toast({ title: "Sincronizando..." });
-    const { error } = await supabase.functions.invoke("pluggy-sync", { body: { itemId } });
-    if (error) toast({ title: "Erro", description: error.message, variant: "destructive" });
-    else { toast({ title: "Sincronizado!" }); qc.invalidateQueries({ queryKey: ["txs-for-ai"] }); }
+    const { data, error } = await supabase.functions.invoke("pluggy-sync", { body: { itemId } });
+    if (error) toast({ title: "Erro ao sincronizar", description: error.message, variant: "destructive" });
+    else {
+      toast({
+        title: "Sincronizado!",
+        description: `${data?.accounts ?? 0} conta(s) · ${data?.transactions ?? 0} transação(ões).`,
+      });
+      qc.invalidateQueries({ queryKey: ["pluggy-items"] });
+      qc.invalidateQueries({ queryKey: ["pluggy-accounts"] });
+      qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
+    }
   };
 
   const handleRemove = async (id: string) => {

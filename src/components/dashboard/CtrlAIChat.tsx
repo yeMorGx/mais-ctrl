@@ -239,9 +239,11 @@ export const CtrlAIChat = () => {
   };
 
   const handleRemove = async (id: string) => {
-    if (!confirm("Remover esta conta conectada?")) return;
+    if (!confirm("Remover este banco conectado? As transações importadas também serão apagadas.")) return;
     await supabase.from("pluggy_items").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["pluggy-items"] });
+    qc.invalidateQueries({ queryKey: ["pluggy-accounts"] });
+    qc.invalidateQueries({ queryKey: ["txs-for-ai"] });
   };
 
   const cancelSubscription = async (id: string) => {

@@ -94,6 +94,16 @@ export const CtrlAIChat = () => {
     },
   });
 
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["pluggy-accounts"],
+    queryFn: async () => {
+      const { data } = await supabase.from("pluggy_accounts").select("*").order("created_at", { ascending: true });
+      return data || [];
+    },
+  });
+
+
+
   const { data: subs = [] } = useQuery({
     queryKey: ["subs-for-ai"],
     queryFn: async () => {

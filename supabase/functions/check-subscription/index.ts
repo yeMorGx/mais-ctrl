@@ -64,8 +64,28 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id });
 
+    // Permanent (lifetime) access granted by admin must never be overwritten by Stripe sync
+    const { data: currentSub } = await supabaseClient
+      .from('user_subscriptions')
+      .select('plan, status, current_period_end')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (currentSub?.plan === 'lifetime' && currentSub?.status === 'active') {
+      logStep("Lifetime plan detected, skipping Stripe sync");
+      return new Response(JSON.stringify({
+        subscribed: true,
+        plan: 'lifetime',
+        lifetime: true,
+        subscription_end: null,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+
     
     if (customers.data.length === 0) {
       logStep("No customer found");

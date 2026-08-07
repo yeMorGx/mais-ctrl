@@ -158,6 +158,8 @@ serve(async (req) => {
           subscribed: true,
           plan: 'premium',
           subscription_end: currentSub?.current_period_end ?? null,
+          is_trialing: currentSub?.status === 'trialing',
+          trial_end: currentSub?.status === 'trialing' ? currentSub?.current_period_end ?? null : null,
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       

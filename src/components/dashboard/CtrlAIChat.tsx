@@ -68,7 +68,6 @@ export const CtrlAIChat = () => {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [scriptStatus, setScriptStatus] = useState<"loading" | "ready" | "error">("loading");
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [includeSandbox, setIncludeSandbox] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const probeScript = () => {
@@ -187,7 +186,8 @@ export const CtrlAIChat = () => {
 
       const pc = new window.PluggyConnect({
         connectToken: data.accessToken,
-        includeSandbox,
+        includeSandbox: false,
+        countries: ["BR"],
         ...(updateItemId ? { updateItem: updateItemId } : {}),
         onSuccess: async (itemData: any) => {
           const newItemId = itemData?.item?.id || updateItemId;
@@ -416,14 +416,12 @@ export const CtrlAIChat = () => {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIncludeSandbox((v) => !v)}
-          className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <FlaskConical className="h-3 w-3" />
-          {includeSandbox ? "Bancos de teste habilitados — voltar para bancos reais" : "Mostrar bancos de teste (sandbox)"}
-        </button>
+        <p className="mt-2 inline-flex items-start gap-1 text-xs text-muted-foreground">
+          <FlaskConical className="h-3 w-3 mt-0.5 shrink-0" />
+          Conexões em modo produção (bancos reais). Se aparecer o aviso "Aplicação demo" no widget, a
+          liberação de produção da conta Open Finance ainda está pendente de aprovação.
+        </p>
+
       </Card>
 
       {/* Connected accounts */}

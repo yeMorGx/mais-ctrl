@@ -78,7 +78,9 @@ const Dashboard = () => {
         if (!silent) {
           toast({
             title: "Assinatura verificada",
-            description: data.plan === 'premium' ? "Você tem o plano +Premium ativo!" : "Você está no plano Free",
+            description: data.plan === 'lifetime'
+              ? "Você tem o +Premium vitalício (permanente) ativo!"
+              : data.plan === 'premium' ? "Você tem o plano +Premium ativo!" : "Você está no plano Free",
           });
         }
         return data;
@@ -112,7 +114,7 @@ const Dashboard = () => {
   const pollSubscriptionAfterPayment = async () => {
     for (let attempt = 0; attempt < 6; attempt++) {
       const result = await handleCheckSubscription(attempt > 0);
-      if (result?.plan === 'premium') {
+      if (result?.plan === 'premium' || result?.plan === 'lifetime') {
         toast({
           title: "🎉 Bem-vindo ao +Premium!",
           description: "Seu plano foi ativado. Enviamos um e-mail de confirmação.",

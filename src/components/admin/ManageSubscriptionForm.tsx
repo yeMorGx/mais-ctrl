@@ -51,10 +51,12 @@ export const ManageSubscriptionForm = ({ user, onSuccess }: ManageSubscriptionFo
         // Vitalícia: no expiration
         payload.current_period_end = null;
         payload.current_period_start = new Date().toISOString();
+        payload.stripe_subscription_id = null;
       } else if (plan === "premium" && customEnd) {
         payload.current_period_end = new Date(customEnd + "T23:59:59").toISOString();
       } else if (plan === "free") {
         payload.current_period_end = null;
+        payload.stripe_subscription_id = null;
       }
 
       // Check if subscription exists

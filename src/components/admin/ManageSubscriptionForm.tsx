@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Crown, Infinity as InfinityIcon } from "lucide-react";
+import { Loader2, Crown, Infinity as InfinityIcon, Clock } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -36,6 +36,13 @@ export const ManageSubscriptionForm = ({ user, onSuccess }: ManageSubscriptionFo
   const [status, setStatus] = useState(user.subscription?.status || "active");
   const [customEnd, setCustomEnd] = useState<string>(toDateInput(user.subscription?.current_period_end));
 
+  const isTrial = plan === "premium" && status === "trialing";
+  const addDays = (days: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    setCustomEnd(d.toISOString().slice(0, 10));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -52,8 +59,16 @@ export const ManageSubscriptionForm = ({ user, onSuccess }: ManageSubscriptionFo
         payload.current_period_end = null;
         payload.current_period_start = new Date().toISOString();
         payload.stripe_subscription_id = null;
-      } else if (plan === "premium" && customEnd) {
-        payload.current_period_end = new Date(customEnd + "T23:59:59").toISOString();
+      } else if (plan === "premium") {
+        if (status === "trialing") {
+          if (!customEnd) throw new Error("Escolha a data final do teste (+Premium Trial).");
+          payload.current_period_start = new Date().toISOString();
+          payload.current_period_end = new Date(customEnd + "T23:59:59").toISOString();
+          payload.stripe_subscription_id = null;
+        } else if (customEnd) {
+          payload.current_period_end = new Date(customEnd + "T23:59:59").toISOString();
+          payload.stripe_subscription_id = null;
+        }
       } else if (plan === "free") {
         payload.current_period_end = null;
         payload.stripe_subscription_id = null;
@@ -81,7 +96,7 @@ export const ManageSubscriptionForm = ({ user, onSuccess }: ManageSubscriptionFo
 
       const planLabel =
         plan === "lifetime" ? "Vitalícia (+Premium permanente)" :
-        plan === "premium" ? "+Premium" : "Free";
+        plan === "premium" ? (status === "trialing" ? "+Premium Trial (teste)" : "+Premium") : "Free";
 
       toast({
         title: "Assinatura atualizada!",
@@ -119,6 +134,11 @@ export const ManageSubscriptionForm = ({ user, onSuccess }: ManageSubscriptionFo
                   <InfinityIcon className="h-3 w-3" />
                   Vitalícia
                 </Badge>
+              ) : isTrial ? (
+                <Badge variant="secondary" className="gap-1">
+                  <Clock className="h-3 w-3" />
+                  +Premium Trial
+                </Badge>
               ) : plan === "premium" ? (
                 <Badge className="bg-gradient-primary text-white gap-1">
                   <Crown className="h-3 w-3" />
@@ -128,7 +148,7 @@ export const ManageSubscriptionForm = ({ user, onSuccess }: ManageSubscriptionFo
                 <Badge variant="outline">Free</Badge>
               )}
               <Badge variant={status === "active" ? "default" : "secondary"}>
-                {status === "active" ? "Ativo" : status}
+                {status === "active" ? "Ativo" : status === "trialing" ? "Em teste" : status}
               </Badge>
             </div>
           </div>
@@ -157,6 +177,7 @@ export const ManageSubscriptionForm = ({ user, onSuccess }: ManageSubscriptionFo
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="active">Ativo</SelectItem>
+                <SelectItem value="trialing">Em teste (trial)</SelectItem>
                 <SelectItem value="cancelled">Cancelado</SelectItem>
                 <SelectItem value="expired">Expirado</SelectItem>
                 <SelectItem value="pending">Pendente</SelectItem>
@@ -164,17 +185,52 @@ export const ManageSubscriptionForm = ({ user, onSuccess }: ManageSubscriptionFo
             </Select>
           </div>
 
-          {/* Custom expiration only for premium */}
+          {/* Custom expiration / trial end for premium */}
           {plan === "premium" && (
             <div className="space-y-2">
-              <Label>Data de expiração personalizada (opcional)</Label>
+              <Label>
+                {isTrial ? "Data final do teste (+Premium Trial)" : "Data de expiração personalizada (opcional)"}
+              </Label>
               <Input
                 type="date"
+                min={new Date().toISOString().slice(0, 10)}
                 value={customEnd}
                 onChange={(e) => setCustomEnd(e.target.value)}
+                required={isTrial}
               />
+              <div className="flex flex-wrap gap-2">
+                {[7, 14, 30, 60].map((d) => (
+                  <Button
+                    key={d}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addDays(d)}
+                  >
+                    +{d} dias
+                  </Button>
+                ))}
+              </div>
               <p className="text-xs text-muted-foreground">
-                Defina manualmente até quando o usuário terá acesso +Premium. Deixe em branco para manter o ciclo normal do Stripe.
+                {isTrial
+                  ? "O usuário terá acesso completo ao +Premium até esta data. Depois disso ele volta automaticamente para o Free."
+                  : "Defina manualmente até quando o usuário terá acesso +Premium. Deixe em branco para manter o ciclo normal do Stripe."}
+              </p>
+            </div>
+          )}
+
+          {isTrial && customEnd && (
+            <div className="p-3 bg-muted/50 border rounded-lg">
+              <p className="text-xs text-muted-foreground">
+                ⏳ Trial configurado: acesso +Premium por{" "}
+                <span className="font-medium text-foreground">
+                  {Math.max(
+                    0,
+                    Math.ceil((new Date(customEnd + "T23:59:59").getTime() - Date.now()) / 86400000)
+                  )}{" "}
+                  dia(s)
+                </span>{" "}
+                (até {new Date(customEnd + "T12:00:00").toLocaleDateString("pt-BR")}).
               </p>
             </div>
           )}

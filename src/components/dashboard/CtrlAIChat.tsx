@@ -416,14 +416,12 @@ export const CtrlAIChat = () => {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIncludeSandbox((v) => !v)}
-          className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <FlaskConical className="h-3 w-3" />
-          {includeSandbox ? "Bancos de teste habilitados — voltar para bancos reais" : "Mostrar bancos de teste (sandbox)"}
-        </button>
+        <p className="mt-2 inline-flex items-start gap-1 text-xs text-muted-foreground">
+          <FlaskConical className="h-3 w-3 mt-0.5 shrink-0" />
+          Conexões em modo produção (bancos reais). Se aparecer o aviso "Aplicação demo" no widget, a
+          liberação de produção da conta Open Finance ainda está pendente de aprovação.
+        </p>
+
       </Card>
 
       {/* Connected accounts */}

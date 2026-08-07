@@ -97,6 +97,15 @@ serve(async (req) => {
     
     if (customers.data.length === 0) {
       logStep("No customer found");
+
+      if (adminGrantedPremium) {
+        logStep("Admin-granted premium preserved (no Stripe customer)");
+        return new Response(JSON.stringify({
+          subscribed: true,
+          plan: 'premium',
+          subscription_end: currentSub?.current_period_end ?? null,
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
       
       // Update user subscription to free
       await supabaseClient
@@ -107,7 +116,8 @@ serve(async (req) => {
           stripe_customer_id: null,
           stripe_subscription_id: null
         })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .neq('plan', 'lifetime');
       
       return new Response(JSON.stringify({ subscribed: false, plan: 'free' }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -140,6 +150,15 @@ serve(async (req) => {
 
     if (!subscription) {
       logStep("No active, trialing, or valid canceled subscription");
+
+      if (adminGrantedPremium) {
+        logStep("Admin-granted premium preserved (no Stripe subscription)");
+        return new Response(JSON.stringify({
+          subscribed: true,
+          plan: 'premium',
+          subscription_end: currentSub?.current_period_end ?? null,
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
       
       await supabaseClient
         .from('user_subscriptions')

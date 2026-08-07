@@ -71,10 +71,11 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .maybeSingle();
 
-    // Premium granted manually by an admin (no Stripe subscription behind it) is also preserved
+    // Premium granted manually by an admin (no Stripe subscription behind it) is also preserved.
+    // This covers both full premium grants and admin-configured trials (status = 'trialing').
     const adminGrantedPremium =
       currentSub?.plan === 'premium' &&
-      currentSub?.status === 'active' &&
+      (currentSub?.status === 'active' || currentSub?.status === 'trialing') &&
       !currentSub?.stripe_subscription_id &&
       (!currentSub?.current_period_end || new Date(currentSub.current_period_end) > new Date());
 

@@ -67,9 +67,17 @@ serve(async (req) => {
     // Permanent (lifetime) access granted by admin must never be overwritten by Stripe sync
     const { data: currentSub } = await supabaseClient
       .from('user_subscriptions')
-      .select('plan, status, current_period_end')
+      .select('plan, status, current_period_end, stripe_subscription_id')
       .eq('user_id', user.id)
       .maybeSingle();
+
+    // Premium granted manually by an admin (no Stripe subscription behind it) is also preserved
+    const adminGrantedPremium =
+      currentSub?.plan === 'premium' &&
+      currentSub?.status === 'active' &&
+      !currentSub?.stripe_subscription_id &&
+      (!currentSub?.current_period_end || new Date(currentSub.current_period_end) > new Date());
+
 
     if (currentSub?.plan === 'lifetime' && currentSub?.status === 'active') {
       logStep("Lifetime plan detected, skipping Stripe sync");

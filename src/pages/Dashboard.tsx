@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, Building2, Sparkles, Crown } from "lucide-react";
+import { Plus, LayoutDashboard, TrendingUp, Calendar, Bell, User, Share2, Settings, HelpCircle, CreditCard, Menu, Headphones, Users, MessageSquare, Globe, Building2, Sparkles, Crown, HandCoins } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -20,6 +20,7 @@ import { LiveChatTab } from "@/components/dashboard/LiveChatTab";
 import { SiteManagement } from "@/components/dashboard/SiteManagement";
 import { UnifiedDashboard } from "@/components/dashboard/UnifiedDashboard";
 import { FinancingControl } from "@/components/dashboard/FinancingControl";
+import { LoansControl } from "@/components/dashboard/LoansControl";
 import { CtrlAIChat } from "@/components/dashboard/CtrlAIChat";
 import { SpaceSwitcher } from "@/components/couple/SpaceSwitcher";
 import { CoupleSpace } from "@/components/couple/CoupleSpace";
@@ -316,6 +317,15 @@ const Dashboard = () => {
                   </Button>
 
                   <Button
+                    variant={activeTab === "loans" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => { setActiveTab("loans"); setMobileMenuOpen(false); }}
+                  >
+                    <HandCoins className="h-4 w-4 mr-2" />
+                    Empréstimos
+                  </Button>
+
+                  <Button
                     variant={activeTab === "ctrl-ai" ? "default" : "ghost"}
                     className="justify-start"
                     onClick={() => { setActiveTab("ctrl-ai"); setMobileMenuOpen(false); }}
@@ -393,7 +403,7 @@ const Dashboard = () => {
           {/* Desktop Tabs */}
           {(() => {
             const tabCount =
-              5 +
+              6 +
               (isPremium ? 1 : 0) +
               (isPremium && (isAdmin || isOwner) ? 1 : 0) +
               (isOwner ? 2 : 0);
@@ -423,6 +433,10 @@ const Dashboard = () => {
                 <TabsTrigger value="financings" className="flex items-center gap-2">
                   <Building2 className="h-4 w-4" />
                   <span className="hidden sm:inline">Financiamentos</span>
+                </TabsTrigger>
+                <TabsTrigger value="loans" className="flex items-center gap-2">
+                  <HandCoins className="h-4 w-4" />
+                  <span className="hidden sm:inline">Empréstimos</span>
                 </TabsTrigger>
                 <TabsTrigger value="ctrl-ai" className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
@@ -487,6 +501,10 @@ const Dashboard = () => {
 
           <TabsContent value="financings">
             <FinancingControl />
+          </TabsContent>
+
+          <TabsContent value="loans">
+            <LoansControl />
           </TabsContent>
 
           <TabsContent value="ctrl-ai">

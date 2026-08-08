@@ -453,3 +453,12 @@ function SummaryCard({ icon: Icon, label, value, hint }: { icon: React.ElementTy
     </Card>
   );
 }
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="font-medium">{value}</p>
+    </div>
+  );
+}

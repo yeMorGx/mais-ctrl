@@ -1073,6 +1073,110 @@ export type Database = {
           },
         ]
       }
+      loan_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          installment_number: number
+          loan_id: string
+          notes: string | null
+          paid_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          installment_number?: number
+          loan_id: string
+          notes?: string | null
+          paid_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          installment_number?: number
+          loan_id?: string
+          notes?: string | null
+          paid_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_payments_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loans: {
+        Row: {
+          created_at: string
+          due_day: number
+          id: string
+          installment_value: number
+          interest_rate: number
+          lender: string | null
+          loan_type: string
+          name: string
+          notes: string | null
+          paid_installments: number
+          principal_amount: number
+          start_date: string
+          status: string
+          total_amount: number
+          total_installments: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          due_day?: number
+          id?: string
+          installment_value?: number
+          interest_rate?: number
+          lender?: string | null
+          loan_type?: string
+          name: string
+          notes?: string | null
+          paid_installments?: number
+          principal_amount?: number
+          start_date?: string
+          status?: string
+          total_amount?: number
+          total_installments?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          due_day?: number
+          id?: string
+          installment_value?: number
+          interest_rate?: number
+          lender?: string | null
+          loan_type?: string
+          name?: string
+          notes?: string | null
+          paid_installments?: number
+          principal_amount?: number
+          start_date?: string
+          status?: string
+          total_amount?: number
+          total_installments?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       password_reset_codes: {
         Row: {
           code: string

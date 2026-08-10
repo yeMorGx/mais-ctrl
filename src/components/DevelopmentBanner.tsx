@@ -48,7 +48,7 @@ export const DevelopmentBanner = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-white hover:bg-white/20 absolute right-2 top-1/2 -translate-y-1/2"
+          className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 text-background hover:bg-background/20"
           onClick={() => setIsVisible(false)}
         >
           <X className="w-4 h-4" />

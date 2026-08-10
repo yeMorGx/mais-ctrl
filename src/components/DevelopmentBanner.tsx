@@ -31,7 +31,7 @@ export const DevelopmentBanner = () => {
   if (!isVisible || isLandingPage || !isEnabled) return null;
 
   return (
-    <div className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 text-white px-4 py-2.5 relative z-50">
+    <div className="relative z-50 border-b border-border bg-foreground px-4 py-2.5 text-background">
       <div className="container mx-auto flex items-center justify-center gap-3 text-sm">
         <AlertTriangle className="w-4 h-4 flex-shrink-0" />
         <span className="text-center">
@@ -48,7 +48,7 @@ export const DevelopmentBanner = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-white hover:bg-white/20 absolute right-2 top-1/2 -translate-y-1/2"
+          className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 text-background hover:bg-background/20"
           onClick={() => setIsVisible(false)}
         >
           <X className="w-4 h-4" />

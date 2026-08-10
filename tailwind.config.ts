@@ -13,7 +13,12 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Figtree", "ui-sans-serif", "system-ui", "-apple-system", "sans-serif"],
+        display: ["Outfit", "Figtree", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
+
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

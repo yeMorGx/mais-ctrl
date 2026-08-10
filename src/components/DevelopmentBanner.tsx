@@ -31,7 +31,7 @@ export const DevelopmentBanner = () => {
   if (!isVisible || isLandingPage || !isEnabled) return null;
 
   return (
-    <div className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 text-white px-4 py-2.5 relative z-50">
+    <div className="relative z-50 border-b border-border bg-foreground px-4 py-2.5 text-background">
       <div className="container mx-auto flex items-center justify-center gap-3 text-sm">
         <AlertTriangle className="w-4 h-4 flex-shrink-0" />
         <span className="text-center">

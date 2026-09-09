@@ -25,6 +25,30 @@ export const Navigation = () => {
     { label: t("nav.pricing"), href: "#pricing" },
   ];
 
+  const renderNavLink = (link: (typeof navLinks)[number], mobile = false) => {
+    const className = mobile
+      ? "rounded-lg px-4 py-2 text-left font-medium text-foreground/80 transition-colors hover:bg-accent/80 hover:text-foreground"
+      : "text-sm font-semibold text-foreground/70 transition-colors hover:text-foreground";
+
+    if (location.pathname === "/") {
+      return (
+        <button
+          type="button"
+          onClick={() => scrollToSection(link.href.substring(1))}
+          className={className}
+        >
+          {link.label}
+        </button>
+      );
+    }
+
+    return (
+      <Link to={`/${link.href}`} onClick={() => setIsOpen(false)} className={className}>
+        {link.label}
+      </Link>
+    );
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/70 bg-background/72 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -35,13 +59,7 @@ export const Navigation = () => {
           {/* Desktop Navigation - Centered */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => scrollToSection(link.href.substring(1))}
-                className="text-sm font-semibold text-foreground/70 transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </button>
+              <span key={link.href}>{renderNavLink(link)}</span>
             ))}
           </div>
 
@@ -78,13 +96,7 @@ export const Navigation = () => {
           <div className="md:hidden py-4 animate-fade-in">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => scrollToSection(link.href.substring(1))}
-                  className="rounded-lg px-4 py-2 text-left font-medium text-foreground/80 transition-colors hover:bg-accent/80 hover:text-foreground"
-                >
-                  {link.label}
-                </button>
+                <span key={link.href}>{renderNavLink(link, true)}</span>
               ))}
               <div className="flex flex-col gap-2 px-4 pt-4 border-t border-border">
                 <LanguageSwitcher />

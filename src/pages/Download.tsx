@@ -1,10 +1,11 @@
-import { ArrowLeft, Check, Download as DownloadIcon, ShieldCheck, Smartphone } from "lucide-react";
+import { ArrowLeft, Download as DownloadIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { Navigation } from "@/components/Navigation";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { AndroidPhoneMockup } from "@/components/AndroidPhoneMockup";
 
 const androidDownloadUrl = import.meta.env.VITE_ANDROID_DOWNLOAD_URL?.trim();
 
@@ -72,46 +73,16 @@ const Download = () => {
               </p>
             </section>
 
-            <section className="relative mx-auto w-full max-w-md lg:ml-auto" aria-label={t("download.cardLabel")}>
-              <div className="absolute -inset-8 rounded-[3rem] bg-primary/15 blur-3xl" aria-hidden="true" />
-              <div className="relative overflow-hidden rounded-[2rem] border border-border/70 bg-card/85 p-6 shadow-elegant backdrop-blur-2xl md:p-8">
-                <div className="mb-8 flex items-start justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground">{t("download.cardEyebrow")}</p>
-                    <h2 className="mt-1 text-2xl font-bold">MaisCtrl Android</h2>
+            <section className="relative mx-auto w-full max-w-xl lg:ml-auto" aria-label={t("download.cardLabel")}>
+              <div className="absolute inset-x-10 top-20 h-72 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" />
+              <div className="relative">
+                <AndroidPhoneMockup />
+                <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/15 bg-foreground/90 px-4 py-2.5 text-background shadow-2xl backdrop-blur-xl">
+                  <img src="/assets/app-icon.svg" alt="" className="h-8 w-8 rounded-lg" draggable={false} />
+                  <div className="whitespace-nowrap">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground">Android</p>
+                    <p className="text-sm font-semibold">{t("download.panelSubtitle")}</p>
                   </div>
-                  <img
-                    src="/assets/app-icon.svg"
-                    alt=""
-                    className="h-16 w-16 rounded-[1.15rem] shadow-lg"
-                    draggable={false}
-                  />
-                </div>
-
-                <div className="rounded-2xl bg-foreground p-5 text-background shadow-xl">
-                  <div className="mb-6 flex items-center gap-4">
-                    <div className="grid h-12 w-12 place-items-center rounded-xl bg-background/10">
-                      <Smartphone className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <p className="font-semibold">{t("download.panelTitle")}</p>
-                      <p className="text-sm text-background/60">{t("download.panelSubtitle")}</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 text-sm text-background/80">
-                    {[t("download.feature1"), t("download.feature2"), t("download.feature3")].map((feature) => (
-                      <div key={feature} className="flex items-center gap-3">
-                        <Check className="h-4 w-4 shrink-0 text-primary-foreground" />
-                        <span>{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-center gap-3 rounded-xl border border-border bg-background/70 p-4">
-                  <ShieldCheck className="h-5 w-5 shrink-0 text-primary" />
-                  <p className="text-sm leading-relaxed text-muted-foreground">{t("download.securityNote")}</p>
                 </div>
               </div>
             </section>

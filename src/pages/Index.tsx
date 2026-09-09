@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Bell, TrendingUp, ArrowRight, Check, Star, Quote } from "lucide-react";
+import { CreditCard, Bell, TrendingUp, ArrowRight, Check, Star, Quote, Download } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
@@ -218,7 +218,7 @@ const Index = () => {
           </motion.p>
 
           <motion.div 
-            className="flex justify-center pt-4"
+            className="flex flex-col justify-center gap-3 pt-4 sm:flex-row"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
@@ -227,6 +227,12 @@ const Index = () => {
               <Button variant="hero" size="xl" className="group">
                 {t("hero.cta")}
                 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <Link to="/download">
+              <Button variant="outline" size="xl" className="w-full sm:w-auto">
+                <Download />
+                {t("hero.downloadAndroid")}
               </Button>
             </Link>
           </motion.div>

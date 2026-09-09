@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Download, Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -48,6 +48,12 @@ export const Navigation = () => {
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <LanguageSwitcher />
+            <Link to="/download">
+              <Button variant="outline" className="gap-2">
+                <Download className="h-4 w-4" />
+                {t("nav.download")}
+              </Button>
+            </Link>
             <Link to="/auth">
               <Button variant="ghost">{t("nav.login")}</Button>
             </Link>
@@ -82,6 +88,12 @@ export const Navigation = () => {
               ))}
               <div className="flex flex-col gap-2 px-4 pt-4 border-t border-border">
                 <LanguageSwitcher />
+                <Link to="/download" onClick={() => setIsOpen(false)}>
+                  <Button variant="outline" className="w-full gap-2">
+                    <Download className="h-4 w-4" />
+                    {t("nav.download")}
+                  </Button>
+                </Link>
                 <Link to="/auth" onClick={() => setIsOpen(false)}>
                   <Button variant="ghost" className="w-full">
                     {t("nav.login")}

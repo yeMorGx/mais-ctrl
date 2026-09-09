@@ -14,7 +14,8 @@
     "support": "Support",
     "dashboard": "Dashboard",
     "login": "Sign in",
-    "signup": "Sign up"
+    "signup": "Sign up",
+    "download": "Download for Android"
   },
   "auth": {
     "welcome": "Welcome",
@@ -54,7 +55,29 @@
     "demo": "View demo",
     "free5": "Free for 5 subscriptions",
     "trial3Days": "3 days free on Premium",
-    "noCard": "No credit card required"
+    "noCard": "No credit card required",
+    "downloadAndroid": "Download for Android"
+  },
+  "download": {
+    "back": "Back to home",
+    "eyebrow": "MaisCtrl for Android",
+    "title": "Your financial control,",
+    "titleHighlight": "always with you",
+    "description": "Take your subscriptions, alerts and financial decisions wherever you go. Download MaisCtrl for Android.",
+    "cta": "Download Android app",
+    "comingSoon": "Android coming soon",
+    "webCta": "Use in browser",
+    "readyNote": "You will be redirected to the official installation.",
+    "pendingNote": "The installation link will be available as soon as the app is published.",
+    "cardLabel": "MaisCtrl Android app preview",
+    "cardEyebrow": "Your money, clearer",
+    "panelTitle": "Everything in your pocket",
+    "panelSubtitle": "Control without the clutter",
+    "feature1": "Track your subscriptions",
+    "feature2": "Get billing reminders",
+    "feature3": "Understand your spending in seconds",
+    "securityNote": "Installation will happen through an official MaisCtrl channel.",
+    "footer": "© 2025 MaisCtrl. Financial control with clarity."
   },
   "features": {
     "management": {

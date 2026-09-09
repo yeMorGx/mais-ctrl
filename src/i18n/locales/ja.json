@@ -14,7 +14,8 @@
     "support": "サポート",
     "dashboard": "ダッシュボード",
     "login": "ログイン",
-    "signup": "新規登録"
+    "signup": "新規登録",
+    "download": "Android版をダウンロード"
   },
   "auth": {
     "welcome": "ようこそ",
@@ -54,7 +55,29 @@
     "demo": "デモを見る",
     "free5": "5つまで無料",
     "trial3Days": "プレミアム3日間無料",
-    "noCard": "クレジットカード不要"
+    "noCard": "クレジットカード不要",
+    "downloadAndroid": "Android版をダウンロード"
+  },
+  "download": {
+    "back": "ホームに戻る",
+    "eyebrow": "Android版 MaisCtrl",
+    "title": "お金の管理を、",
+    "titleHighlight": "いつでも手元に",
+    "description": "サブスクリプション、アラート、金融の意思決定をどこへでも。Android版MaisCtrlをダウンロードしましょう。",
+    "cta": "Androidアプリをダウンロード",
+    "comingSoon": "Android版は近日公開",
+    "webCta": "ブラウザで使う",
+    "readyNote": "公式インストールページへ移動します。",
+    "pendingNote": "アプリ公開後にインストールリンクを利用できます。",
+    "cardLabel": "MaisCtrl Androidアプリのプレビュー",
+    "cardEyebrow": "お金をもっと明確に",
+    "panelTitle": "すべてをポケットに",
+    "panelSubtitle": "シンプルな管理",
+    "feature1": "サブスクリプションを管理",
+    "feature2": "請求リマインダーを受け取る",
+    "feature3": "支出を数秒で把握",
+    "securityNote": "MaisCtrl公式チャンネルからインストールします。",
+    "footer": "© 2025 MaisCtrl. 明確な財務管理。"
   },
   "features": {
     "management": {

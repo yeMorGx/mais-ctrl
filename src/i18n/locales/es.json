@@ -14,7 +14,8 @@
     "support": "Soporte",
     "dashboard": "Panel",
     "login": "Iniciar sesión",
-    "signup": "Crear cuenta"
+    "signup": "Crear cuenta",
+    "download": "Descargar para Android"
   },
   "auth": {
     "welcome": "Bienvenido",
@@ -54,7 +55,29 @@
     "demo": "Ver demostración",
     "free5": "Gratis para 5 suscripciones",
     "trial3Days": "3 días gratis en Premium",
-    "noCard": "Sin tarjeta de crédito"
+    "noCard": "Sin tarjeta de crédito",
+    "downloadAndroid": "Descargar para Android"
+  },
+  "download": {
+    "back": "Volver al inicio",
+    "eyebrow": "MaisCtrl para Android",
+    "title": "Tu control financiero,",
+    "titleHighlight": "siempre contigo",
+    "description": "Lleva tus suscripciones, alertas y decisiones financieras donde vayas. Descarga MaisCtrl para Android.",
+    "cta": "Descargar app Android",
+    "comingSoon": "Android próximamente",
+    "webCta": "Usar en el navegador",
+    "readyNote": "Serás redirigido a la instalación oficial.",
+    "pendingNote": "El enlace de instalación estará disponible cuando se publique la app.",
+    "cardLabel": "Vista previa de la app MaisCtrl para Android",
+    "cardEyebrow": "Tu dinero, más claro",
+    "panelTitle": "Todo en tu bolsillo",
+    "panelSubtitle": "Control sin complicaciones",
+    "feature1": "Controla tus suscripciones",
+    "feature2": "Recibe recordatorios de cobros",
+    "feature3": "Entiende tus gastos en segundos",
+    "securityNote": "La instalación se realizará desde un canal oficial de MaisCtrl.",
+    "footer": "© 2025 MaisCtrl. Control financiero con claridad."
   },
   "features": {
     "management": {

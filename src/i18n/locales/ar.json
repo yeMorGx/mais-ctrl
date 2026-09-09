@@ -14,7 +14,8 @@
     "support": "الدعم",
     "dashboard": "لوحة التحكم",
     "login": "تسجيل الدخول",
-    "signup": "إنشاء حساب"
+    "signup": "إنشاء حساب",
+    "download": "التنزيل لنظام Android"
   },
   "auth": {
     "welcome": "مرحباً",
@@ -54,7 +55,29 @@
     "demo": "عرض توضيحي",
     "free5": "مجاني لـ 5 اشتراكات",
     "trial3Days": "3 أيام مجانية في البريميوم",
-    "noCard": "لا حاجة لبطاقة ائتمان"
+    "noCard": "لا حاجة لبطاقة ائتمان",
+    "downloadAndroid": "التنزيل لنظام Android"
+  },
+  "download": {
+    "back": "العودة إلى الصفحة الرئيسية",
+    "eyebrow": "MaisCtrl لنظام Android",
+    "title": "تحكمك المالي،",
+    "titleHighlight": "معك دائمًا",
+    "description": "اصطحب اشتراكاتك وتنبيهاتك وقراراتك المالية أينما ذهبت. نزّل MaisCtrl لنظام Android.",
+    "cta": "تنزيل تطبيق Android",
+    "comingSoon": "Android قريبًا",
+    "webCta": "الاستخدام عبر المتصفح",
+    "readyNote": "سيتم توجيهك إلى التثبيت الرسمي.",
+    "pendingNote": "سيصبح رابط التثبيت متاحًا عند نشر التطبيق.",
+    "cardLabel": "معاينة تطبيق MaisCtrl لنظام Android",
+    "cardEyebrow": "أموالك، أوضح",
+    "panelTitle": "كل شيء في جيبك",
+    "panelSubtitle": "تحكم بلا تعقيد",
+    "feature1": "تابع اشتراكاتك",
+    "feature2": "احصل على تذكيرات الفواتير",
+    "feature3": "افهم إنفاقك خلال ثوانٍ",
+    "securityNote": "سيتم التثبيت عبر قناة رسمية من MaisCtrl.",
+    "footer": "© 2025 MaisCtrl. تحكم مالي بوضوح."
   },
   "features": {
     "management": {

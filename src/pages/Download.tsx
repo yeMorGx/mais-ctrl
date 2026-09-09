@@ -7,7 +7,9 @@ import { Navigation } from "@/components/Navigation";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { AndroidPhoneMockup } from "@/components/AndroidPhoneMockup";
 
-const androidDownloadUrl = import.meta.env.VITE_ANDROID_DOWNLOAD_URL?.trim();
+const androidDownloadUrl =
+  import.meta.env.VITE_ANDROID_DOWNLOAD_URL?.trim() ||
+  "https://github.com/yeMorGx/maisctrlapp/releases/download/android-latest/maisctrl.apk";
 
 const Download = () => {
   const { t } = useTranslation();

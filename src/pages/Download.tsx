@@ -77,13 +77,6 @@ const Download = () => {
               <div className="absolute inset-x-10 top-20 h-72 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" />
               <div className="relative">
                 <AndroidPhoneMockup />
-                <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/15 bg-foreground/90 px-4 py-2.5 text-background shadow-2xl backdrop-blur-xl">
-                  <img src="/assets/app-icon.svg" alt="" className="h-8 w-8 rounded-lg" draggable={false} />
-                  <div className="whitespace-nowrap">
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground">Android</p>
-                    <p className="text-sm font-semibold">{t("download.panelSubtitle")}</p>
-                  </div>
-                </div>
               </div>
             </section>
           </div>

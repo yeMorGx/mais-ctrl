@@ -247,16 +247,6 @@ export function AndroidPhoneMockup({ className = "" }: AndroidPhoneMockupProps) 
     powerButton.position.set(1.5, 1.16, 0);
     phone.add(powerButton);
 
-    const shadow = new THREE.Mesh(
-      new THREE.CircleGeometry(2.1, 64),
-      new THREE.MeshBasicMaterial({ color: 0x4c1d95, transparent: true, opacity: 0.15, depthWrite: false }),
-    );
-    shadow.rotation.x = -Math.PI / 2;
-    shadow.rotation.z = -0.1;
-    shadow.scale.set(1.35, 0.42, 1);
-    shadow.position.set(0, -3.15, -0.65);
-    scene.add(shadow);
-
     const clock = new THREE.Clock();
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let pointerX = 0;
@@ -293,7 +283,6 @@ export function AndroidPhoneMockup({ className = "" }: AndroidPhoneMockupProps) 
         phone.rotation.x = THREE.MathUtils.lerp(phone.rotation.x, -0.05 + pointerY * 0.08, 0.05);
         phone.rotation.y = THREE.MathUtils.lerp(phone.rotation.y, -0.38 + pointerX * 0.18, 0.05);
         phone.rotation.z = THREE.MathUtils.lerp(phone.rotation.z, 0.035 - pointerX * 0.035, 0.05);
-        shadow.material.opacity = 0.13 + Math.sin(elapsed * 1.15) * 0.025;
       }
       renderer.render(scene, camera);
       animationFrame = window.requestAnimationFrame(animate);

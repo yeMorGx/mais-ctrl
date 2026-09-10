@@ -51,23 +51,23 @@ const Download = () => {
 
               <div className="flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
                 {androidDownloadUrl ? (
-                  <a href={androidDownloadUrl} target="_blank" rel="noreferrer">
-                    <Button variant="gradient" size="xl" className="w-full sm:w-auto">
+                  <Button asChild variant="gradient" size="xl" className="w-full sm:w-auto">
+                    <a href={androidDownloadUrl} target="_blank" rel="noreferrer">
                       <DownloadIcon />
                       {t("download.cta")}
-                    </Button>
-                  </a>
+                    </a>
+                  </Button>
                 ) : (
                   <Button variant="gradient" size="xl" className="w-full sm:w-auto" disabled>
                     <DownloadIcon />
                     {t("download.comingSoon")}
                   </Button>
                 )}
-                <Link to="/auth">
-                  <Button variant="outline" size="xl" className="w-full sm:w-auto">
+                <Button asChild variant="outline" size="xl" className="w-full sm:w-auto">
+                  <Link to="/auth">
                     {t("download.webCta")}
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
 
               <p className="mt-4 text-sm text-muted-foreground">

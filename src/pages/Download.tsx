@@ -71,6 +71,25 @@ const Download = () => {
               <p className="mt-4 text-sm text-muted-foreground">
                 {androidDownloadUrl ? t("download.readyNote") : t("download.pendingNote")}
               </p>
+
+              {androidDownloadUrl && (
+                <div className="mt-8 rounded-2xl border border-border/70 bg-background/65 p-5 text-left shadow-sm backdrop-blur">
+                  <p className="text-sm font-bold text-foreground">{t("download.installTitle")}</p>
+                  <ol className="mt-4 space-y-3 text-sm text-muted-foreground">
+                    {["installStep1", "installStep2", "installStep3"].map((key, index) => (
+                      <li key={key} className="flex items-start gap-3">
+                        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                          {index + 1}
+                        </span>
+                        <span className="pt-0.5">{t(`download.${key}`)}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="mt-4 rounded-xl bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-700 dark:text-amber-300">
+                    {t("download.testWarning")}
+                  </p>
+                </div>
+              )}
             </section>
 
             <section className="relative mx-auto w-full max-w-xl lg:ml-auto" aria-label={t("download.cardLabel")}>

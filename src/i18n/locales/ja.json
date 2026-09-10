@@ -77,6 +77,11 @@
     "feature2": "請求リマインダーを受け取る",
     "feature3": "支出を数秒で把握",
     "securityNote": "MaisCtrl公式チャンネルからインストールします。",
+    "installTitle": "Androidへのインストール方法",
+    "installStep1": "上のボタンからAPKをダウンロードします。",
+    "installStep2": "ダウンロードしたファイルを開き、Androidの指示に従って提供元不明のアプリのインストールを許可します。",
+    "installStep3": "インストールを確認してMaisCtrlを開きます。",
+    "testWarning": "Play Store外のテスト版です。この端末とファイルを信頼できる場合のみインストールしてください。",
     "footer": "© 2025 MaisCtrl. 明確な財務管理。"
   },
   "features": {

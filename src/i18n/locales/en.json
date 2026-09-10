@@ -77,6 +77,11 @@
     "feature2": "Get billing reminders",
     "feature3": "Understand your spending in seconds",
     "securityNote": "Installation will happen through an official MaisCtrl channel.",
+    "installTitle": "How to install on Android",
+    "installStep1": "Download the APK using the button above.",
+    "installStep2": "Open the downloaded file and allow installs from this source when Android asks.",
+    "installStep3": "Confirm the installation and open MaisCtrl.",
+    "testWarning": "This is a test version outside the Play Store. Install it only if you trust this device and file.",
     "footer": "© 2025 MaisCtrl. Financial control with clarity."
   },
   "features": {

@@ -77,6 +77,11 @@
     "feature2": "احصل على تذكيرات الفواتير",
     "feature3": "افهم إنفاقك خلال ثوانٍ",
     "securityNote": "سيتم التثبيت عبر قناة رسمية من MaisCtrl.",
+    "installTitle": "طريقة التثبيت على Android",
+    "installStep1": "نزّل ملف APK باستخدام الزر أعلاه.",
+    "installStep2": "افتح الملف الذي تم تنزيله واسمح بالتثبيت من هذا المصدر عندما يطلب Android ذلك.",
+    "installStep3": "أكد التثبيت وافتح MaisCtrl.",
+    "testWarning": "هذه نسخة تجريبية خارج Play Store. ثبّتها فقط إذا كنت تثق بهذا الجهاز والملف.",
     "footer": "© 2025 MaisCtrl. تحكم مالي بوضوح."
   },
   "features": {

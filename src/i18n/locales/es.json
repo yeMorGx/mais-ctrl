@@ -77,6 +77,11 @@
     "feature2": "Recibe recordatorios de cobros",
     "feature3": "Entiende tus gastos en segundos",
     "securityNote": "La instalación se realizará desde un canal oficial de MaisCtrl.",
+    "installTitle": "Cómo instalar en Android",
+    "installStep1": "Descarga el APK con el botón de arriba.",
+    "installStep2": "Abre el archivo descargado y permite instalaciones desde esta fuente cuando Android lo solicite.",
+    "installStep3": "Confirma la instalación y abre MaisCtrl.",
+    "testWarning": "Esta es una versión de prueba fuera de Play Store. Instálala solo si confías en este dispositivo y archivo.",
     "footer": "© 2025 MaisCtrl. Control financiero con claridad."
   },
   "features": {

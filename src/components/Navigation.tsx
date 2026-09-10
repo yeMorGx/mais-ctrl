@@ -69,18 +69,18 @@ export const Navigation = () => {
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <LanguageSwitcher />
-            <Link to="/download">
-              <Button variant="outline" className="gap-2">
+            <Button asChild variant="outline" className="gap-2">
+              <Link to="/download">
                 <Download className="h-4 w-4" />
                 {t("nav.download")}
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button variant="ghost">{t("nav.login")}</Button>
-            </Link>
-            <Link to="/auth">
-              <Button variant="gradient">{t("nav.signup")}</Button>
-            </Link>
+              </Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link to="/auth">{t("nav.login")}</Link>
+            </Button>
+            <Button asChild variant="gradient">
+              <Link to="/auth">{t("nav.signup")}</Link>
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,22 +103,22 @@ export const Navigation = () => {
               ))}
               <div className="flex flex-col gap-2 px-4 pt-4 border-t border-border">
                 <LanguageSwitcher />
-                <Link to="/download" onClick={() => setIsOpen(false)}>
-                  <Button variant="outline" className="w-full gap-2">
+                <Button asChild variant="outline" className="w-full gap-2">
+                  <Link to="/download" onClick={() => setIsOpen(false)}>
                     <Download className="h-4 w-4" />
                     {t("nav.download")}
-                  </Button>
-                </Link>
-                <Link to="/auth" onClick={() => setIsOpen(false)}>
-                  <Button variant="ghost" className="w-full">
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost" className="w-full">
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
                     {t("nav.login")}
-                  </Button>
-                </Link>
-                <Link to="/auth" onClick={() => setIsOpen(false)}>
-                  <Button variant="gradient" className="w-full">
+                  </Link>
+                </Button>
+                <Button asChild variant="gradient" className="w-full">
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
                     {t("nav.signup")}
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>

@@ -5,6 +5,8 @@ interface LogoProps {
   linkTo?: string;
   /** Hide the "MaisCtrl" wordmark and show only the symbol */
   markOnly?: boolean;
+  /** Hide the wordmark on small screens while keeping it on larger layouts */
+  hideWordmarkOnMobile?: boolean;
   className?: string;
 }
 
@@ -24,14 +26,24 @@ export const LogoMark = ({ className = "h-8 w-8" }: { className?: string }) => (
   />
 );
 
-export const Logo = ({ size = "md", linkTo, markOnly = false, className = "" }: LogoProps) => {
+export const Logo = ({
+  size = "md",
+  linkTo,
+  markOnly = false,
+  hideWordmarkOnMobile = false,
+  className = "",
+}: LogoProps) => {
   const s = sizeMap[size];
 
   const content = (
     <div className={`group inline-flex cursor-pointer items-center ${s.gap} ${className}`}>
       <LogoMark className={`${s.mark} brightness-0 dark:invert transition-transform duration-500 group-hover:rotate-90`} />
       {!markOnly && (
-        <span className={`font-display font-bold tracking-tight text-foreground ${s.text}`}>MaisCtrl</span>
+        <span
+          className={`${hideWordmarkOnMobile ? "hidden sm:inline" : ""} font-display font-bold tracking-tight text-foreground ${s.text}`}
+        >
+          MaisCtrl
+        </span>
       )}
     </div>
   );

@@ -57,7 +57,7 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Logo size="md" linkTo="/" />
+          <Logo size="md" linkTo="/" hideWordmarkOnMobile />
 
           {/* Desktop Navigation - Centered */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">

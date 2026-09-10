@@ -309,7 +309,7 @@ export function AndroidPhoneMockup({ className = "" }: AndroidPhoneMockupProps) 
   return (
     <div
       ref={containerRef}
-      className={`relative h-[560px] w-full touch-none select-none sm:h-[620px] ${className}`}
+      className={`relative h-[560px] w-full touch-pan-y select-none sm:h-[620px] ${className}`}
       role="img"
       aria-label="Mockup 3D de um celular Android com o aplicativo MaisCtrl"
     >

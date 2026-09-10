@@ -107,7 +107,10 @@ const Download = () => {
               )}
             </section>
 
-            <section className="relative mx-auto w-full max-w-xl lg:ml-auto" aria-label={t("download.cardLabel")}>
+            <section
+              className="relative order-first mx-auto w-full max-w-xl lg:order-last lg:ml-auto"
+              aria-label={t("download.cardLabel")}
+            >
               <div className="absolute inset-x-10 top-20 h-72 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" />
               <div className="relative">
                 <AndroidPhoneMockup />

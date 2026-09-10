@@ -7,9 +7,7 @@ import { Navigation } from "@/components/Navigation";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { AndroidPhoneMockup } from "@/components/AndroidPhoneMockup";
 
-const androidDownloadUrl =
-  import.meta.env.VITE_ANDROID_DOWNLOAD_URL?.trim() ||
-  "https://github.com/yeMorGx/maisctrlapp/releases/download/android-latest/maisctrl.apk";
+const androidDownloadUrl = "/downloads/maisctrl.apk";
 
 const Download = () => {
   const { t } = useTranslation();
@@ -52,7 +50,7 @@ const Download = () => {
               <div className="flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
                 {androidDownloadUrl ? (
                   <Button asChild variant="gradient" size="xl" className="w-full sm:w-auto">
-                    <a href={androidDownloadUrl} target="_blank" rel="noreferrer">
+                    <a href={androidDownloadUrl} download="maisctrl.apk">
                       <DownloadIcon />
                       {t("download.cta")}
                     </a>

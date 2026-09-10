@@ -28,6 +28,8 @@ export const FeedbackWidget = () => {
   const { toast } = useToast();
   const location = useLocation();
 
+  if (location.pathname === "/download") return null;
+
   const handleSubmit = async () => {
     if (!selectedEmoji) return;
 
@@ -69,7 +71,7 @@ export const FeedbackWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50 hidden sm:block">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button

@@ -1,5 +1,5 @@
 import { AlertTriangle, X, MessageCircle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 export const DevelopmentBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
   const location = useLocation();
+  const bannerRef = useRef<HTMLDivElement>(null);
 
   // Fetch site settings to check if banner should be shown
   const { data: bannerSetting } = useQuery({
@@ -27,11 +28,39 @@ export const DevelopmentBanner = () => {
   // Don't show on landing page (/) or if setting is disabled
   const isLandingPage = location.pathname === '/';
   const isEnabled = bannerSetting?.enabled !== false;
+  const shouldRender = isVisible && !isLandingPage && isEnabled;
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+
+    if (!shouldRender) {
+      root.style.setProperty('--development-banner-height', '0px');
+      return;
+    }
+
+    const updateHeight = () => {
+      root.style.setProperty(
+        '--development-banner-height',
+        `${bannerRef.current?.offsetHeight ?? 0}px`,
+      );
+    };
+
+    updateHeight();
+
+    const bannerElement = bannerRef.current;
+    const resizeObserver = bannerElement ? new ResizeObserver(updateHeight) : null;
+    resizeObserver?.observe(bannerElement);
+
+    return () => {
+      resizeObserver?.disconnect();
+      root.style.setProperty('--development-banner-height', '0px');
+    };
+  }, [shouldRender]);
 
   if (!isVisible || isLandingPage || !isEnabled) return null;
 
   return (
-    <div className="relative z-50 border-b border-border bg-foreground px-4 py-2.5 text-background">
+    <div ref={bannerRef} className="relative z-50 border-b border-border bg-foreground px-4 py-2.5 text-background">
       <div className="container mx-auto flex items-center justify-center gap-3 text-sm">
         <AlertTriangle className="w-4 h-4 flex-shrink-0" />
         <span className="text-center">

@@ -6,6 +6,9 @@ const corsHeaders = {
 };
 
 const FREE_LIMIT = 5;
+const AI_API_URL = Deno.env.get("AI_API_URL");
+const AI_API_KEY = Deno.env.get("AI_API_KEY");
+const AI_MODEL = Deno.env.get("AI_MODEL");
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -74,20 +77,26 @@ REGRAS DE CONTEÚDO:
 `;
 
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    if (!AI_API_URL || !AI_API_KEY || !AI_MODEL) {
+      return new Response(JSON.stringify({ error: "AI provider not configured" }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const aiRes = await fetch(AI_API_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
+        Authorization: `Bearer ${AI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: AI_MODEL,
         messages: [{ role: "system", content: context }, ...messages],
       }),
     });
 
     if (aiRes.status === 429) return new Response(JSON.stringify({ error: "Muitas requisições, tente novamente em instantes." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (aiRes.status === 402) return new Response(JSON.stringify({ error: "Créditos esgotados. Adicione créditos em Settings > Workspace." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (aiRes.status === 402) return new Response(JSON.stringify({ error: "Créditos do provedor de IA esgotados." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const aiJson = await aiRes.json();
     const content = aiJson.choices?.[0]?.message?.content || "Desculpe, não consegui responder.";

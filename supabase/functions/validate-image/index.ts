@@ -4,6 +4,9 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+const AI_API_URL = Deno.env.get('AI_API_URL');
+const AI_API_KEY = Deno.env.get('AI_API_KEY');
+const AI_MODEL = Deno.env.get('AI_MODEL');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    // Require authentication — prevent abuse of LOVABLE_API_KEY quota
+    // Require authentication — prevent abuse of the AI provider quota
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -43,24 +46,22 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
+    if (!AI_API_URL || !AI_API_KEY || !AI_MODEL) {
+      console.error('AI provider not configured');
       return new Response(
-        JSON.stringify({ error: 'API key not configured' }),
+        JSON.stringify({ error: 'AI provider not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Use Lovable AI to analyze the image for inappropriate content
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch(AI_API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${AI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: AI_MODEL,
         messages: [
           {
             role: 'user',

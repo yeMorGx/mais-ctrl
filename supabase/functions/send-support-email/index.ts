@@ -174,7 +174,7 @@ const getConfirmationEmailTemplate = (rawName: string, rawSubject: string) => {
               
               <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 10px; padding: 14px;">
                 <p style="color: #FBBF24; font-size: 13px; margin: 0; text-align: center;">
-                  💡 Enquanto isso, você pode conferir nossa <a href="https://more-ctrl.lovable.app/support" style="color: #FBBF24; text-decoration: underline;">Central de Ajuda</a>
+                  💡 Enquanto isso, você pode conferir nossa <a href="https://maisctrl.com/support" style="color: #FBBF24; text-decoration: underline;">Central de Ajuda</a>
                 </p>
               </div>
             </td>

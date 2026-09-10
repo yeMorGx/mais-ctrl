@@ -264,20 +264,6 @@ export const AdminSettings = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-semibold">Lovable Cloud</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Backend e autenticação
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 px-2 py-1 rounded">
-                      Ativo
-                    </div>
-                  </div>
-                </div>
-
                 <div className="flex items-center gap-4 p-4 border rounded-lg opacity-60">
                   <div className="flex-1">
                     <h4 className="font-semibold">Email Provider</h4>

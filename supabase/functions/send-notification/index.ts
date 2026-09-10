@@ -177,7 +177,7 @@ const getBaseTemplate = (content: string, preheader: string) => `
 `;
 
 // Reusable components
-const createButton = (text: string, url: string = 'https://more-ctrl.lovable.app/dashboard') => `
+const createButton = (text: string, url: string = 'https://maisctrl.com/dashboard') => `
   <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 25px 0;">
     <tr>
       <td style="background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%); border-radius: 10px; padding: 14px 32px;">

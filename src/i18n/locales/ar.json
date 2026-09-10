@@ -68,6 +68,7 @@
     "comingSoon": "Android قريبًا",
     "webCta": "الاستخدام عبر المتصفح",
     "readyNote": "سيتم توجيهك لتنزيل نسخة APK التجريبية لنظام Android.",
+    "releaseMeta": "الإصدار {{version}} · البناء {{build}} · تم التحديث في {{date}}",
     "pendingNote": "سيصبح رابط التثبيت متاحًا عند نشر التطبيق.",
     "cardLabel": "معاينة تطبيق MaisCtrl لنظام Android",
     "cardEyebrow": "أموالك، أوضح",

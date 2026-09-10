@@ -6,11 +6,17 @@ import { Logo } from "@/components/Logo";
 import { Navigation } from "@/components/Navigation";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { AndroidPhoneMockup } from "@/components/AndroidPhoneMockup";
+import { androidRelease } from "@/content/androidRelease";
 
 const androidDownloadUrl = "/downloads/maisctrl.apk";
 
 const Download = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const releaseDate = new Intl.DateTimeFormat(i18n.language, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(`${androidRelease.releasedAt}T12:00:00`));
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
@@ -71,6 +77,15 @@ const Download = () => {
               <p className="mt-4 text-sm text-muted-foreground">
                 {androidDownloadUrl ? t("download.readyNote") : t("download.pendingNote")}
               </p>
+              {androidDownloadUrl && (
+                <p className="mt-2 text-xs font-medium text-muted-foreground/80">
+                  {t("download.releaseMeta", {
+                    version: androidRelease.version,
+                    build: androidRelease.build,
+                    date: releaseDate,
+                  })}
+                </p>
+              )}
 
               {androidDownloadUrl && (
                 <div className="mt-8 rounded-2xl border border-border/70 bg-background/65 p-5 text-left shadow-sm backdrop-blur">

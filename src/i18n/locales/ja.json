@@ -68,6 +68,7 @@
     "comingSoon": "Android版は近日公開",
     "webCta": "ブラウザで使う",
     "readyNote": "AndroidのテストAPKのダウンロードに移動します。",
+    "releaseMeta": "バージョン {{version}} · ビルド {{build}} · 更新日 {{date}}",
     "pendingNote": "アプリ公開後にインストールリンクを利用できます。",
     "cardLabel": "MaisCtrl Androidアプリのプレビュー",
     "cardEyebrow": "お金をもっと明確に",

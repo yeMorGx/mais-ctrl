@@ -68,6 +68,7 @@
     "comingSoon": "Android próximamente",
     "webCta": "Usar en el navegador",
     "readyNote": "Serás redirigido para descargar el APK de prueba para Android.",
+    "releaseMeta": "Versión {{version}} · build {{build}} · actualizado el {{date}}",
     "pendingNote": "El enlace de instalación estará disponible cuando se publique la app.",
     "cardLabel": "Vista previa de la app MaisCtrl para Android",
     "cardEyebrow": "Tu dinero, más claro",

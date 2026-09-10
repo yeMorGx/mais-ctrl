@@ -14,6 +14,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ParticlesBackground } from "@/components/ParticlesBackground";
+import { getAuthRedirectUrl } from "@/lib/authRedirect";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -241,7 +242,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: getAuthRedirectUrl("/dashboard"),
         },
       });
 

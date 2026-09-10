@@ -3,6 +3,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { getAuthRedirectUrl } from "@/lib/authRedirect";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -32,7 +33,7 @@ export const useAuth = () => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const redirectUrl = getAuthRedirectUrl("/dashboard");
       
       const { data, error } = await supabase.auth.signUp({
         email,

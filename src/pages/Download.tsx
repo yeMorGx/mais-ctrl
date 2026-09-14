@@ -1,4 +1,4 @@
-import { ArrowLeft, Download as DownloadIcon } from "lucide-react";
+import { ArrowLeft, Bug, Download as DownloadIcon, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,12 @@ import { AndroidPhoneMockup } from "@/components/AndroidPhoneMockup";
 import { androidRelease } from "@/content/androidRelease";
 
 const androidDownloadUrl = "/downloads/maisctrl.apk";
+
+const changeTypeConfig = {
+  feature: { icon: Sparkles, className: "bg-emerald-500/10 text-emerald-500", labelKey: "download.changeTypes.feature" },
+  improvement: { icon: TrendingUp, className: "bg-blue-500/10 text-blue-500", labelKey: "download.changeTypes.improvement" },
+  fix: { icon: Bug, className: "bg-red-500/10 text-red-500", labelKey: "download.changeTypes.fix" },
+} as const;
 
 const Download = () => {
   const { t, i18n } = useTranslation();
@@ -104,6 +110,49 @@ const Download = () => {
                     {t("download.testWarning")}
                   </p>
                 </div>
+              )}
+
+              {androidDownloadUrl && androidRelease.changes.length > 0 && (
+                <section
+                  className="mt-8 rounded-2xl border border-border/70 bg-background/65 p-5 text-left shadow-sm backdrop-blur"
+                  aria-labelledby="android-changelog-title"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{t("download.changelogLabel")}</p>
+                      <h2 id="android-changelog-title" className="mt-2 text-xl font-bold text-foreground">
+                        {t("download.changelogTitle")}
+                      </h2>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                        {t("download.changelogDescription")}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground">
+                      v{androidRelease.version}
+                    </span>
+                  </div>
+
+                  <div className="mt-5 max-h-[26rem] space-y-2 overflow-y-auto pr-1">
+                    {androidRelease.changes.map((change, index) => {
+                      const config = changeTypeConfig[change.type];
+                      const Icon = config.icon;
+
+                      return (
+                        <div key={`${change.type}-${index}`} className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/45 p-3">
+                          <span className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg ${config.className}`}>
+                            <Icon className="h-4 w-4" aria-hidden="true" />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                              {t(config.labelKey)}
+                            </p>
+                            <p className="mt-1 text-sm leading-relaxed text-foreground/85">{change.text}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
               )}
             </section>
 

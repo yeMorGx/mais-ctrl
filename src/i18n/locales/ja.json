@@ -69,6 +69,14 @@
     "webCta": "ブラウザで使う",
     "readyNote": "AndroidのテストAPKのダウンロードに移動します。",
     "releaseMeta": "バージョン {{version}} · ビルド {{build}} · 更新日 {{date}}",
+    "changelogLabel": "ビルドの変更履歴",
+    "changelogTitle": "このバージョンの新機能",
+    "changelogDescription": "MaisCtrl Androidビルドの変更点を確認できます。",
+    "changeTypes": {
+      "feature": "新機能",
+      "improvement": "改善",
+      "fix": "修正"
+    },
     "pendingNote": "アプリ公開後にインストールリンクを利用できます。",
     "cardLabel": "MaisCtrl Androidアプリのプレビュー",
     "cardEyebrow": "お金をもっと明確に",

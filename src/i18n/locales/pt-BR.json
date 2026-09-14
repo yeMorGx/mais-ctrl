@@ -69,6 +69,14 @@
     "webCta": "Usar no navegador",
     "readyNote": "Você será direcionado para o download do APK de teste para Android.",
     "releaseMeta": "Versão {{version}} · build {{build}} · atualizado em {{date}}",
+    "changelogLabel": "Changelog da build",
+    "changelogTitle": "Novidades desta versão",
+    "changelogDescription": "Veja o que mudou nesta build do MaisCtrl para Android.",
+    "changeTypes": {
+      "feature": "Novidade",
+      "improvement": "Melhoria",
+      "fix": "Correção"
+    },
     "pendingNote": "O link de instalação será liberado assim que o app for publicado.",
     "cardLabel": "Prévia do aplicativo MaisCtrl para Android",
     "cardEyebrow": "Seu dinheiro, mais claro",

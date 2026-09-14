@@ -69,6 +69,14 @@
     "webCta": "Use in browser",
     "readyNote": "You will be redirected to download the Android test APK.",
     "releaseMeta": "Version {{version}} · build {{build}} · updated {{date}}",
+    "changelogLabel": "Build changelog",
+    "changelogTitle": "What’s new in this version",
+    "changelogDescription": "See what changed in this MaisCtrl Android build.",
+    "changeTypes": {
+      "feature": "New",
+      "improvement": "Improvement",
+      "fix": "Fix"
+    },
     "pendingNote": "The installation link will be available as soon as the app is published.",
     "cardLabel": "MaisCtrl Android app preview",
     "cardEyebrow": "Your money, clearer",

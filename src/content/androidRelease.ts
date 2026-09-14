@@ -1,5 +1,5 @@
 export const androidRelease = {
-  version: "0.1.31",
-  build: 31,
-  releasedAt: "2026-09-11",
+  version: "0.1.32",
+  build: 32,
+  releasedAt: "2026-09-14",
 } as const;
